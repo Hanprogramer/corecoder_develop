@@ -104,6 +104,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "flutter_treeview",
+      "rootUri": "file:///D:/Programming/Flutter/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_treeview-1.0.6+1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "flutter_web_plugins",
       "rootUri": "file:///D:/Programming/Flutter/flutter/packages/flutter_web_plugins",
       "packageUri": "lib/",
@@ -410,7 +416,7 @@
       "languageVersion": "2.12"
     }
   ],
-  "generated": "2021-11-27T05:22:14.279433Z",
+  "generated": "2021-11-29T15:28:26.621861Z",
   "generator": "pub",
   "generatorVersion": "2.14.4"
 }

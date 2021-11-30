@@ -116,6 +116,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_treeview:
+    dependency: "direct dev"
+    description:
+      name: flutter_treeview
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.6+1"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
@@ -178,7 +185,7 @@ packages:
     source: hosted
     version: "1.7.0"
   path:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: path
       url: "https://pub.dartlang.org"

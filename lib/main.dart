@@ -18,13 +18,14 @@ void main() {
 }
 
 class CCProject {
-  final String name, desc, author, identifier, slnPath;
+  final String name, desc, author, identifier, slnPath, slnFolderPath;
+  Map<String, String> folders = {};
 
-  CCProject(this.name, this.desc, this.author, this.identifier, this.slnPath);
+  CCProject(this.name, this.desc, this.author, this.identifier, this.slnPath,
+      this.slnFolderPath);
 
   void load(BuildContext context) {
     /// Load the project
-
     Navigator.pushNamed(context, EditorPage.routeName, arguments: this);
   }
 }
@@ -52,7 +53,14 @@ class RecentProjectsManager {
       var obj = decoder.convert(input);
       try {
         var result = CCProject(obj["name"], obj["description"] ?? "",
-            obj["author"], obj["identifier"], slnPath);
+            obj["author"], obj["identifier"], slnPath, file.parent.path);
+
+        /// Add the solution project folders
+        var folders = (obj["folders"] as Map);
+        for (var key in folders.keys) {
+          result.folders[key] = folders[key];
+        }
+
         projects.add(result);
         return result;
       } on Exception catch (e) {
@@ -248,6 +256,7 @@ class _HomePageState extends State<HomePage> {
     refreshRecentProjects();
   }
 
+  //#region init/dispose
   @override
   void initState() {
     super.initState();
@@ -258,6 +267,8 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     super.dispose();
   }
+
+  //#endregion
 
   Future _launchInBrowser(String url) async {
     if (await canLaunch(url)) {
@@ -292,25 +303,14 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // final button = ElevatedButton(
-    //   onPressed: () async {
-    //     //var result = Platform.environment["LOCALAPPDATA"];
-    //     // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    //     //   content: Text("$result"),
-    //     // ));
-    //     showCreateProjectDialog();
-    //   },
-    //   child: Text("Invoke"),
-    // );
-
     final page = Center(
         child: Container(
-      padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
       constraints: BoxConstraints(
           minHeight: MediaQuery.of(context).size.height,
           minWidth: double.infinity),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(
+        const Text(
           "Recent Projects",
           style: TextStyle(color: Colors.white),
         ),
@@ -322,22 +322,22 @@ class _HomePageState extends State<HomePage> {
       ]),
     ));
     return Scaffold(
-      backgroundColor: Color(0xFF363636),
+      backgroundColor: const Color(0xFF363636),
       appBar: AppBar(
-        backgroundColor: Color(0xff23241f),
-        title: Text("CoreCoder Develop"),
+        backgroundColor: const Color(0xff23241f),
+        title: const Text("CoreCoder Develop"),
         // title: Text("Recursive Fibonacci"),
         centerTitle: true,
         actions: [
           IconButton(
               onPressed: () => {showCreateProjectDialog()},
-              icon: Icon(FontAwesomeIcons.plus),
+              icon: const Icon(FontAwesomeIcons.plus),
               tooltip: "Create Project"),
           IconButton(
               onPressed: () => {refreshRecentProjects()},
-              icon: Icon(FontAwesomeIcons.sync),
+              icon: const Icon(FontAwesomeIcons.sync),
               tooltip: "Refresh Projects"),
-          SizedBox(width: 16.0),
+          const SizedBox(width: 16.0),
         ],
       ),
       body: SingleChildScrollView(child: page),

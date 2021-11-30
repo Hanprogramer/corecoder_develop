@@ -47,6 +47,8 @@ dev_dependencies:
   image: ^3.0.8
   shared_preferences: ^2.0.9
   permission_handler: ^8.3.0
+  flutter_treeview: ^1.0.6+1
+  path: ^1.8.0
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
