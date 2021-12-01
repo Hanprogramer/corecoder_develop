@@ -1,16 +1,17 @@
 import 'dart:io';
 
 import 'package:corecoder_develop/custom_code_box.dart';
+import 'package:corecoder_develop/editor_drawer.dart';
 
-// import 'package:example/readme/readme_examples.dart';
+// import 'package:filebrowser/readme/readme_examples.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_treeview/flutter_treeview.dart';
 
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:path/path.dart' as path;
 import 'package:url_launcher/url_launcher.dart';
 
+import 'filebrowser/models/document.dart';
 import 'main.dart';
 
 class EditorPage extends StatefulWidget {
@@ -21,23 +22,9 @@ class EditorPage extends StatefulWidget {
   @override
   _EditorPageState createState() => _EditorPageState();
 }
-
-class FolderNode {
-  final String name;
-  final String path;
-
-  FolderNode({required this.name, required this.path});
-}
-
-class FileNode {
-  final String name;
-  final String path;
-
-  FileNode({required this.name, required this.path});
-}
-
 class _EditorPageState extends State<EditorPage> {
   late CCProject project;
+  List<Document> documentList = [];
 
   @override
   void initState() {
@@ -49,50 +36,55 @@ class _EditorPageState extends State<EditorPage> {
     super.dispose();
   }
 
-  Future<void> readFolder(Directory dir, Node node, List<Node> children) async {
+  List<Document> readFolder(Directory dir) {
     /// Walk the dir and add it to the parent node
-    dir.list(recursive: false).listen((file) async {
-      var stat = await file.stat();
+    List<Document> children = List.empty(growable: true);
+    dir.list(recursive: false).listen((file) {
+      var stat = file.statSync();
       if (stat.type == FileSystemEntityType.directory) {
-        List<Node> _children = List.empty(growable: true);
-        FolderNode data =
-            FolderNode(name: path.basename(file.path), path: file.path);
-        Node newNode = Node(
-            label: path.basename(file.path),
-            key: file.hashCode.toString(),
-            data: data,
-            children: _children,
-            icon: Icons.folder);
-        children.add(newNode);
         // Recursively call this method
-        await readFolder(Directory(file.path), newNode, _children);
+        List<Document> _children = readFolder(Directory(file.path));
+        Document newNode = Document(
+            name: path.basename(file.path),
+            dateModified: DateTime.now(),
+            isFile: false,
+            path: file.path,
+            childData: _children);
+        children.add(newNode);
       } else {
         // Is File
-        FileNode data =
-            FileNode(name: path.basename(file.path), path: file.path);
-
-        children.add(Node(
-            label: path.basename(file.path),
-            key: file.hashCode.toString(),
-            data: data,
-            icon: Icons.insert_drive_file));
+        children.add(Document(
+          name: path.basename(file.path),
+          dateModified: DateTime.now(),
+          isFile: true,
+          path: file.path,
+        ));
       }
     });
+    return children;
   }
 
-  void initializeTreeView() {
-    fileBrowserNodes.clear();
+  void initializeTreeView() async {
+    List<Document> docs = List.empty(growable: true);
     for (var key in project.folders.keys) {
       var dir = project.slnFolderPath +
           Platform.pathSeparator +
           (project.folders[key])!;
-      FolderNode data = FolderNode(name: path.basename(dir), path: dir);
+      List<Document> children = readFolder(Directory(dir));
+      //await
+      Document node = Document(
+        name: key,
+        dateModified: DateTime.now(),
+        isFile: false,
+        childData: children,
+        path: project.folders[key]!,
+      );
 
-      List<Node> children = List.empty(growable: true);
-      Node node = Node(label: key, key: dir, data: data, children: children);
-      fileBrowserNodes.add(node);
-      readFolder(Directory(dir), node, children);
+      docs.add(node);
     }
+    setState(() {
+      documentList = docs;
+    });
   }
 
   Future _launchInBrowser(String url) async {
@@ -108,84 +100,92 @@ class _EditorPageState extends State<EditorPage> {
     }
   }
 
-  List<Node> fileBrowserNodes = List.empty(growable: true);
+  // List<Node> fileBrowserNodes = <Node>[];
+  List<Tab> editorTabs = <Tab>[];
+  List<Tab> tempTabs = <Tab>[];
+
+  Tab createFileTab(String title) {
+    return Tab(
+      child: Row(//direction: Axis.horizontal,
+          children: [
+        Text(title),
+        IconButton(
+          icon: const Icon(FontAwesomeIcons.times),
+          onPressed: () {},
+        )
+      ]),
+    );
+  }
+
+  void openFile(String filepath) {
+    var filename = path.basename(filepath);
+    tempTabs.add(createFileTab(filename));
+    setState(() {
+      editorTabs = tempTabs;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    TreeViewController _treeViewController =
-        TreeViewController(children: fileBrowserNodes);
+    // TreeViewController _treeViewController =
+    //     TreeViewController(children: fileBrowserNodes);
     project = ModalRoute.of(context)!.settings.arguments as CCProject;
     initializeTreeView();
     final codeBox = InnerField(
         language: 'json', theme: 'atom-one-dark', source: project.name);
     final page = Container(
-      constraints: BoxConstraints(
-          minHeight: MediaQuery.of(context).size.height,
-          minWidth: double.infinity),
-      child: codeBox,
+      child: Flex(direction: Axis.vertical, children: [
+        TabBar(
+          tabs: List.generate(editorTabs.length, (index) => editorTabs[index]),
+          isScrollable: true,
+        ),
+        Container(
+          child: codeBox,
+          constraints: BoxConstraints(
+              minHeight: MediaQuery.of(context).size.height,
+              minWidth: double.infinity),
+        )
+      ]),
     );
 
-    return Scaffold(
-      backgroundColor: Color(0xFF363636),
-      drawer: Drawer(
-        // Add a ListView to the drawer. This ensures the user can scroll
-        // through the options in the drawer if there isn't enough vertical
-        // space to fit everything.
+    return DefaultTabController(
+        length: editorTabs.length,
+        child: Scaffold(
+          backgroundColor: const Color(0xFF363636),
+          drawer: MyDrawer(documentList, project, (String filepath) {
+            openFile(filepath);
+          }),
+          appBar: AppBar(
+            backgroundColor: Color(0xff23241f),
+            title: null,
+            // title: Text("Recursive Fibonacci"),
+            centerTitle: false,
 
-        child: Flex(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            direction: Axis.vertical,
-            children: [
-              DrawerHeader(
-                decoration: const BoxDecoration(
-                  color: Colors.black87,
-                ),
-                child: Text(
-                  project.name,
-                  style: TextStyle(color: Colors.white),
-                ),
+            actions: [
+              IconButton(
+                onPressed: () => {Navigator.pop(context)},
+                icon: const Icon(FontAwesomeIcons.timesCircle),
+                tooltip: "Close Project",
               ),
-              Expanded(
-                  child: TreeView(
-                controller: _treeViewController,
-                onNodeTap: (key) {
-                  Node? selectedNode = _treeViewController.getNode(key);
-                  var selectedModel = selectedNode!.data;
-                },
-              )),
-            ]),
-      ),
-      appBar: AppBar(
-        backgroundColor: Color(0xff23241f),
-        title: null,
-        // title: Text("Recursive Fibonacci"),
-        centerTitle: false,
-
-        actions: [
-          IconButton(
-            onPressed: () => {Navigator.pop(context)},
-            icon: const Icon(FontAwesomeIcons.timesCircle),
-            tooltip: "Close Project",
+              IconButton(
+                  onPressed: () => {}, icon: Icon(FontAwesomeIcons.ellipsisV)),
+              // TextButton.icon(
+              //   style: TextButton.styleFrom(
+              //     padding: EdgeInsets.symmetric(horizontal: 8.0),
+              //     primary: Colors.white,
+              //   ),
+              //   icon: Icon(FontAwesomeIcons.github),
+              //   onPressed: () =>
+              //       _launchInBrowser("https://github.com/BertrandBev/code_field"),
+              //   label: Text("GITHUB"),
+              // ),
+              SizedBox(width: 16.0),
+            ],
           ),
-          IconButton(
-              onPressed: () => {}, icon: Icon(FontAwesomeIcons.ellipsisV)),
-          // TextButton.icon(
-          //   style: TextButton.styleFrom(
-          //     padding: EdgeInsets.symmetric(horizontal: 8.0),
-          //     primary: Colors.white,
-          //   ),
-          //   icon: Icon(FontAwesomeIcons.github),
-          //   onPressed: () =>
-          //       _launchInBrowser("https://github.com/BertrandBev/code_field"),
-          //   label: Text("GITHUB"),
-          // ),
-          SizedBox(width: 16.0),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: page,
-        controller: ScrollController(),
-      ),
-    );
+          body: SingleChildScrollView(
+            child: page,
+            controller: ScrollController(),
+          ),
+        ));
   }
 }

@@ -164,6 +164,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "nested",
+      "rootUri": "file:///D:/Programming/Flutter/flutter/.pub-cache/hosted/pub.dartlang.org/nested-1.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "path",
       "rootUri": "file:///D:/Programming/Flutter/flutter/.pub-cache/hosted/pub.dartlang.org/path-1.8.0",
       "packageUri": "lib/",
@@ -246,6 +252,12 @@
       "rootUri": "file:///D:/Programming/Flutter/flutter/.pub-cache/hosted/pub.dartlang.org/process-4.2.4",
       "packageUri": "lib/",
       "languageVersion": "2.14"
+    },
+    {
+      "name": "provider",
+      "rootUri": "file:///D:/Programming/Flutter/flutter/.pub-cache/hosted/pub.dartlang.org/provider-6.0.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
     },
     {
       "name": "shared_preferences",
@@ -338,6 +350,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "tree_view",
+      "rootUri": "file:///D:/Programming/Flutter/flutter/.pub-cache/hosted/pub.dartlang.org/tree_view-0.0.6",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "typed_data",
       "rootUri": "file:///D:/Programming/Flutter/flutter/.pub-cache/hosted/pub.dartlang.org/typed_data-1.3.0",
       "packageUri": "lib/",
@@ -416,7 +434,7 @@
       "languageVersion": "2.12"
     }
   ],
-  "generated": "2021-11-29T15:28:26.621861Z",
+  "generated": "2021-12-01T02:01:38.891451Z",
   "generator": "pub",
   "generatorVersion": "2.14.4"
 }

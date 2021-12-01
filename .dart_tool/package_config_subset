@@ -98,6 +98,10 @@ meta
 2.12
 file:///D:/Programming/Flutter/flutter/.pub-cache/hosted/pub.dartlang.org/meta-1.7.0/
 file:///D:/Programming/Flutter/flutter/.pub-cache/hosted/pub.dartlang.org/meta-1.7.0/lib/
+nested
+2.12
+file:///D:/Programming/Flutter/flutter/.pub-cache/hosted/pub.dartlang.org/nested-1.0.0/
+file:///D:/Programming/Flutter/flutter/.pub-cache/hosted/pub.dartlang.org/nested-1.0.0/lib/
 path
 2.12
 file:///D:/Programming/Flutter/flutter/.pub-cache/hosted/pub.dartlang.org/path-1.8.0/
@@ -154,6 +158,10 @@ process
 2.14
 file:///D:/Programming/Flutter/flutter/.pub-cache/hosted/pub.dartlang.org/process-4.2.4/
 file:///D:/Programming/Flutter/flutter/.pub-cache/hosted/pub.dartlang.org/process-4.2.4/lib/
+provider
+2.12
+file:///D:/Programming/Flutter/flutter/.pub-cache/hosted/pub.dartlang.org/provider-6.0.1/
+file:///D:/Programming/Flutter/flutter/.pub-cache/hosted/pub.dartlang.org/provider-6.0.1/lib/
 shared_preferences
 2.14
 file:///D:/Programming/Flutter/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences-2.0.9/
@@ -210,6 +218,10 @@ test_api
 2.12
 file:///D:/Programming/Flutter/flutter/.pub-cache/hosted/pub.dartlang.org/test_api-0.4.2/
 file:///D:/Programming/Flutter/flutter/.pub-cache/hosted/pub.dartlang.org/test_api-0.4.2/lib/
+tree_view
+2.12
+file:///D:/Programming/Flutter/flutter/.pub-cache/hosted/pub.dartlang.org/tree_view-0.0.6/
+file:///D:/Programming/Flutter/flutter/.pub-cache/hosted/pub.dartlang.org/tree_view-0.0.6/lib/
 typed_data
 2.12
 file:///D:/Programming/Flutter/flutter/.pub-cache/hosted/pub.dartlang.org/typed_data-1.3.0/

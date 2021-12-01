@@ -1,17 +1,18 @@
 import 'dart:convert';
-import 'dart:math';
+import 'dart:io' show File, Platform;
 
 import 'package:corecoder_develop/editor.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'dart:io' show File, Platform;
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:corecoder_develop/modules_manager.dart'
     show Module, ModulesManager, Template;
-import 'package:image/image.dart' as IMG;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
+import 'package:provider/single_child_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import 'editor_drawer.dart';
 
 void main() {
   runApp(MyApp());
@@ -19,13 +20,18 @@ void main() {
 
 class CCProject {
   final String name, desc, author, identifier, slnPath, slnFolderPath;
+  late Image image;
   Map<String, String> folders = {};
 
   CCProject(this.name, this.desc, this.author, this.identifier, this.slnPath,
       this.slnFolderPath);
 
-  void load(BuildContext context) {
+  void load(BuildContext context, ModulesManager modulesManager) {
     /// Load the project
+    var template = modulesManager.getTemplateByIdentifier(identifier);
+    if (template != null) {
+      image = template.icon;
+    }
     Navigator.pushNamed(context, EditorPage.routeName, arguments: this);
   }
 }
@@ -77,18 +83,24 @@ class RecentProjectsManager {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'CoreCoder Develop',
-      theme: ThemeData(
-        primarySwatch: Colors.blueGrey,
+    return MultiProvider(
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'CoreCoder Develop',
+        theme: ThemeData(
+          primarySwatch: Colors.blueGrey,
+        ),
+        //home: HomePage(),
+        initialRoute: "/",
+        routes: {
+          "/": (context) => HomePage(),
+          EditorPage.routeName: (context) => EditorPage()
+        },
       ),
-      //home: HomePage(),
-      initialRoute: "/",
-      routes: {
-        "/": (context) => HomePage(),
-        EditorPage.routeName: (context) => EditorPage()
-      },
+      providers: <SingleChildWidget>[
+        ChangeNotifierProvider<DrawerStateInfo>(
+            create: (_) => DrawerStateInfo()),
+      ],
     );
   }
 }
@@ -181,7 +193,7 @@ class _HomePageState extends State<HomePage> {
                                   await rpm.commit(_pref);
                                   Navigator.pop(context, 3);
                                   refreshRecentProjects();
-                                  project.load(context);
+                                  project.load(context, mm);
                                 }
                               },
                             )
@@ -294,7 +306,7 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.all(4.0),
             child: ElevatedButton(
                 onPressed: () {
-                  p.load(context);
+                  p.load(context, mm);
                 },
                 child: Text(p.name))));
       }

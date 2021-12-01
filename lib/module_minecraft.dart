@@ -141,7 +141,8 @@ class MinecraftModule extends Module {
         "name": args["Name"],
         "author": args["Author"],
         "description": args["Desc"],
-        "identifier": identifier, // must be unique to every module
+        "identifier": "com.hanprogramer.ccminecraft.addon",
+        // must be unique to every module
         "folders": {
           "Behavior Pack": bpPath.replaceAll(comMojang, ""),
           "Resource Pack": rpPath.replaceAll(comMojang, ""),
@@ -160,7 +161,7 @@ class MinecraftModule extends Module {
       await slnFile.create(recursive: true);
       await slnFile.writeAsString(obj);
       return slnFile.path;
-    }, icon);
+    }, icon, "com.hanprogramer.ccminecraft.addon");
 
     /// -------------------------
     /// BP Template
@@ -228,7 +229,8 @@ class MinecraftModule extends Module {
         "name": args["Name"],
         "author": args["Author"],
         "description": args["Desc"],
-        "identifier": identifier, // must be unique to every module
+        "identifier": "com.hanprogramer.ccminecraft.bp",
+        // must be unique to every module
         "folders": {
           "Behavior Pack": bpPath.replaceAll(comMojang, ""),
         },
@@ -246,7 +248,7 @@ class MinecraftModule extends Module {
       await slnFile.create(recursive: true);
       await slnFile.writeAsString(obj);
       return slnFile.path;
-    }, icon);
+    }, icon, "com.hanprogramer.ccminecraft.bp");
 
     /// -------------------------
     /// RP Template
@@ -313,7 +315,8 @@ class MinecraftModule extends Module {
         "name": args["Name"],
         "author": args["Author"],
         "description": args["Desc"],
-        "identifier": identifier, // must be unique to every
+        "identifier": "com.hanprogramer.ccminecraft.rp",
+        // must be unique to every
         "folders": {
           "Resource Pack": rpPath.replaceAll(comMojang, ""),
         },
@@ -331,7 +334,7 @@ class MinecraftModule extends Module {
       await slnFile.create(recursive: true);
       await slnFile.writeAsString(obj);
       return slnFile.path;
-    }, icon);
+    }, icon, "com.hanprogramer.ccminecraft.rp");
     templates.add(addonTemplate);
     templates.add(bpTemplate);
     templates.add(rpTemplate);
