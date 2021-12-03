@@ -26,11 +26,14 @@ class DirectoryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget titleWidget = Text(directoryName);
-    Icon folderIcon = Icon(Icons.folder);
+    Widget titleWidget = Container(
+        padding: const EdgeInsets.fromLTRB(20, 4, 4, 4),
+        child: Text(directoryName, style: const TextStyle(fontSize: 16)));
+
+    Icon folderIcon = const Icon(Icons.folder);
 
     IconButton expandButton = IconButton(
-      icon: Icon(Icons.navigate_next),
+      icon: const Icon(Icons.navigate_next),
       onPressed: onPressedNext,
     );
 
@@ -38,14 +41,21 @@ class DirectoryWidget extends StatelessWidget {
       Utils.getFormattedDateTime(dateTime: lastModified),
     );
 
-    return Card(
-      child: ListTile(
-        leading: folderIcon,
-        title: titleWidget,
-        subtitle: lastModifiedWidget,
-        trailing: expandButton,
-        onTap: (()=> onPressedNext!()),
-      ),
-    );
+    return TextButton(
+        onPressed: (() => onPressedNext!()),
+        child:
+            // ListTile(
+            //   leading: folderIcon,
+            //   title: titleWidget,
+            //   subtitle: lastModifiedWidget,
+            //   trailing: expandButton,
+            //   onTap: (()=> onPressedNext!()),
+            // ),
+            Row(children: [
+          folderIcon,
+          titleWidget,
+          Spacer(flex: 1),
+          expandButton
+        ]));
   }
 }

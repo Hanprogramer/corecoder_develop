@@ -338,6 +338,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "tabbed_view",
+      "rootUri": "file:///D:/Programming/Flutter/flutter/.pub-cache/hosted/pub.dartlang.org/tabbed_view-1.10.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "term_glyph",
       "rootUri": "file:///D:/Programming/Flutter/flutter/.pub-cache/hosted/pub.dartlang.org/term_glyph-1.2.0",
       "packageUri": "lib/",
@@ -434,7 +440,7 @@
       "languageVersion": "2.12"
     }
   ],
-  "generated": "2021-12-01T03:08:56.692400Z",
+  "generated": "2021-12-03T03:15:24.380484Z",
   "generator": "pub",
   "generatorVersion": "2.14.4"
 }

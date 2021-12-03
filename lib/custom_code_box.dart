@@ -1,9 +1,8 @@
 import 'package:corecoder_develop/code_snippets.dart';
 import 'package:corecoder_develop/themes.dart';
 import 'package:flutter/material.dart';
-import 'package:code_text_field/code_text_field.dart';
+import 'package:corecoder_develop/contrib/code_text_field-1.0.2m/lib/code_text_field.dart';
 import 'package:highlight/languages/all.dart';
-
 class CustomCodeBox extends StatefulWidget {
   final String language;
   final String theme;
@@ -136,7 +135,9 @@ class _InnerFieldState extends State<InnerField> {
   void initState() {
     super.initState();
     _codeController = CodeController(
+      onChange: (String source) {},
       text: widget.source,
+      params: EditorParams(tabSpaces: 4),
       patternMap: {
         r"\B#[a-zA-Z0-9]+\b": TextStyle(color: Colors.red),
         r"\B@[a-zA-Z0-9]+\b": TextStyle(
@@ -152,7 +153,6 @@ class _InnerFieldState extends State<InnerField> {
       language: allLanguages[widget.language],
       theme: THEMES[widget.theme],
     );
-    setSource("HEllo World!");
   }
 
   @override
