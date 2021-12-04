@@ -1,5 +1,5 @@
-import 'package:corecoder_develop/code_snippets.dart';
-import 'package:corecoder_develop/themes.dart';
+import 'package:corecoder_develop/util/code_snippets.dart';
+import 'package:corecoder_develop/util/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:corecoder_develop/contrib/code_text_field-1.0.2m/lib/code_text_field.dart';
 import 'package:highlight/languages/all.dart';

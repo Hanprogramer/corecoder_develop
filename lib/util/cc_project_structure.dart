@@ -5,7 +5,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-import 'editor.dart';
+import '../editor.dart';
 import 'modules_manager.dart';
 
 /* Class for storing project information */

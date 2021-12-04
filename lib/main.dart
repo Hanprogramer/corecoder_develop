@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io' show File, Platform;
 
 import 'package:corecoder_develop/editor.dart';
-import 'package:corecoder_develop/modules_manager.dart'
+import 'package:corecoder_develop/util/modules_manager.dart'
     show Module, ModulesManager, Template;
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -12,7 +12,7 @@ import 'package:provider/single_child_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'cc_project_structure.dart';
+import 'util/cc_project_structure.dart';
 import 'editor_drawer.dart';
 
 void main() {

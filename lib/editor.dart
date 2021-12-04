@@ -1,20 +1,14 @@
 import 'dart:io';
 
-import 'package:corecoder_develop/custom_code_box.dart';
+import 'package:corecoder_develop/util/custom_code_box.dart';
 import 'package:corecoder_develop/editor_drawer.dart';
-import 'package:corecoder_develop/editor_tab.dart';
 import 'package:tabbed_view/tabbed_view.dart';
-
-// import 'package:filebrowser/readme/readme_examples.dart';
 import 'package:flutter/material.dart';
-
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:path/path.dart' as path;
 import 'package:url_launcher/url_launcher.dart';
-import 'cc_project_structure.dart';
+import 'util/cc_project_structure.dart';
 import 'filebrowser/models/document.dart';
-import 'main.dart';
 
 class EditorPage extends StatefulWidget {
   static const String routeName = "/EditorPage";

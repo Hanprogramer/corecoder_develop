@@ -1,4 +1,4 @@
-import 'package:corecoder_develop/module_minecraft.dart';
+import 'package:corecoder_develop/modules/module_minecraft.dart';
 import 'package:flutter/material.dart';
 class ModulesManager{
   static List<Module> modules = List.empty(growable: true);
