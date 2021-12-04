@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'cc_project_structure.dart';
 import 'filebrowser/models/document.dart';
 import 'filebrowser/widgets/directory_widget.dart';
 import 'filebrowser/widgets/file_widget.dart';
@@ -26,7 +27,7 @@ class DrawerStateInfo with ChangeNotifier {
 class MyDrawer extends StatelessWidget {
   MyDrawer(this.documentList, this.project, this.onFileTap);
 
-  CCProject project;
+  CCSolution project;
   List<Document> documentList = [];
   void Function(String filepath) onFileTap;
 

@@ -12,38 +12,29 @@ import 'package:provider/single_child_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'cc_project_structure.dart';
 import 'editor_drawer.dart';
 
 void main() {
   runApp(MyApp());
 }
 
-class CCProject {
-  final String name, desc, author, identifier, slnPath, slnFolderPath;
-  late Image image;
-  Map<String, String> folders = {};
-
-  CCProject(this.name, this.desc, this.author, this.identifier, this.slnPath,
-      this.slnFolderPath);
-
-  void load(BuildContext context, ModulesManager modulesManager) {
-    /// Load the project
-    var template = modulesManager.getTemplateByIdentifier(identifier);
-    if (template != null) {
-      image = template.icon;
-    }
-    Navigator.pushNamed(context, EditorPage.routeName, arguments: this);
+void loadSolution(CCSolution solution, BuildContext context, ModulesManager modulesManager) {
+  /// Load the project
+  var template = modulesManager.getTemplateByIdentifier(solution.identifier);
+  if (template != null) {
+    solution.image = template.icon;
   }
+  Navigator.pushNamed(context, EditorPage.routeName, arguments: solution);
 }
 
 class RecentProjectsManager {
-  List<CCProject> projects = List.empty(growable: true);
-  var decoder = JsonDecoder();
+  List<CCSolution> projects = List.empty(growable: true);
 
   /// Commit the recent projects to the pref
   Future<void> commit(Future<SharedPreferences> _pref) async {
     List<String> list = List.empty(growable: true);
-    for (CCProject p in projects) {
+    for (CCSolution p in projects) {
       list.add(p.slnPath);
     }
     (await _pref).setStringList("recentProjectsSln", list).then((bool success) {
@@ -52,30 +43,10 @@ class RecentProjectsManager {
   }
 
   /// Add a solution file to the list
-  Future<CCProject?> addProject(String slnPath) async {
-    var file = File(slnPath);
-    if (await file.exists()) {
-      String input = await file.readAsString();
-      var obj = decoder.convert(input);
-      try {
-        var result = CCProject(obj["name"], obj["description"] ?? "",
-            obj["author"], obj["identifier"], slnPath, file.parent.path);
-
-        /// Add the solution project folders
-        var folders = (obj["folders"] as Map);
-        for (var key in folders.keys) {
-          result.folders[key] = folders[key];
-        }
-
-        projects.add(result);
-        return result;
-      } on Exception catch (e) {
-        debugPrint("Error: project is corrupted: $slnPath");
-        return null;
-      }
-    } else {
-      debugPrint("Error: project can't be found: $slnPath");
-      return null;
+  Future<CCSolution?> addSolution(String slnPath) async {
+    var sln = await CCSolution.loadFromFile(slnPath);
+    if(sln != null) {
+      projects.add(sln);
     }
   }
 }
@@ -187,13 +158,13 @@ class _HomePageState extends State<HomePage> {
                                 var slnPath = await t.onCreated(values); //TODO: This is prone to error (not checking if the file existed first)
 
                                 /// Add it to recent projects
-                                CCProject? project =
-                                    await rpm.addProject(slnPath);
+                                CCSolution? project =
+                                    await rpm.addSolution(slnPath);
                                 if (project != null) {
                                   await rpm.commit(_pref);
                                   Navigator.pop(context, 3);
                                   refreshRecentProjects();
-                                  project.load(context, mm);
+                                  loadSolution(project, context, mm);
                                 }
                               },
                             )
@@ -261,7 +232,7 @@ class _HomePageState extends State<HomePage> {
     var pref = await _pref;
     // Read recent projects list
     for (var sln in pref.getStringList("recentProjectsSln") ?? []) {
-      await rpm.addProject(sln);
+      await rpm.addSolution(sln);
       debugPrint(sln);
     }
     debugPrint("DONE");
@@ -298,7 +269,7 @@ class _HomePageState extends State<HomePage> {
   void refreshRecentProjects() {
     setState(() {
       projectsWidgets.clear();
-      for (CCProject p in rpm.projects) {
+      for (CCSolution p in rpm.projects) {
         debugPrint(p.name);
         projectsWidgets.add(Container(
             constraints:
@@ -306,7 +277,7 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.all(4.0),
             child: ElevatedButton(
                 onPressed: () {
-                  p.load(context, mm);
+                  loadSolution(p,context, mm);
                 },
                 child: Text(p.name))));
       }

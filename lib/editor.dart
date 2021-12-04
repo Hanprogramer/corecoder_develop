@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:path/path.dart' as path;
 import 'package:url_launcher/url_launcher.dart';
-
+import 'cc_project_structure.dart';
 import 'filebrowser/models/document.dart';
 import 'main.dart';
 
@@ -26,7 +26,7 @@ class EditorPage extends StatefulWidget {
 }
 
 class _EditorPageState extends State<EditorPage> {
-  late CCProject project;
+  late CCSolution project;
   List<Document> documentList = [];
   List<TabData> tabs = [];
 
@@ -165,7 +165,7 @@ class _EditorPageState extends State<EditorPage> {
   Widget build(BuildContext context) {
     // TreeViewController _treeViewController =
     //     TreeViewController(children: fileBrowserNodes);
-    project = ModalRoute.of(context)!.settings.arguments as CCProject;
+    project = ModalRoute.of(context)!.settings.arguments as CCSolution;
     if (documentList.isEmpty) {
       // Populate the file browser tree once
       initializeTreeView();
