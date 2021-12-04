@@ -5,7 +5,7 @@ import 'package:corecoder_develop/contrib/code_text_field-1.0.2m/lib/code_text_f
 import 'package:highlight/languages/all.dart';
 class CustomCodeBox extends StatefulWidget {
   final String language;
-  final String theme;
+  final Map<String, TextStyle> theme;
   final String source;
 
   const CustomCodeBox({Key? key, required this.language, required this.theme, required this.source})
@@ -17,7 +17,7 @@ class CustomCodeBox extends StatefulWidget {
 
 class _CustomCodeBoxState extends State<CustomCodeBox> {
   String? language;
-  String? theme;
+  late Map<String,TextStyle> theme;
   String? source;
 
   @override
@@ -99,9 +99,9 @@ class _CustomCodeBoxState extends State<CustomCodeBox> {
     //   themeDropdown,
     // ]);
     final codeField = InnerField(
-      key: ValueKey("$language - $theme"),
+      key: ValueKey("$language"),
       language: language!,
-      theme: theme!,
+      theme: theme,
       source: source!,
     );
     // return Column(children: [
@@ -114,7 +114,7 @@ class _CustomCodeBoxState extends State<CustomCodeBox> {
 
 class InnerField extends StatefulWidget {
   final String language;
-  final String theme;
+  final Map<String, TextStyle> theme;
   final String source;
 
   const InnerField({Key? key, required this.language, required this.theme, required this.source})
@@ -151,7 +151,7 @@ class _InnerFieldState extends State<InnerField> {
         "bev": TextStyle(color: Colors.indigo),
       },
       language: allLanguages[widget.language],
-      theme: THEMES[widget.theme],
+      theme: widget.theme,
     );
   }
 

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:corecoder_develop/util/custom_code_box.dart';
 import 'package:corecoder_develop/editor_drawer.dart';
+import 'package:corecoder_develop/util/theme_manager.dart';
 import 'package:tabbed_view/tabbed_view.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -141,7 +142,7 @@ class _EditorPageState extends State<EditorPage> {
               constraints: BoxConstraints(
                   minHeight: MediaQuery.of(context).size.height * 2),
               child: InnerField(
-                  language: language, theme: 'atom-one-dark', source: source),
+                  language: language, theme: ThemeManager.getHighlighting(), source: source),
             )));
   }
 
@@ -165,7 +166,7 @@ class _EditorPageState extends State<EditorPage> {
       initializeTreeView();
     }
     final codeBox = InnerField(
-        language: 'json', theme: 'atom-one-dark', source: project.name);
+        language: 'json', theme: ThemeManager.getHighlighting(), source: project.name);
     final page = Column(//direction: Axis.vertical,
         children: [
       Expanded(
@@ -184,12 +185,10 @@ class _EditorPageState extends State<EditorPage> {
     ]);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF363636),
       drawer: MyDrawer(documentList, project, (String filepath) {
         openFile(filepath);
       }),
       appBar: AppBar(
-        backgroundColor: Color(0xff23241f),
         title: null,
         // title: Text("Recursive Fibonacci"),
         centerTitle: false,

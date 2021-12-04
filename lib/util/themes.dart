@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter_highlight/themes/a11y-dark.dart';
 import 'package:flutter_highlight/themes/a11y-light.dart';
 import 'package:flutter_highlight/themes/agate.dart';
@@ -181,3 +183,56 @@ const THEMES = {
   'xt256': xt256Theme,
   'zenburn': zenburnTheme,
 };
+
+
+const editorThemes = {
+  'atom-one-dark': {
+    "brightness" : "dark",
+    "highlight": atomOneDarkTheme,
+    "scheme": {
+      "background": Color(0xFF1E2127),
+      "foreground": Color(0xFF5C6370),
+      "black": Color(0xFF000000),
+      "blue": Color(0xFF61AFEF),
+      "brightBlack": Color(0xFF5C6370),
+      "brightBlue": Color(0xFF61AFEF),
+      "brightCyan": Color(0xFF56B6C2),
+      "brightGreen": Color(0xFF98C379),
+      "brightPurple": Color(0xFFC678DD),
+      "brightRed": Color(0xFFE06C75),
+      "brightWhite": Color(0xFFFFFFFF),
+      "brightYellow": Color(0xFFD19A66),
+      "cyan": Color(0xFF56B6C2),
+      "green": Color(0xFF98C379),
+      "purple": Color(0xFFC678DD),
+      "red": Color(0xFFE06C75),
+      "white": Color(0xFFABB2BF),
+      "yellow": Color(0xFFD19A66)
+    },
+  },
+  'atom-one-light': {
+    "brightness" : "light",
+    "highlight": atomOneLightTheme,
+    "scheme": {
+      "background": Color(0xFFF9F9F9),
+      "black": Color(0xFF000000),
+      "blue": Color(0xFF4078F2),
+      "brightBlack": Color(0xFF383A42),
+      "brightBlue": Color(0xFF4078F2),
+      "brightCyan": Color(0xFF0184BC),
+      "brightGreen": Color(0xFF50A14F),
+      "brightPurple": Color(0xFFA626A4),
+      "brightRed": Color(0xFFE45649),
+      "brightWhite": Color(0xFFFFFFFF),
+      "brightYellow": Color(0xFF986801),
+      "cyan": Color(0xFF0184BC),
+      "foreground": Color(0xFF383A42),
+      "green": Color(0xFF50A14F),
+      "purple": Color(0xFFA626A4),
+      "red": Color(0xFFE45649),
+      "white": Color(0xFFA0A1A7),
+      "yellow": Color(0xFF986801)
+    }
+  },
+};
+

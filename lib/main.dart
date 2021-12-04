@@ -4,6 +4,7 @@ import 'dart:io' show File, Platform;
 import 'package:corecoder_develop/editor.dart';
 import 'package:corecoder_develop/util/modules_manager.dart'
     show Module, ModulesManager, Template;
+import 'package:corecoder_develop/util/theme_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -57,9 +58,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'CoreCoder Develop',
-        theme: ThemeData(
-          primarySwatch: Colors.blueGrey,
-        ),
+        theme: ThemeManager.getThemeData(name:"atom-one-dark"),
         //home: HomePage(),
         initialRoute: "/",
         routes: {
@@ -300,7 +299,6 @@ class _HomePageState extends State<HomePage> {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const Text(
           "Recent Projects",
-          style: TextStyle(color: Colors.white),
         ),
         Wrap(
           children: projectsWidgets,
@@ -310,9 +308,7 @@ class _HomePageState extends State<HomePage> {
       ]),
     ));
     return Scaffold(
-      backgroundColor: const Color(0xFF363636),
       appBar: AppBar(
-        backgroundColor: const Color(0xff23241f),
         title: const Text("CoreCoder Develop"),
         // title: Text("Recursive Fibonacci"),
         centerTitle: true,
