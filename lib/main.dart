@@ -19,12 +19,10 @@ void main() {
   runApp(MyApp());
 }
 
-void loadSolution(CCSolution solution, BuildContext context, ModulesManager modulesManager) {
+void loadSolution(
+    CCSolution solution, BuildContext context, ModulesManager modulesManager) {
   /// Load the project
-  var template = modulesManager.getTemplateByIdentifier(solution.identifier);
-  if (template != null) {
-    solution.image = template.icon;
-  }
+  // var template = modulesManager.getTemplateByIdentifier(solution.identifier);
   Navigator.pushNamed(context, EditorPage.routeName, arguments: solution);
 }
 
@@ -45,9 +43,10 @@ class RecentProjectsManager {
   /// Add a solution file to the list
   Future<CCSolution?> addSolution(String slnPath) async {
     var sln = await CCSolution.loadFromFile(slnPath);
-    if(sln != null) {
+    if (sln != null) {
       projects.add(sln);
     }
+    return sln;
   }
 }
 
@@ -107,7 +106,7 @@ class _HomePageState extends State<HomePage> {
         context: context,
         builder: (BuildContext context) {
           List<Widget> options = List.empty(growable: true);
-          for (Module m in mm.modules) {
+          for (Module m in ModulesManager.modules) {
             options.add(Text(
               m.name,
               style: TextStyle(fontSize: 21),
@@ -155,7 +154,8 @@ class _HomePageState extends State<HomePage> {
                               child: Text("Create"),
                               onPressed: () async {
                                 /// Go Ahead and create project asynchronously
-                                var slnPath = await t.onCreated(values); //TODO: This is prone to error (not checking if the file existed first)
+                                var slnPath = await t.onCreated(
+                                    values); //TODO: This is prone to error (not checking if the file existed first)
 
                                 /// Add it to recent projects
                                 CCSolution? project =
@@ -270,6 +270,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       projectsWidgets.clear();
       for (CCSolution p in rpm.projects) {
+        if(p.name == "") continue; // TODO: add better way to check if project is corrupt
         debugPrint(p.name);
         projectsWidgets.add(Container(
             constraints:
@@ -277,9 +278,13 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.all(4.0),
             child: ElevatedButton(
                 onPressed: () {
-                  loadSolution(p,context, mm);
+                  loadSolution(p, context, mm);
                 },
-                child: Text(p.name))));
+                child:  Column(children: [
+                  if(p.image != null)
+                    Image(image: ResizeImage.resizeIfNeeded(48, 48, p.image!.image)),
+                  Text(p.name)
+                ]))));
       }
     });
   }
@@ -288,7 +293,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final page = Center(
         child: Container(
-          padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16.0),
       constraints: BoxConstraints(
           minHeight: MediaQuery.of(context).size.height,
           minWidth: double.infinity),

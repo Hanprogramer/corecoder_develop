@@ -11,7 +11,12 @@ import 'modules_manager.dart';
 /* Class for storing project information */
 class CCSolution {
   final String name, desc, author, identifier, slnPath, slnFolderPath;
-  late Image image;
+  Image? get image{
+    var module = ModulesManager.getModuleByIdentifier(identifier);
+    if(module != null) {
+      return module.icon;
+    }
+  }
   Map<String, String> folders = {};
   List<CCProject> projects = [];
 

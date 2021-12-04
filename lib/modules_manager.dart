@@ -1,7 +1,7 @@
 import 'package:corecoder_develop/module_minecraft.dart';
 import 'package:flutter/material.dart';
 class ModulesManager{
-  List<Module> modules = List.empty(growable: true);
+  static List<Module> modules = List.empty(growable: true);
 
   void initialize() {
     for (Module m in modules) {
@@ -12,6 +12,15 @@ class ModulesManager{
   ModulesManager() {
     modules.add(MinecraftModule());
     initialize();
+  }
+
+  static Module? getModuleByIdentifier(String id){
+    for(var m in modules){
+      if(m.identifier == id){
+        return m;
+      }
+    }
+    return null;
   }
 
   Template? getTemplateByIdentifier(String templateID) {
