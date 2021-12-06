@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io' show File, Platform;
 
 import 'package:corecoder_develop/editor.dart';
+import 'package:corecoder_develop/settings.dart';
 import 'package:corecoder_develop/util/modules_manager.dart'
     show Module, ModulesManager, Template;
 import 'package:corecoder_develop/util/theme_manager.dart';
@@ -26,6 +27,7 @@ void loadSolution(
   // var template = modulesManager.getTemplateByIdentifier(solution.identifier);
   Navigator.pushNamed(context, EditorPage.routeName, arguments: solution);
 }
+
 
 class RecentProjectsManager {
   List<CCSolution> projects = List.empty(growable: true);
@@ -63,7 +65,8 @@ class MyApp extends StatelessWidget {
         initialRoute: "/",
         routes: {
           "/": (context) => HomePage(),
-          EditorPage.routeName: (context) => EditorPage()
+          EditorPage.routeName: (context) => const EditorPage(),
+          SettingsPage.routeName: (context) => SettingsPage()
         },
       ),
       providers: <SingleChildWidget>[
@@ -87,6 +90,9 @@ class _HomePageState extends State<HomePage> {
   final Future<SharedPreferences> _pref = SharedPreferences.getInstance();
   var projectsWidgets = <Widget>[];
 
+  void showSettings(){
+    Navigator.pushNamed(context, SettingsPage.routeName);
+  }
   Future<void> showCreateProjectDialog() async {
     /// -------------------------------------------------
     /// Template Selection
@@ -315,12 +321,16 @@ class _HomePageState extends State<HomePage> {
         actions: [
           IconButton(
               onPressed: () => {showCreateProjectDialog()},
-              icon: const Icon(FontAwesomeIcons.plus),
+              icon: const Icon(Icons.add),
               tooltip: "Create Project"),
           IconButton(
               onPressed: () => {refreshRecentProjects()},
-              icon: const Icon(FontAwesomeIcons.sync),
+              icon: const Icon(Icons.refresh),
               tooltip: "Refresh Projects"),
+          IconButton(
+              onPressed: () => {showSettings()},
+              icon: const Icon(Icons.settings),
+              tooltip: "Settings"),
           const SizedBox(width: 16.0),
         ],
       ),
