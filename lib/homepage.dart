@@ -15,10 +15,14 @@ import 'package:corecoder_develop/util/modules_manager.dart'
     show Module, ModulesManager, Template;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+/// Updates the file last modified
+void touchFile(File file, CCSolution solution) {
+  var newTime = DateTime.now();
+  solution.dateModified = newTime;
+  file.setLastModifiedSync(newTime);
+}
 void loadSolution(
     CCSolution solution, BuildContext context, ModulesManager modulesManager) {
-  /// Load the project
-  // var template = modulesManager.getTemplateByIdentifier(solution.identifier);
   Navigator.pushNamed(context, EditorPage.routeName, arguments: solution);
 }
 
@@ -58,6 +62,7 @@ class _HomePageState extends State<HomePage> {
   RecentProjectsManager rpm = RecentProjectsManager();
   final Future<SharedPreferences> _pref = SharedPreferences.getInstance();
   var projectsWidgets = <Widget>[];
+
 
   void showSettings() {
     Navigator.pushNamed(context, SettingsPage.routeName);
@@ -226,6 +231,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     loadPrefs();
+    refreshRecentProjects();
   }
 
   @override
@@ -248,15 +254,21 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+
   void refreshRecentProjects() {
     setState(() {
       projectsWidgets.clear();
+      rpm.projects.sort((CCSolution a,CCSolution b){
+        return b.dateModified.compareTo(a.dateModified);
+      });
       for (CCSolution p in rpm.projects) {
         if (p.name == "")
           continue; // TODO: add better way to check if project is corrupt
         debugPrint(p.name);
         projectsWidgets.add(ListTile(
             onTap: () {
+              touchFile(File(p.slnPath),p);
+              refreshRecentProjects();
               loadSolution(p, context, mm);
             },
             leading: p.image != null
@@ -295,6 +307,11 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           const Spacer(flex: 1),
+          TextButton(
+            onPressed: () {refreshRecentProjects();},
+            child: const Text("Refresh"),
+            style: ElevatedButton.styleFrom(primary: Colors.black12),
+          ),
           TextButton(
             onPressed: () {},
             child: const Text("Add"),

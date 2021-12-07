@@ -31,9 +31,8 @@ class CCSolution {
     var stat = await file.stat();
     if (await file.exists()) {
       String input = await file.readAsString();
-      var obj = decoder.convert(input);
       try {
-
+        var obj = decoder.convert(input);
         var result = CCSolution(obj["name"], obj["description"] ?? "",
             obj["author"], obj["identifier"], filepath, file.parent.path, stat.modified);
 
