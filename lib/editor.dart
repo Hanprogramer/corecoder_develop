@@ -93,12 +93,14 @@ class _EditorPageState extends State<EditorPage> {
 
   void initializeTreeView() async {
     List<Document> docs = List.empty(growable: true);
+
+    // Add folders from the solution file
     for (var key in project.folders.keys) {
       var dir = project.slnFolderPath +
           Platform.pathSeparator +
           (project.folders[key])!;
       List<Document> children = readFolder(Directory(dir));
-      //await
+
       Document node = Document(
         name: key,
         dateModified: DateTime.now(),
@@ -109,6 +111,18 @@ class _EditorPageState extends State<EditorPage> {
 
       docs.add(node);
     }
+
+    // Add the solution file itself
+    Document node = Document(
+      name: project.name,
+      dateModified: DateTime.now(),
+      isFile: true,
+      childData: [],
+      path: project.slnPath,
+    );
+
+    docs.add(node);
+
     setState(() {
       documentList = docs;
     });
