@@ -29,7 +29,7 @@ class MinecraftModule extends Module {
       "cc_version": "0.0.1",
       "name": args["Name"],
       "author": args["Author"],
-      "description": args["Desc"],
+      "description": args["Description"],
       "identifier": identifier,
       // must be unique to every module
       "folders": {

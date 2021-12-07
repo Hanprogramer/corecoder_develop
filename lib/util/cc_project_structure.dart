@@ -11,6 +11,7 @@ import 'modules_manager.dart';
 /* Class for storing project information */
 class CCSolution {
   final String name, desc, author, identifier, slnPath, slnFolderPath;
+  DateTime dateModified;
   Image? get image{
     var module = ModulesManager.getModuleByIdentifier(identifier);
     if(module != null) {
@@ -23,16 +24,18 @@ class CCSolution {
   static const decoder = JsonDecoder();
 
   CCSolution(this.name, this.desc, this.author, this.identifier, this.slnPath,
-      this.slnFolderPath);
+      this.slnFolderPath, this.dateModified);
 
   static Future<CCSolution?> loadFromFile(String filepath) async{
     var file = File(filepath);
+    var stat = await file.stat();
     if (await file.exists()) {
       String input = await file.readAsString();
       var obj = decoder.convert(input);
       try {
+
         var result = CCSolution(obj["name"], obj["description"] ?? "",
-            obj["author"], obj["identifier"], filepath, file.parent.path);
+            obj["author"], obj["identifier"], filepath, file.parent.path, stat.modified);
 
         /// Add the solution project folders
         var folders = (obj["folders"] as Map);

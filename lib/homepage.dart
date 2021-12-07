@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:corecoder_develop/settings.dart';
@@ -14,13 +13,13 @@ import 'package:permission_handler/permission_handler.dart';
 import 'util/cc_project_structure.dart';
 import 'package:corecoder_develop/util/modules_manager.dart'
     show Module, ModulesManager, Template;
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 void loadSolution(
     CCSolution solution, BuildContext context, ModulesManager modulesManager) {
   /// Load the project
   // var template = modulesManager.getTemplateByIdentifier(solution.identifier);
   Navigator.pushNamed(context, EditorPage.routeName, arguments: solution);
 }
-
 
 class RecentProjectsManager {
   List<CCSolution> projects = List.empty(growable: true);
@@ -46,7 +45,6 @@ class RecentProjectsManager {
   }
 }
 
-
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
 
@@ -60,9 +58,10 @@ class _HomePageState extends State<HomePage> {
   final Future<SharedPreferences> _pref = SharedPreferences.getInstance();
   var projectsWidgets = <Widget>[];
 
-  void showSettings(){
+  void showSettings() {
     Navigator.pushNamed(context, SettingsPage.routeName);
   }
+
   Future<void> showCreateProjectDialog() async {
     /// -------------------------------------------------
     /// Template Selection
@@ -134,7 +133,7 @@ class _HomePageState extends State<HomePage> {
 
                                 /// Add it to recent projects
                                 CCSolution? project =
-                                await rpm.addSolution(slnPath);
+                                    await rpm.addSolution(slnPath);
                                 if (project != null) {
                                   await rpm.commit(_pref);
                                   Navigator.pop(context, 3);
@@ -162,7 +161,7 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Image(
                         image:
-                        ResizeImage.resizeIfNeeded(48, 48, t.icon.image)),
+                            ResizeImage.resizeIfNeeded(48, 48, t.icon.image)),
                     Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -190,14 +189,14 @@ class _HomePageState extends State<HomePage> {
           );
         })) {
       case 0:
-      // Let's go.
-      // ...
+        // Let's go.
+        // ...
         break;
       case 1:
-      // ...
+        // ...
         break;
       case null:
-      // dialog dismissed
+        // dialog dismissed
         break;
     }
   }
@@ -245,21 +244,24 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       projectsWidgets.clear();
       for (CCSolution p in rpm.projects) {
-        if(p.name == "") continue; // TODO: add better way to check if project is corrupt
+        if (p.name == "")
+          continue; // TODO: add better way to check if project is corrupt
         debugPrint(p.name);
-        projectsWidgets.add(Container(
-            constraints:
-            const BoxConstraints(minWidth: 128.0, minHeight: 128.0),
-            padding: const EdgeInsets.all(4.0),
-            child: ElevatedButton(
-                onPressed: () {
-                  loadSolution(p, context, mm);
-                },
-                child:  Column(children: [
-                  if(p.image != null)
-                    Image(image: ResizeImage.resizeIfNeeded(48, 48, p.image!.image)),
-                  Text(p.name)
-                ]))));
+        projectsWidgets.add(ListTile(
+          onTap: () {
+            loadSolution(p, context, mm);
+          },
+          leading: p.image != null
+              ? Image(image: ResizeImage.resizeIfNeeded(48, 48, p.image!.image))
+              : const Icon(
+                  Icons.insert_drive_file,
+                  size: 48,
+                ),
+          title: Text(p.name),
+          subtitle:
+              Text(p.desc + " Last Modified: " + p.dateModified.toString()),
+          trailing: IconButton(onPressed: () {  }, icon: const Icon(FontAwesomeIcons.ellipsisV),)
+        ));
       }
     });
   }
@@ -268,21 +270,19 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final page = Center(
         child: Container(
-          padding: const EdgeInsets.all(16.0),
-          constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height,
-              minWidth: double.infinity),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Text(
-              "Recent Projects",
-            ),
-            Wrap(
-              children: projectsWidgets,
-              direction: Axis.horizontal,
-              alignment: WrapAlignment.start,
-            )
-          ]),
-        ));
+      padding: const EdgeInsets.all(16.0),
+      constraints: BoxConstraints(
+          minHeight: MediaQuery.of(context).size.height,
+          minWidth: double.infinity),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        const Text(
+          "Recent Projects",
+        ),
+        Column(
+          children: projectsWidgets,
+        )
+      ]),
+    ));
     return Scaffold(
       appBar: AppBar(
         title: const Text("CoreCoder Develop"),
