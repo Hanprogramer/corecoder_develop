@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import '../main.dart';
 import './themes.dart';
 
 class ThemeManager {
-  static String currentTheme = "atom-one-dark";
+  static ValueNotifier<String> currentTheme = ValueNotifier<String>("atom-one-dark");
+  static void setTheme(String name){
+    currentTheme.value = name;
+    debugPrint("Set theme: $name");
+  }
   static ThemeData getThemeData({String? name}) {
-    name ??= currentTheme; // if name is not mentioned
+    name ??= currentTheme.value; // if name is not mentioned
     var editor = editorThemes[name];
     var scheme = editor!["scheme"] as Map<String, Color>;
     var isDark = editor["brightness"] == "dark";
@@ -407,7 +412,7 @@ class ThemeManager {
     if(name != null) {
       return editorThemes[name]!["highlight"];
     }else{
-      return editorThemes[currentTheme]!["highlight"];
+      return editorThemes[currentTheme.value]!["highlight"];
     }
   }
 }

@@ -18,7 +18,7 @@ import 'util/cc_project_structure.dart';
 import 'editor_drawer.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(CoreCoderApp());
 }
 
 void loadSolution(
@@ -53,14 +53,34 @@ class RecentProjectsManager {
   }
 }
 
-class MyApp extends StatelessWidget {
+class CoreCoderApp extends StatefulWidget {
+  const CoreCoderApp({Key? key}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() {
+    return CoreCoderAppState();
+  }
+}
+
+class CoreCoderAppState extends State<CoreCoderApp>{
+  String themeName = "atom-one-dark";
+  @override
+  void initState(){
+    super.initState();
+    ThemeManager.currentTheme.addListener(() {
+      setState(() {
+        themeName = ThemeManager.currentTheme.value;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'CoreCoder Develop',
-        theme: ThemeManager.getThemeData(name:"atom-one-dark"),
+        theme: ThemeManager.getThemeData(name:themeName),
         //home: HomePage(),
         initialRoute: "/",
         routes: {
