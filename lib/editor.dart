@@ -142,7 +142,9 @@ class _EditorPageState extends State<EditorPage> {
               constraints: BoxConstraints(
                   minHeight: MediaQuery.of(context).size.height * 2),
               child: InnerField(
-                  language: language, theme: ThemeManager.getHighlighting(), source: source),
+                  language: language,
+                  theme: ThemeManager.getHighlighting(),
+                  source: source),
             )));
   }
 
@@ -158,30 +160,29 @@ class _EditorPageState extends State<EditorPage> {
 
   @override
   Widget build(BuildContext context) {
-    // TreeViewController _treeViewController =
-    //     TreeViewController(children: fileBrowserNodes);
     project = ModalRoute.of(context)!.settings.arguments as CCSolution;
     if (documentList.isEmpty) {
       // Populate the file browser tree once
       initializeTreeView();
     }
     final codeBox = InnerField(
-        language: 'json', theme: ThemeManager.getHighlighting(), source: project.name);
+        language: 'json',
+        theme: ThemeManager.getHighlighting(),
+        source: project.name);
     final page = Column(//direction: Axis.vertical,
         children: [
       Expanded(
-          child: TabbedViewTheme(
-              data: getTabTheme(),
-              child: TabbedView(
-                controller: TabbedViewController(
-                    tabs), //List.generate(editorTabs.length, (index) => editorTabs[index]),
-              ))),
-      // Expanded(
-      //   child: codeBox,
-      //   // constraints: BoxConstraints(
-      //   //     minHeight: MediaQuery.of(context).size.height,
-      //   //     minWidth: double.infinity),
-      // )
+          child: tabs.isNotEmpty
+              ? TabbedViewTheme(
+                  data: getTabTheme(),
+                  child: TabbedView(onTabClose: (tabIndex, tabData) {
+                    setState(() {
+                      /// Just refresh the state
+                    });
+                  },
+                    controller: TabbedViewController(tabs),
+                  ))
+              : const Center(child:Text("No file opened"))),
     ]);
 
     return Scaffold(
@@ -190,9 +191,7 @@ class _EditorPageState extends State<EditorPage> {
       }),
       appBar: AppBar(
         title: null,
-        // title: Text("Recursive Fibonacci"),
         centerTitle: false,
-
         actions: [
           IconButton(
             onPressed: () => {Navigator.pop(context)},
@@ -200,18 +199,8 @@ class _EditorPageState extends State<EditorPage> {
             tooltip: "Close Project",
           ),
           IconButton(
-              onPressed: () => {}, icon: Icon(FontAwesomeIcons.ellipsisV)),
-          // TextButton.icon(
-          //   style: TextButton.styleFrom(
-          //     padding: EdgeInsets.symmetric(horizontal: 8.0),
-          //     primary: Colors.white,
-          //   ),
-          //   icon: Icon(FontAwesomeIcons.github),
-          //   onPressed: () =>
-          //       _launchInBrowser("https://github.com/BertrandBev/code_field"),
-          //   label: Text("GITHUB"),
-          // ),
-          SizedBox(width: 16.0),
+              onPressed: () => {}, icon: const Icon(FontAwesomeIcons.ellipsisV)),
+          const SizedBox(width: 16.0),
         ],
       ),
       body: page,

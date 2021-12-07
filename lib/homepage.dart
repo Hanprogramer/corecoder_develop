@@ -14,6 +14,7 @@ import 'util/cc_project_structure.dart';
 import 'package:corecoder_develop/util/modules_manager.dart'
     show Module, ModulesManager, Template;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 void loadSolution(
     CCSolution solution, BuildContext context, ModulesManager modulesManager) {
   /// Load the project
@@ -89,98 +90,105 @@ class _HomePageState extends State<HomePage> {
               /// -------------------------------------------------
               /// Project Options
               ///  -------------------------------------------------
-              options.add(SimpleDialogOption(
-                onPressed: () async {
-                  /// The options changed later after the window closed
-                  Map<String, dynamic> values = {};
-                  await showDialog<int>(
-                      context: context,
-                      builder: (BuildContext context) {
-                        List<Widget> controls = List.empty(growable: true);
+              options.add(ListTile(
+                leading: Image(
+                    image:
+                    ResizeImage.resizeIfNeeded(48, 48, t.icon.image)),
+                trailing: Text(t.version),
+                title: Text(t.title),
+                subtitle: Text(t.desc),
+                onTap: () async {
+                    /// The options changed later after the window closed
+                    Map<String, dynamic> values = {};
+                    await showDialog<int>(
+                        context: context,
+                        builder: (BuildContext context) {
+                          List<Widget> controls = List.empty(growable: true);
 
-                        /// Add Options
-                        for (var argName in t.options.keys) {
-                          controls.add(Text(
-                            argName,
-                            textAlign: TextAlign.end,
-                          ));
-                          if (t.options[argName] == "String") {
-                            controls.add(TextField(
-                                maxLines: 1,
-                                autofocus: true,
-                                onChanged: (change) {
-                                  values[argName] = change;
-                                }));
-                            values[argName] = "";
+                          /// Add Options
+                          for (var argName in t.options.keys) {
+                            controls.add(Text(
+                              argName,
+                              textAlign: TextAlign.end,
+                            ));
+                            if (t.options[argName] == "String") {
+                              controls.add(TextField(
+                                  maxLines: 1,
+                                  autofocus: true,
+                                  onChanged: (change) {
+                                    values[argName] = change;
+                                  }));
+                              values[argName] = "";
+                            }
                           }
-                        }
 
-                        /// Add Buttons
-                        var row = Row(
-                          children: [
-                            TextButton(
-                              child: Text("Cancel"),
-                              onPressed: () {
-                                Navigator.pop(context, 1);
-                              },
-                            ),
-                            TextButton(
-                              child: Text("Create"),
-                              onPressed: () async {
-                                /// Go Ahead and create project asynchronously
-                                var slnPath = await t.onCreated(
-                                    values); //TODO: This is prone to error (not checking if the file existed first)
+                          /// Add Buttons
+                          var row = Row(
+                            children: [
+                              TextButton(
+                                child: Text("Cancel"),
+                                onPressed: () {
+                                  Navigator.pop(context, 1);
+                                },
+                              ),
+                              TextButton(
+                                child: Text("Create"),
+                                onPressed: () async {
+                                  /// Go Ahead and create project asynchronously
+                                  var slnPath = await t.onCreated(
+                                      values); //TODO: This is prone to error (not checking if the file existed first)
 
-                                /// Add it to recent projects
-                                CCSolution? project =
-                                    await rpm.addSolution(slnPath);
-                                if (project != null) {
-                                  await rpm.commit(_pref);
-                                  Navigator.pop(context, 3);
-                                  refreshRecentProjects();
-                                  loadSolution(project, context, mm);
-                                }
-                              },
-                            )
-                          ],
-                        );
-                        controls.add(row);
-                        // Return the dialog to be opened
-                        return SimpleDialog(
-                          title: Text('Create ${t.title}'),
-                          children: <Widget>[
-                            Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Column(children: controls))
-                          ],
-                        );
-                      },
-                      barrierDismissible: true);
-                },
-                child: Row(
-                  children: [
-                    Image(
-                        image:
-                            ResizeImage.resizeIfNeeded(48, 48, t.icon.image)),
-                    Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            t.title,
-                            style: const TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                          Text(t.desc)
-                        ]),
-                    const Expanded(child: Center()),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [Text(t.version)],
-                      mainAxisAlignment: MainAxisAlignment.end,
-                    ),
-                  ],
-                ),
-              ));
+                                  /// Add it to recent projects
+                                  CCSolution? project =
+                                      await rpm.addSolution(slnPath);
+                                  if (project != null) {
+                                    await rpm.commit(_pref);
+                                    Navigator.pop(context, 3);
+                                    refreshRecentProjects();
+                                    loadSolution(project, context, mm);
+                                  }
+                                },
+                              )
+                            ],
+                          );
+                          controls.add(row);
+                          // Return the dialog to be opened
+                          return SimpleDialog(
+                            title: Text('Create ${t.title}'),
+                            children: <Widget>[
+                              Padding(
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 8.0),
+                                  child: Column(children: controls))
+                            ],
+                          );
+                        },
+                        barrierDismissible: true);
+                  },
+                  // Row(
+                  //   children: [
+                  //     Image(
+                  //         image:
+                  //             ResizeImage.resizeIfNeeded(48, 48, t.icon.image)),
+                  //     Column(
+                  //         crossAxisAlignment: CrossAxisAlignment.start,
+                  //         children: [
+                  //           Text(
+                  //             t.title,
+                  //             style: const TextStyle(
+                  //                 fontSize: 16, fontWeight: FontWeight.bold),
+                  //           ),
+                  //           Text(t.desc, overflow: TextOverflow.ellipsis,)
+                  //         ]),
+                  //     const Expanded(child: Center()),
+                  //     Column(
+                  //       crossAxisAlignment: CrossAxisAlignment.end,
+                  //       children: [Text(t.version)],
+                  //       mainAxisAlignment: MainAxisAlignment.end,
+                  //     ),
+                  //   ],
+                  // ),
+                  ));
             }
           }
           return SimpleDialog(
@@ -248,20 +256,23 @@ class _HomePageState extends State<HomePage> {
           continue; // TODO: add better way to check if project is corrupt
         debugPrint(p.name);
         projectsWidgets.add(ListTile(
-          onTap: () {
-            loadSolution(p, context, mm);
-          },
-          leading: p.image != null
-              ? Image(image: ResizeImage.resizeIfNeeded(48, 48, p.image!.image))
-              : const Icon(
-                  Icons.insert_drive_file,
-                  size: 48,
-                ),
-          title: Text(p.name),
-          subtitle:
-              Text(p.desc + " Last Modified: " + p.dateModified.toString()),
-          trailing: IconButton(onPressed: () {  }, icon: const Icon(FontAwesomeIcons.ellipsisV),)
-        ));
+            onTap: () {
+              loadSolution(p, context, mm);
+            },
+            leading: p.image != null
+                ? Image(
+                    image: ResizeImage.resizeIfNeeded(48, 48, p.image!.image))
+                : const Icon(
+                    Icons.insert_drive_file,
+                    size: 48,
+                  ),
+            title: Text(p.name),
+            subtitle:
+                Text(p.desc + " Last Modified: " + p.dateModified.toString()),
+            trailing: IconButton(
+              onPressed: () {},
+              icon: const Icon(FontAwesomeIcons.ellipsisV),
+            )));
       }
     });
   }
@@ -275,9 +286,24 @@ class _HomePageState extends State<HomePage> {
           minHeight: MediaQuery.of(context).size.height,
           minWidth: double.infinity),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        const Text(
-          "Recent Projects",
-        ),
+        Row(children: [
+          const Text(
+            "Recent Projects",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 24.0,
+            ),
+          ),
+          const Spacer(flex: 1),
+          TextButton(
+            onPressed: () {},
+            child: const Text("Add"),
+            style: ElevatedButton.styleFrom(primary: Colors.black12),
+          ),
+          ElevatedButton(
+              onPressed: () => showCreateProjectDialog(),
+              child: const Text("New")),
+        ]),
         Column(
           children: projectsWidgets,
         )
@@ -289,14 +315,14 @@ class _HomePageState extends State<HomePage> {
         // title: Text("Recursive Fibonacci"),
         centerTitle: true,
         actions: [
-          IconButton(
-              onPressed: () => {showCreateProjectDialog()},
-              icon: const Icon(Icons.add),
-              tooltip: "Create Project"),
-          IconButton(
-              onPressed: () => {refreshRecentProjects()},
-              icon: const Icon(Icons.refresh),
-              tooltip: "Refresh Projects"),
+          // IconButton(
+          //     onPressed: () => {showCreateProjectDialog()},
+          //     icon: const Icon(Icons.add),
+          //     tooltip: "Create Project"),
+          // IconButton(
+          //     onPressed: () => {refreshRecentProjects()},
+          //     icon: const Icon(Icons.refresh),
+          //     tooltip: "Refresh Projects"),
           IconButton(
               onPressed: () => {showSettings()},
               icon: const Icon(Icons.settings),
