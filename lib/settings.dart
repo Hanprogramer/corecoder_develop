@@ -52,6 +52,7 @@ class SettingsPage extends StatelessWidget {
         return ListTile(
           title: Text(item.name),
           subtitle: Text(item.description),
+          trailing: Text((item.currentVal ?? item.defaultVal).toString()),
           onTap: () {
             showDialog<String>(
               context: context,
@@ -66,7 +67,7 @@ class SettingsPage extends StatelessWidget {
                           title: Text(list[index]),
                           onTap: () {
                             item.onSet(list[index]);
-                            item.currentVal = list[index];
+                            items[index].currentVal = list[index];
                           },
                         );
                       }),
@@ -84,7 +85,6 @@ class SettingsPage extends StatelessWidget {
               },
             );
           },
-          trailing: Text((item.currentVal ?? item.defaultVal).toString()),
         );
         break;
       case SettingsPageItemType.TypeString:
