@@ -43,18 +43,10 @@ class DirectoryWidget extends StatelessWidget {
 
     return TextButton(
         onPressed: (() => onPressedNext!()),
-        child:
-            // ListTile(
-            //   leading: folderIcon,
-            //   title: titleWidget,
-            //   subtitle: lastModifiedWidget,
-            //   trailing: expandButton,
-            //   onTap: (()=> onPressedNext!()),
-            // ),
-            Row(children: [
+        child: Row(children: [
           folderIcon,
           titleWidget,
-          Spacer(flex: 1),
+          const Spacer(flex: 1),
           expandButton
         ]));
   }

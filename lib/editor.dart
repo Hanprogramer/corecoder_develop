@@ -202,6 +202,7 @@ class _EditorPageState extends State<EditorPage> {
     return Scaffold(
       drawer: MyDrawer(documentList, project, (String filepath) {
         openFile(filepath);
+        Navigator.pop(context);
       }),
       appBar: AppBar(
         title: null,

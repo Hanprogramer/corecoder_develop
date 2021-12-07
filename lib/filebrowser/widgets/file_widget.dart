@@ -21,20 +21,19 @@ class FileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget fileNameWidget = Text(this.fileName);
+    Widget fileNameWidget = Container(
+        padding: const EdgeInsets.fromLTRB(20, 8, 4, 8),
+        child: Text(fileName, style: const TextStyle(fontSize: 16)));
     Widget lastModifiedWidget = Text(
       Utils.getFormattedDateTime(dateTime: lastModified),
     );
-    Icon fileIcon = Icon(Icons.insert_drive_file);
+    Icon fileIcon = const Icon(Icons.insert_drive_file);
 
-    return Card(
-      elevation: 0.0,
-      child: ListTile(
-        leading: fileIcon,
-        title: fileNameWidget,
-        subtitle: lastModifiedWidget,
-        onTap: (){onTap(path);},
-      ),
-    );
+    return TextButton(
+        onPressed: (() => onTap(path)),
+        child: Row(children: [
+          fileIcon,
+          fileNameWidget
+        ]));
   }
 }
