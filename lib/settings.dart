@@ -1,4 +1,5 @@
 import 'package:corecoder_develop/util/theme_manager.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class AppSettings {
@@ -32,6 +33,20 @@ class SettingsPageItem {
 
 class SettingsPage extends StatelessWidget {
   static var routeName = "/SettingsPage";
+  var tabs = <Widget>[
+    Tab(
+      text: "General",
+    ),
+    Tab(text: "Plugins"),
+    Tab(text: "About"),
+  ];
+
+  Widget getSettingsTabContent(BuildContext context) {
+    return Column(
+        children: List.generate(items.length, (index) {
+      return generateListItem(index, context);
+    }));
+  }
 
   SettingsPage({Key? key}) : super(key: key);
   List<SettingsPageItem> items = [
@@ -105,17 +120,28 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Settings"),
-      ),
-      body: SingleChildScrollView(
-        controller: ScrollController(),
-        child: Column(
-            children: List.generate(items.length, (index) {
-          return generateListItem(index, context);
-        })),
-      ),
-    );
+    var tabsContent = <Widget>[
+      /// General Page
+      getSettingsTabContent(context),
+      /// Plugins Page
+      Column(),
+      /// About page
+      Column(children:const [
+        Text("CoreCoder Develop"),
+        Text("v0.0.1 dev beta"),
+      ])
+    ];
+    return DefaultTabController(
+        length: tabs.length,
+        child: Scaffold(
+            appBar: AppBar(
+              title: const Text("Settings"),
+              bottom: TabBar(
+                tabs: tabs,
+              ),
+            ),
+            body: TabBarView(
+              children: tabsContent,
+            )));
   }
 }

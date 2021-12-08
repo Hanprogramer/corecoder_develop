@@ -170,29 +170,6 @@ class _HomePageState extends State<HomePage> {
                         },
                         barrierDismissible: true);
                   },
-                  // Row(
-                  //   children: [
-                  //     Image(
-                  //         image:
-                  //             ResizeImage.resizeIfNeeded(48, 48, t.icon.image)),
-                  //     Column(
-                  //         crossAxisAlignment: CrossAxisAlignment.start,
-                  //         children: [
-                  //           Text(
-                  //             t.title,
-                  //             style: const TextStyle(
-                  //                 fontSize: 16, fontWeight: FontWeight.bold),
-                  //           ),
-                  //           Text(t.desc, overflow: TextOverflow.ellipsis,)
-                  //         ]),
-                  //     const Expanded(child: Center()),
-                  //     Column(
-                  //       crossAxisAlignment: CrossAxisAlignment.end,
-                  //       children: [Text(t.version)],
-                  //       mainAxisAlignment: MainAxisAlignment.end,
-                  //     ),
-                  //   ],
-                  // ),
                   ));
             }
           }
@@ -329,17 +306,8 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("CoreCoder Develop"),
-        // title: Text("Recursive Fibonacci"),
         centerTitle: true,
         actions: [
-          // IconButton(
-          //     onPressed: () => {showCreateProjectDialog()},
-          //     icon: const Icon(Icons.add),
-          //     tooltip: "Create Project"),
-          // IconButton(
-          //     onPressed: () => {refreshRecentProjects()},
-          //     icon: const Icon(Icons.refresh),
-          //     tooltip: "Refresh Projects"),
           IconButton(
               onPressed: () => {showSettings()},
               icon: const Icon(Icons.settings),
