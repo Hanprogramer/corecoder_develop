@@ -268,12 +268,13 @@ class _HomePageState extends State<HomePage> {
     await loadPrefs();
     setState(() {
       projectsWidgets.clear();
-      /*rpm.projects.sort((CCSolution a, CCSolution b) {
+      rpm.projects.sort((CCSolution a, CCSolution b) {
         return b.dateModified.compareTo(a.dateModified);
-      });*/
+      });
       for (CCSolution p in rpm.projects) {
-        if (p.name == "")
-          continue; // TODO: add better way to check if project is corrupt
+        if (p.name == "") {
+          continue;
+        } // TODO: add better way to check if project is corrupt
         debugPrint(p.name);
         projectsWidgets.add(ListTile(
             onTap: () {
