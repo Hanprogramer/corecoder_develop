@@ -28,8 +28,8 @@ class CCSolution {
 
   static Future<CCSolution?> loadFromFile(String filepath) async{
     var file = File(filepath);
-    var stat = await file.stat();
     if (await file.exists()) {
+      var stat = await file.stat();
       String input = await file.readAsString();
       try {
         var obj = decoder.convert(input);
