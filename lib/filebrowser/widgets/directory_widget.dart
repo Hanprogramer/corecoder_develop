@@ -7,6 +7,7 @@
  * Date: 06 January, 2019 2:04 PM
  */
 
+import 'package:corecoder_develop/util/theme_manager.dart';
 import 'package:flutter/material.dart';
 
 import 'package:corecoder_develop/filebrowser/utils/utils.dart';
@@ -27,8 +28,11 @@ class DirectoryWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget titleWidget = Container(
-        padding: const EdgeInsets.fromLTRB(20, 4, 4, 4),
-        child: Text(directoryName, style: const TextStyle(fontSize: 16)));
+        padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+        child: Text(directoryName,
+            style: TextStyle(
+                fontSize: 16,
+                color: ThemeManager.getThemeColor("foreground"))));
 
     Icon folderIcon = const Icon(Icons.folder);
 

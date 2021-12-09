@@ -8,7 +8,6 @@ import 'filebrowser/widgets/directory_widget.dart';
 import 'filebrowser/widgets/file_widget.dart';
 import 'main.dart';
 import 'package:tree_view/tree_view.dart';
-
 class DrawerStateInfo with ChangeNotifier {
   int _currentDrawer = 0;
 
@@ -67,7 +66,7 @@ class MyDrawer extends StatelessWidget {
     return childDocuments.map((document) {
       if (!document.isFile) {
         return Container(
-          margin: EdgeInsets.only(left: 8),
+          margin: EdgeInsets.only(left: 16.0),
           child: TreeViewChild(
             parent: _getDocumentWidget(
               document: document,
@@ -81,7 +80,7 @@ class MyDrawer extends StatelessWidget {
         );
       }
       return Container(
-        margin: const EdgeInsets.only(left: 4.0),
+        margin: const EdgeInsets.only(left: 16.0),
         child: _getDocumentWidget(
           document: document,
           onPressedNext: () {},

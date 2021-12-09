@@ -40,7 +40,7 @@ class CoreCoderAppState extends State<CoreCoderApp>{
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'CoreCoder Develop',
-        theme: ThemeManager.getThemeData(name:themeName),
+        theme: ThemeManager.getThemeData(themeName:themeName),
         //home: HomePage(),
         initialRoute: "/",
         routes: {

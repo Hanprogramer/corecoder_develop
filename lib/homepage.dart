@@ -45,8 +45,8 @@ class RecentProjectsManager {
   /// Add a solution file to the list
   Future<CCSolution?> addSolution(String slnPath) async {
     // Prevent project with same solution to be loaded
-    for(var p in projects){
-      if(p.slnPath == slnPath) return null;
+    for (var p in projects) {
+      if (p.slnPath == slnPath) return null;
     }
 
     var sln = await CCSolution.loadFromFile(slnPath);
@@ -250,18 +250,17 @@ class _HomePageState extends State<HomePage> {
           return SimpleDialog(
             title: const Text("Deleting folder"),
             children: [
-              const CircularProgressIndicator(value:null),
+              const CircularProgressIndicator(value: null),
               Text(text)
             ],
           );
         });
-    for(var path in paths){
+    for (var path in paths) {
       Directory target = Directory(path);
       text = path;
       await target.delete(recursive: true);
     }
     Navigator.pop(context);
-
   }
 
   void refreshRecentProjects() async {
@@ -276,87 +275,94 @@ class _HomePageState extends State<HomePage> {
           continue;
         } // TODO: add better way to check if project is corrupt
         debugPrint(p.name);
-        projectsWidgets.add(ListTile(
-            onTap: () {
-              touchFile(File(p.slnPath), p);
-              refreshRecentProjects();
-              loadSolution(p, context, mm);
-            },
-            leading: p.image != null
-                ? Image(
-                    image: ResizeImage.resizeIfNeeded(48, 48, p.image!.image))
-                : const Icon(
-                    Icons.insert_drive_file,
-                    size: 48,
-                  ),
-            title: Text(p.name),
-            subtitle:
-                Text(p.desc + " Last Modified: " + p.dateModified.toString()),
-            trailing: PopupMenuButton<String>(
-              onSelected: (String result) {
-                switch (result) {
-                  case "delete":
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text("Delete ${p.name}?"),
-                            content: Text(
-                                "This action cannot be undone!\n folders will be deleted: ${() {
-                              String result = "";
-                              for (var folder in p.folders.keys) {
-                                result +=
-                                    (p.folders[folder] as String) + ", \n";
-                              }
-                              return result;
-                            }()}"),
-                            actions: [
-                              TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text("No")),
-                              TextButton(
-                                  onPressed: () {
-                                    var folders = <String>[];
-                                    for (var folder in p.folders.keys) {
-                                      folders.add(p.slnFolderPath + Platform.pathSeparator + p.folders[folder]!);
-                                    }
-                                    deleteFolderWithIndicator(context, folders);
-                                    // Delete the solution file too
-                                    File(p.slnPath).deleteSync();
+        projectsWidgets.add(Card(
+            child: ListTile(
+                onTap: () {
+                  touchFile(File(p.slnPath), p);
+                  refreshRecentProjects();
+                  loadSolution(p, context, mm);
+                },
+                leading: p.image != null
+                    ? Image(
+                        image:
+                            ResizeImage.resizeIfNeeded(48, 48, p.image!.image))
+                    : const Icon(
+                        Icons.insert_drive_file,
+                        size: 48,
+                      ),
+                title: Text(p.name),
+                subtitle: Text(
+                    p.desc + " Last Modified: " + p.dateModified.toString()),
+                trailing: PopupMenuButton<String>(
+                  onSelected: (String result) {
+                    switch (result) {
+                      case "delete":
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text("Delete ${p.name}?"),
+                                content: Text(
+                                    "This action cannot be undone!\n folders will be deleted: ${() {
+                                  String result = "";
+                                  for (var folder in p.folders.keys) {
+                                    result +=
+                                        (p.folders[folder] as String) + ", \n";
+                                  }
+                                  return result;
+                                }()}"),
+                                actions: [
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text("No")),
+                                  TextButton(
+                                      onPressed: () {
+                                        var folders = <String>[];
+                                        for (var folder in p.folders.keys) {
+                                          folders.add(p.slnFolderPath +
+                                              Platform.pathSeparator +
+                                              p.folders[folder]!);
+                                        }
+                                        deleteFolderWithIndicator(
+                                            context, folders);
+                                        // Delete the solution file too
+                                        File(p.slnPath).deleteSync();
 
-                                    // Quit and refresh
-                                    Navigator.pop(context);
-                                    refreshRecentProjects();
-                                  },
-                                  child: const Text(
-                                    "Delete",
-                                    style: TextStyle(color: Colors.redAccent),
-                                  )),
-                            ],
-                          );
-                        });
-                    break;
-                }
-              },
-              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                const PopupMenuItem<String>(
-                  value: "delete",
-                  child: Text('Delete Project'),
-                ),
-                const PopupMenuItem<String>(
-                  //TODO: Implement this menu
-                  value: "rename",
-                  child: Text('Rename Project'),
-                ),
-                const PopupMenuItem<String>(
-                  //TODO: Implement this menu
-                  value: "export",
-                  child: Text('Export Project'),
-                ),
-              ],
-            )));
+                                        // Quit and refresh
+                                        Navigator.pop(context);
+                                        refreshRecentProjects();
+                                      },
+                                      child: const Text(
+                                        "Delete",
+                                        style:
+                                            TextStyle(color: Colors.redAccent),
+                                      )),
+                                ],
+                              );
+                            });
+                        break;
+                    }
+                  },
+                  itemBuilder: (BuildContext context) =>
+                      <PopupMenuEntry<String>>[
+                    const PopupMenuItem<String>(
+                      value: "delete",
+                      child: Text('Delete Project'),
+                    ),
+                    const PopupMenuItem<String>(
+                      //TODO: Implement this menu
+                      value: "rename",
+                      child: Text('Rename Project'),
+                    ),
+                    const PopupMenuItem<String>(
+                      //TODO: Implement this menu
+                      value: "export",
+                      child: Text('Export Project'),
+                    ),
+                  ],
+                ))));
         // IconButton(
         //   onPressed: () {
         //     showMenu(context: context, position: RelativeRect.fromLTRB(
@@ -390,17 +396,15 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           const Spacer(flex: 1),
-          TextButton(
+          OutlinedButton(
             onPressed: () {
               refreshRecentProjects();
             },
             child: const Text("Refresh"),
-            style: ElevatedButton.styleFrom(primary: Colors.black12),
           ),
-          TextButton(
+          OutlinedButton(
             onPressed: () {},
             child: const Text("Add"),
-            style: ElevatedButton.styleFrom(primary: Colors.black12),
           ),
           ElevatedButton(
               onPressed: () => showCreateProjectDialog(),

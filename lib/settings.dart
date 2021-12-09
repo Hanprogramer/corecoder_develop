@@ -82,7 +82,7 @@ class SettingsPage extends StatelessWidget {
                           title: Text(list[index]),
                           onTap: () {
                             item.onSet(list[index]);
-                            items[index].currentVal = list[index];
+                            item.currentVal = list[index];
                           },
                         );
                       }),

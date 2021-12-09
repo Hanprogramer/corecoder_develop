@@ -190,8 +190,12 @@ const editorThemes = {
     "brightness" : "dark",
     "highlight": atomOneDarkTheme,
     "scheme": {
+      // Controls
       "background": Color(0xFF1E2127),
-      "foreground": Color(0xFF5C6370),
+      "backgroundSecondary": Color(0xFF282C34),
+      "foreground": Color(0xFFb9bab8),
+
+      // Colors
       "black": Color(0xFF000000),
       "blue": Color(0xFF61AFEF),
       "brightBlack": Color(0xFF5C6370),
@@ -208,13 +212,19 @@ const editorThemes = {
       "red": Color(0xFFE06C75),
       "white": Color(0xFFABB2BF),
       "yellow": Color(0xFFD19A66)
+
     },
   },
   'atom-one-light': {
     "brightness" : "light",
     "highlight": atomOneLightTheme,
     "scheme": {
+      // Controls
       "background": Color(0xFFF9F9F9),
+      "backgroundSecondary": Color(0xFFEFEFEF),
+      "foreground": Color(0xFF383A42),
+
+      // Colors
       "black": Color(0xFF000000),
       "blue": Color(0xFF4078F2),
       "brightBlack": Color(0xFF383A42),
@@ -226,7 +236,6 @@ const editorThemes = {
       "brightWhite": Color(0xFFFFFFFF),
       "brightYellow": Color(0xFF986801),
       "cyan": Color(0xFF0184BC),
-      "foreground": Color(0xFF383A42),
       "green": Color(0xFF50A14F),
       "purple": Color(0xFFA626A4),
       "red": Color(0xFFE45649),
