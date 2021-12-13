@@ -9,31 +9,33 @@ import 'modules_manager.dart';
 
 class PluginsManager {
   static bool isInitialized = false;
-  static String _pluginsPath = "";
+  static String syncPluginsPath = "";
+  static String projectsPath = ""; // todo: move this somewhere more general
 
   static Future<String> get pluginsPath async {
     if (!isInitialized) {
       await initialize();
     }
-    return _pluginsPath;
+    return syncPluginsPath;
   }
 
   static Future<void> initialize() async {
     String path = (await getApplicationDocumentsDirectory()).path +
         Platform.pathSeparator +
         "CoreCoder" +
-        Platform.pathSeparator +
-        "plugins";
+        Platform.pathSeparator;
     if (Platform.isAndroid) {
       path = (await getExternalStorageDirectory())!.path +
           Platform.pathSeparator +
           "CoreCoder" +
-          Platform.pathSeparator +
-          "plugins";
+          Platform.pathSeparator;
     } else {
       //TODO: add more platforms
     }
-    _pluginsPath = path;
+    projectsPath = path+"projects"+
+        Platform.pathSeparator;
+    syncPluginsPath = path+"plugins"+
+        Platform.pathSeparator;
 
     // Check if the folder is created or not
     var dir = Directory(path);

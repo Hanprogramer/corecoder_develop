@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:ffi';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:corecoder_develop/modules/module_jsplugins.dart';
 import 'package:corecoder_develop/util/modules_manager.dart';
+import 'package:corecoder_develop/util/plugins_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:ffi/ffi.dart';
 import 'package:flutter_jscore/flutter_jscore.dart';
@@ -187,6 +189,20 @@ class CoreCoder {
     return nullptr;
   }
 
+  static Pointer jsGetProjectFolder(Pointer ctx,
+      Pointer function,
+      Pointer thisObject,
+      int argumentCount,
+      Pointer<Pointer> arguments,
+      Pointer<Pointer> exception){
+    if(argumentCount != 2){
+      debugPrint("JS Plugin Error: getProjectFolder: Argument Count expected: 2");
+      return nullptr;
+    }
+    var result = PluginsManager.projectsPath;
+    return JSValue.makeString(context, result).pointer;
+  }
+
 
   /// # ======== THE PRINT FUNCTION ========== # ///
   static Pointer jsPrint(
@@ -220,4 +236,221 @@ class CoreCoder {
 class FileIO{
   static late JsModule module; // set by the parent object
   static late JSContext context; // set by the parent object
+
+  static FileIO? _instance;
+  static FileIO get instance{
+    _instance ??= FileIO();
+    return _instance!;
+  }
+
+  void fileExists(Pointer ctx,
+      Pointer function,
+      Pointer thisObject,
+      int argumentCount,
+      Pointer<Pointer> arguments,
+      Pointer<Pointer> exception){
+    if (argumentCount > 0) {
+      Pointer jsValueRef = arguments[0];
+      if (js.jSValueIsObject(ctx, jsValueRef) == 1) {
+        /// the provided argument 0 is an object, then parse it
+        String name, description, version, identifier;
+        Pointer obj = js.jSValueToObject(ctx, jsValueRef, nullptr);
+        name = _getJsValue(ctx,js.jSObjectGetProperty(ctx, obj,
+            js.jSStringCreateWithUTF8CString('name'.toNativeUtf8()), nullptr));
+
+        description = _getJsValue(ctx,js.jSObjectGetProperty(
+            ctx,
+            obj,
+            js.jSStringCreateWithUTF8CString('description'.toNativeUtf8()),
+            nullptr));
+
+        version = _getJsValue(ctx,js.jSObjectGetProperty(ctx, obj,
+            js.jSStringCreateWithUTF8CString('version'.toNativeUtf8()), nullptr));
+
+        identifier = _getJsValue(ctx,js.jSObjectGetProperty(
+            ctx,
+            obj,
+            js.jSStringCreateWithUTF8CString('identifier'.toNativeUtf8()),
+            nullptr));
+
+        var _options = js.jSObjectGetProperty(ctx, obj,
+            js.jSStringCreateWithUTF8CString('options'.toNativeUtf8()), nullptr);
+        var options = jsObjectToDartMap(ctx,_options);
+
+        var onCreate = (Map<String, dynamic> args) async {};
+        var _onCreate = js.jSObjectGetProperty(ctx, obj,
+            js.jSStringCreateWithUTF8CString('onCreate'.toNativeUtf8()), nullptr);
+        if (js.jSValueIsObject(ctx, _onCreate) == 1) {
+          onCreate = (Map<String, dynamic> args) async {
+            var optionsObj = JSObject.make(
+                context,
+                JSClass.create(
+                    JSClassDefinition(className: "OptionsObj")));
+            for (var key in args.keys) {
+              var value = args[key];
+              if (value is String) {
+                optionsObj.setProperty(
+                    key,
+                    JSValue.makeString(context, value),
+                    JSPropertyAttributes.kJSPropertyAttributeReadOnly);
+              } else if (value is int || value is double) {
+                optionsObj.setProperty(
+                    key,
+                    JSValue.makeNumber(context, value as double),
+                    JSPropertyAttributes.kJSPropertyAttributeReadOnly);
+              }
+            }
+            js.jSObjectCallAsFunction(
+                ctx,
+                _onCreate,
+                obj,
+                1,
+                JSValuePointer.array([optionsObj.toValue()]).pointer,
+                nullptr);
+          };
+        }
+
+        module.templates.add(Template(
+          name,
+          description,
+          version,
+          options,
+          onCreate,
+          module.icon,
+          identifier,
+        ));
+      }
+    }
+  }
+
+  static Pointer jsIsExists(Pointer ctx,
+      Pointer function,
+      Pointer thisObject,
+      int argumentCount,
+      Pointer<Pointer> arguments,
+      Pointer<Pointer> exception){
+    bool exists = false;
+    if(argumentCount == 1){
+      //TODO: better exception handling
+      var path = _getJsValue(context.pointer, arguments[0]);
+      exists = File(path).existsSync();
+    }
+    return JSValue.makeBoolean(context, exists).pointer;
+  }
+
+  static Pointer jsIsFile(Pointer ctx,
+      Pointer function,
+      Pointer thisObject,
+      int argumentCount,
+      Pointer<Pointer> arguments,
+      Pointer<Pointer> exception){
+    bool exists = false;
+    if(argumentCount == 1){
+      //TODO: better exception handling
+      var path = _getJsValue(context.pointer, arguments[0]);
+      exists = File(path).existsSync();
+    }
+    return JSValue.makeBoolean(context, exists).pointer;
+  }
+
+  static Pointer jsIsDirectory(Pointer ctx,
+      Pointer function,
+      Pointer thisObject,
+      int argumentCount,
+      Pointer<Pointer> arguments,
+      Pointer<Pointer> exception){
+    bool exists = false;
+    if(argumentCount == 1){
+      //TODO: better exception handling
+      var path = _getJsValue(context.pointer, arguments[0]);
+      exists = Directory(path).existsSync();
+    }
+    return JSValue.makeBoolean(context, exists).pointer;
+  }
+  static Pointer jsWriteFile(Pointer ctx,
+      Pointer function,
+      Pointer thisObject,
+      int argumentCount,
+      Pointer<Pointer> arguments,
+      Pointer<Pointer> exception){
+    if(argumentCount == 2){
+      //TODO: better exception handling
+      //TODO: check if successfully written the file
+      var path = _getJsValue(context.pointer, arguments[0]);
+      var content = _getJsValue(context.pointer, arguments[1]);
+      File(path).writeAsStringSync(content);
+    }
+    return nullptr;
+  }
+  static Pointer jsAppendFile(Pointer ctx,
+      Pointer function,
+      Pointer thisObject,
+      int argumentCount,
+      Pointer<Pointer> arguments,
+      Pointer<Pointer> exception){
+    if(argumentCount == 2){
+      //TODO: better exception handling
+      //TODO: check if successfully written the file
+      var path = _getJsValue(context.pointer, arguments[0]);
+      var content = _getJsValue(context.pointer, arguments[1]);
+      File(path).writeAsStringSync(content, mode: FileMode.append);
+    }
+    return nullptr;
+  }
+  static Pointer jsReadFile(Pointer ctx,
+      Pointer function,
+      Pointer thisObject,
+      int argumentCount,
+      Pointer<Pointer> arguments,
+      Pointer<Pointer> exception){
+    var content = "";
+    if(argumentCount == 1){
+      //TODO: better exception handling
+      var path = _getJsValue(context.pointer, arguments[0]);
+      content = File(path).readAsStringSync();
+    }
+    return JSValue.makeString(context, content).pointer;
+  }
+
+
+  static Pointer jsMkdir(Pointer ctx,
+      Pointer function,
+      Pointer thisObject,
+      int argumentCount,
+      Pointer<Pointer> arguments,
+      Pointer<Pointer> exception){
+    if(argumentCount == 1){
+      //TODO: better exception handling
+      var path = _getJsValue(context.pointer, arguments[0]);
+      Directory(path).createSync();
+    }
+    return nullptr;
+  }
+
+  static Pointer jsMkdirRecursive(Pointer ctx,
+      Pointer function,
+      Pointer thisObject,
+      int argumentCount,
+      Pointer<Pointer> arguments,
+      Pointer<Pointer> exception){
+    if(argumentCount == 1){
+      //TODO: better exception handling
+      var path = _getJsValue(context.pointer, arguments[0]);
+      Directory(path).createSync(recursive: true);
+    }
+    return nullptr;
+  }
+  static Pointer jsRmdir(Pointer ctx,
+      Pointer function,
+      Pointer thisObject,
+      int argumentCount,
+      Pointer<Pointer> arguments,
+      Pointer<Pointer> exception){
+    if(argumentCount == 1){
+      //TODO: better exception handling
+      var path = _getJsValue(context.pointer, arguments[0]);
+      Directory(path).deleteSync(recursive: true);
+    }
+    return nullptr;
+  }
 }

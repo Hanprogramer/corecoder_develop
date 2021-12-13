@@ -42,6 +42,11 @@ class JsModule extends Module {
         callAsFunction: Pointer.fromFunction(CoreCoder.jsAddTemplate),
         attributes: JSPropertyAttributes.kJSPropertyAttributeNone,
       ),
+      JSStaticFunctionStruct(
+        name: 'getProjectFolder'.toNativeUtf8(),
+        callAsFunction: Pointer.fromFunction(CoreCoder.jsGetProjectFolder),
+        attributes: JSPropertyAttributes.kJSPropertyAttributeNone,
+      ),
     ]);
     var definition = JSClassDefinitionPointer.allocate(
       version: 0,
@@ -79,27 +84,39 @@ class JsModule extends Module {
       jscore.JSStaticFunction(
           name: "writeFile",
           attributes: jscore.JSPropertyAttributes.kJSPropertyAttributeReadOnly,
-          callAsFunction: Pointer.fromFunction(CoreCoder.jsPrint)),
+          callAsFunction: Pointer.fromFunction(FileIO.jsWriteFile)),
       jscore.JSStaticFunction(
           name: "appendFile",
           attributes: jscore.JSPropertyAttributes.kJSPropertyAttributeReadOnly,
-          callAsFunction: Pointer.fromFunction(CoreCoder.jsPrint)),
+          callAsFunction: Pointer.fromFunction(FileIO.jsAppendFile)),
       jscore.JSStaticFunction(
           name: "readFile",
           attributes: jscore.JSPropertyAttributes.kJSPropertyAttributeReadOnly,
-          callAsFunction: Pointer.fromFunction(CoreCoder.jsPrint)),
+          callAsFunction: Pointer.fromFunction(FileIO.jsReadFile)),
       jscore.JSStaticFunction(
           name: "isExists",
           attributes: jscore.JSPropertyAttributes.kJSPropertyAttributeReadOnly,
-          callAsFunction: Pointer.fromFunction(CoreCoder.jsPrint)),
+          callAsFunction: Pointer.fromFunction(FileIO.jsIsExists)),
       jscore.JSStaticFunction(
           name: "isFile",
           attributes: jscore.JSPropertyAttributes.kJSPropertyAttributeReadOnly,
-          callAsFunction: Pointer.fromFunction(CoreCoder.jsPrint)),
+          callAsFunction: Pointer.fromFunction(FileIO.jsIsFile)),
       jscore.JSStaticFunction(
           name: "isDirectory",
           attributes: jscore.JSPropertyAttributes.kJSPropertyAttributeReadOnly,
-          callAsFunction: Pointer.fromFunction(CoreCoder.jsPrint)),
+          callAsFunction: Pointer.fromFunction(FileIO.jsIsDirectory)),
+      jscore.JSStaticFunction(
+          name: "mkdir",
+          attributes: jscore.JSPropertyAttributes.kJSPropertyAttributeReadOnly,
+          callAsFunction: Pointer.fromFunction(FileIO.jsMkdir)),
+      jscore.JSStaticFunction(
+          name: "mkdirRecursive",
+          attributes: jscore.JSPropertyAttributes.kJSPropertyAttributeReadOnly,
+          callAsFunction: Pointer.fromFunction(FileIO.jsMkdirRecursive)),
+      jscore.JSStaticFunction(
+          name: "rmdir",
+          attributes: jscore.JSPropertyAttributes.kJSPropertyAttributeReadOnly,
+          callAsFunction: Pointer.fromFunction(FileIO.jsRmdir)),
     ];
     var classDef = jscore.JSClassDefinition(
       version: 0,
