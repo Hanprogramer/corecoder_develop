@@ -34,7 +34,7 @@ class JsModule extends Module {
     var staticFunctions = JSStaticFunctionPointer.allocateArray([
       JSStaticFunctionStruct(
         name: 'print'.toNativeUtf8(),
-        callAsFunction: Pointer.fromFunction(CoreCoder.flutterPrint),
+        callAsFunction: Pointer.fromFunction(CoreCoder.jsPrint),
         attributes: JSPropertyAttributes.kJSPropertyAttributeNone,
       ),
       JSStaticFunctionStruct(
@@ -79,27 +79,27 @@ class JsModule extends Module {
       jscore.JSStaticFunction(
           name: "writeFile",
           attributes: jscore.JSPropertyAttributes.kJSPropertyAttributeReadOnly,
-          callAsFunction: Pointer.fromFunction(CoreCoder.flutterPrint)),
+          callAsFunction: Pointer.fromFunction(CoreCoder.jsPrint)),
       jscore.JSStaticFunction(
           name: "appendFile",
           attributes: jscore.JSPropertyAttributes.kJSPropertyAttributeReadOnly,
-          callAsFunction: Pointer.fromFunction(CoreCoder.flutterPrint)),
+          callAsFunction: Pointer.fromFunction(CoreCoder.jsPrint)),
       jscore.JSStaticFunction(
           name: "readFile",
           attributes: jscore.JSPropertyAttributes.kJSPropertyAttributeReadOnly,
-          callAsFunction: Pointer.fromFunction(CoreCoder.flutterPrint)),
+          callAsFunction: Pointer.fromFunction(CoreCoder.jsPrint)),
       jscore.JSStaticFunction(
           name: "isExists",
           attributes: jscore.JSPropertyAttributes.kJSPropertyAttributeReadOnly,
-          callAsFunction: Pointer.fromFunction(CoreCoder.flutterPrint)),
+          callAsFunction: Pointer.fromFunction(CoreCoder.jsPrint)),
       jscore.JSStaticFunction(
           name: "isFile",
           attributes: jscore.JSPropertyAttributes.kJSPropertyAttributeReadOnly,
-          callAsFunction: Pointer.fromFunction(CoreCoder.flutterPrint)),
+          callAsFunction: Pointer.fromFunction(CoreCoder.jsPrint)),
       jscore.JSStaticFunction(
           name: "isDirectory",
           attributes: jscore.JSPropertyAttributes.kJSPropertyAttributeReadOnly,
-          callAsFunction: Pointer.fromFunction(CoreCoder.flutterPrint)),
+          callAsFunction: Pointer.fromFunction(CoreCoder.jsPrint)),
     ];
     var classDef = jscore.JSClassDefinition(
       version: 0,

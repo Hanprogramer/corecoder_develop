@@ -186,21 +186,21 @@ class CoreCoder {
     instance.addTemplate(ctx,function, thisObject, argumentCount, arguments, exception);
     return nullptr;
   }
-  
+
 
   /// # ======== THE PRINT FUNCTION ========== # ///
-  static Pointer flutterPrint(
+  static Pointer jsPrint(
       Pointer ctx,
       Pointer function,
       Pointer thisObject,
       int argumentCount,
       Pointer<Pointer> arguments,
       Pointer<Pointer> exception) {
-    instance._print(ctx, function, thisObject, argumentCount, arguments, exception);
+    instance.print(ctx, function, thisObject, argumentCount, arguments, exception);
     return nullptr;
   }
 
-  Pointer _print(
+  Pointer print(
       Pointer ctx,
       Pointer function,
       Pointer thisObject,
