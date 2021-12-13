@@ -12,7 +12,7 @@ import 'modules_manager.dart';
 class CCSolution {
   final String name, desc, author, identifier, slnPath, slnFolderPath;
   DateTime dateModified;
-  Image? get image{
+  Widget? get image{
     var module = ModulesManager.getModuleByIdentifier(identifier);
     if(module != null) {
       return module.icon;
@@ -43,11 +43,11 @@ class CCSolution {
         }
         return result;
       } on Exception catch (e) {
-        debugPrint("Error: error parsing solution: $filepath #${e.toString()}");
+        //debugPrint("Error: error parsing solution: $filepath #${e.toString()}");
         return null;
       }
     } else {
-      debugPrint("Error: project can't be found: $filepath");
+      //debugPrint("Error: project can't be found: $filepath");
       return null;
     }
   }

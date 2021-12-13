@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:corecoder_develop/settings.dart';
 import 'package:corecoder_develop/util/cc_project_structure.dart';
+import 'package:corecoder_develop/util/plugins_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -106,8 +107,7 @@ class _HomePageState extends State<HomePage> {
               /// Project Options
               ///  -------------------------------------------------
               options.add(ListTile(
-                leading: Image(
-                    image: ResizeImage.resizeIfNeeded(48, 48, t.icon.image)),
+                leading: t.icon,
                 trailing: Text(t.version),
                 title: Text(t.title),
                 subtitle: Text(t.desc),
@@ -151,7 +151,7 @@ class _HomePageState extends State<HomePage> {
                                 /// Go Ahead and create project asynchronously
                                 var slnPath = await t.onCreated(
                                     values); //TODO: This is prone to error (not checking if the file existed first)
-
+                                if(slnPath == null) return;
                                 /// Add it to recent projects
                                 CCSolution? project =
                                     await rpm.addSolution(slnPath);
@@ -207,7 +207,7 @@ class _HomePageState extends State<HomePage> {
     rpm.clear();
     for (var sln in pref.getStringList("recentProjectsSln") ?? []) {
       await rpm.addSolution(sln);
-      debugPrint(sln);
+      //debugPrint(sln);
     }
     debugPrint("DONE");
   }
@@ -217,6 +217,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     refreshRecentProjects();
+
   }
 
   @override
@@ -274,7 +275,7 @@ class _HomePageState extends State<HomePage> {
         if (p.name == "") {
           continue;
         } // TODO: add better way to check if project is corrupt
-        debugPrint(p.name);
+        //debugPrint(p.name);
         projectsWidgets.add(Card(
             child: ListTile(
                 onTap: () {
@@ -282,11 +283,7 @@ class _HomePageState extends State<HomePage> {
                   refreshRecentProjects();
                   loadSolution(p, context, mm);
                 },
-                leading: p.image != null
-                    ? Image(
-                        image:
-                            ResizeImage.resizeIfNeeded(48, 48, p.image!.image))
-                    : const Icon(
+                leading: p.image ?? const Icon(
                         Icons.insert_drive_file,
                         size: 48,
                       ),

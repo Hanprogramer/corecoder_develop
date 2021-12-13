@@ -1,6 +1,9 @@
+import 'package:corecoder_develop/util/modules_manager.dart';
 import 'package:corecoder_develop/util/theme_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import 'util/plugins_manager.dart';
 
 class AppSettings {
   static String appTheme = "atom-one-dark";
@@ -34,11 +37,9 @@ class SettingsPageItem {
 class SettingsPage extends StatelessWidget {
   static var routeName = "/SettingsPage";
   var tabs = <Widget>[
-    Tab(
-      text: "General",
-    ),
-    Tab(text: "Plugins"),
-    Tab(text: "About"),
+    const Tab(text: "General",),
+    const Tab(text: "Plugins"),
+    const Tab(text: "About"),
   ];
 
   Widget getSettingsTabContent(BuildContext context) {
@@ -120,17 +121,6 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var tabsContent = <Widget>[
-      /// General Page
-      getSettingsTabContent(context),
-      /// Plugins Page
-      Column(),
-      /// About page
-      Column(children:const [
-        Text("CoreCoder Develop"),
-        Text("v0.0.1 dev beta"),
-      ])
-    ];
     return DefaultTabController(
         length: tabs.length,
         child: Scaffold(
@@ -140,8 +130,110 @@ class SettingsPage extends StatelessWidget {
                 tabs: tabs,
               ),
             ),
-            body: TabBarView(
-              children: tabsContent,
-            )));
+            body: FutureBuilder(builder: (BuildContext context,
+                AsyncSnapshot<String> snapshot,){
+              return TabBarView(
+                children: [
+                  /// General Page
+                  getSettingsTabContent(context),
+                  /// Plugins Page
+                  Column(children:[
+                    if(snapshot.hasData)
+                    Visibility(
+                      visible: snapshot.hasData,
+                      child: Text(
+                        snapshot.data!,
+                      ),
+                    ),
+                    Column(children:List.generate(ModulesManager.modules.length, (index) {
+                      var mod = ModulesManager.modules[index];
+                      return ListTile(
+                          onTap: () {
+                          },
+                          leading: mod.icon,
+                          title: Text(mod.name),
+                          subtitle: Text(
+                              mod.desc + " version:" + mod.version),
+                          // trailing: PopupMenuButton<String>(
+                          //   onSelected: (String result) {
+                          //     switch (result) {
+                          //       case "delete":
+                          //         showDialog(
+                          //             context: context,
+                          //             builder: (BuildContext context) {
+                          //               return AlertDialog(
+                          //                 title: Text("Delete ${p.name}?"),
+                          //                 content: Text(
+                          //                     "This action cannot be undone!\n folders will be deleted: ${() {
+                          //                       String result = "";
+                          //                       for (var folder in p.folders.keys) {
+                          //                         result +=
+                          //                             (p.folders[folder] as String) + ", \n";
+                          //                       }
+                          //                       return result;
+                          //                     }()}"),
+                          //                 actions: [
+                          //                   TextButton(
+                          //                       onPressed: () {
+                          //                         Navigator.pop(context);
+                          //                       },
+                          //                       child: const Text("No")),
+                          //                   TextButton(
+                          //                       onPressed: () {
+                          //                         var folders = <String>[];
+                          //                         for (var folder in p.folders.keys) {
+                          //                           folders.add(p.slnFolderPath +
+                          //                               Platform.pathSeparator +
+                          //                               p.folders[folder]!);
+                          //                         }
+                          //                         deleteFolderWithIndicator(
+                          //                             context, folders);
+                          //                         // Delete the solution file too
+                          //                         File(p.slnPath).deleteSync();
+                          //
+                          //                         // Quit and refresh
+                          //                         Navigator.pop(context);
+                          //                         refreshRecentProjects();
+                          //                       },
+                          //                       child: const Text(
+                          //                         "Delete",
+                          //                         style:
+                          //                         TextStyle(color: Colors.redAccent),
+                          //                       )),
+                          //                 ],
+                          //               );
+                          //             });
+                          //         break;
+                          //     }
+                          //   },
+                          //   itemBuilder: (BuildContext context) =>
+                          //   <PopupMenuEntry<String>>[
+                          //     const PopupMenuItem<String>(
+                          //       value: "delete",
+                          //       child: Text('Delete Project'),
+                          //     ),
+                          //     const PopupMenuItem<String>(
+                          //       //TODO: Implement this menu
+                          //       value: "rename",
+                          //       child: Text('Rename Project'),
+                          //     ),
+                          //     const PopupMenuItem<String>(
+                          //       //TODO: Implement this menu
+                          //       value: "export",
+                          //       child: Text('Export Project'),
+                          //     ),
+                          //   ],
+                          // ))
+                      );
+                    }))
+                  ]),
+                  /// About page
+                  Column(children:const [
+                    Text("CoreCoder Develop"),
+                    Text("v0.0.1 dev beta"),
+                  ])
+                ],
+              );
+            },future: PluginsManager.pluginsPath,)));
   }
 }

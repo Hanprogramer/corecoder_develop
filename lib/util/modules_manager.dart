@@ -1,16 +1,30 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:corecoder_develop/modules/module_minecraft.dart';
+import 'package:corecoder_develop/util/plugins_manager.dart';
 import 'package:flutter/material.dart';
 class ModulesManager{
-  static List<Module> modules = List.empty(growable: true);
+  static List<Module> internalModules = List.empty(growable: true);
+  static List<Module> externalModules = List.empty(growable: true);
+  static List<Module> get modules{
+    return List.from(internalModules)..addAll(externalModules);
+  }
+  static const JsonDecoder decoder = JsonDecoder();
+  static const JsonEncoder encoder = JsonEncoder.withIndent('\t');
+  void initialize() async {
+    await PluginsManager.reloadPlugins(this);
+  }
 
-  void initialize() {
+  void onInitialized(){ /// called by PluginsManager so the timing is right
+    debugPrint("Initializing modules (${modules.length})");
     for (Module m in modules) {
       m.onInitialized(this);
     }
   }
 
   ModulesManager() {
-    modules.add(MinecraftModule());
+    internalModules.add(MinecraftModule());
     initialize();
   }
 
@@ -40,7 +54,7 @@ class Template{
       version = "Template.Version",
       identifier = "com.corecoder.templates.template1";
   Map<String, String> options;
-  Image icon;
+  Widget icon;
   Function(Map<String, dynamic> args) onCreated;
 
   Template(this.title, this.desc, this.version, this.options, this.onCreated,
@@ -50,10 +64,17 @@ class Template{
 abstract class Module{
   List<Template> templates = List.empty(growable: true);
   String name="Module.name", desc="Module.desc", author="Module.author", version="Module.version";
-  Image icon;
+  Uint8List? imageRaw;
+  Widget get icon{
+    if(imageRaw != null) {
+      return Image(
+          image: ResizeImage.resizeIfNeeded(48, 48, Image.memory(imageRaw!).image));
+    }
+    return const Icon(Icons.insert_drive_file);
+  }
   String identifier;
-  Module(this.name, this.desc, this.author, this.version, this.icon, this.identifier);
-  void onInitialized(ModulesManager tm);
+  Module(this.name, this.desc, this.author, this.version, this.imageRaw, this.identifier);
+  void onInitialized(ModulesManager modulesManager);
   void addTemplate(Template template){
     templates.add(template);
   }

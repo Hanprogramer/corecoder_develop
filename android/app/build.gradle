@@ -48,6 +48,18 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+
+    repositories {
+        flatDir {
+            dirs 'libs'
+        }
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['jniLibs']
+        }
+    }
 }
 
 flutter {

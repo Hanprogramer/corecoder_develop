@@ -79,7 +79,7 @@ packages:
     source: hosted
     version: "1.2.0"
   ffi:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: ffi
       url: "https://pub.dartlang.org"
@@ -111,6 +111,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.7.0"
+  flutter_jscore:
+    dependency: "direct dev"
+    description:
+      name: flutter_jscore
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -177,13 +184,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.1"
-  lua_dardo:
-    dependency: "direct dev"
-    description:
-      name: lua_dardo
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.0.4"
   matcher:
     dependency: transitive
     description:
@@ -378,13 +378,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.8.1"
-  sprintf:
-    dependency: transitive
-    description:
-      name: sprintf
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "6.0.0"
   stack_trace:
     dependency: transitive
     description:
@@ -435,7 +428,7 @@ packages:
     source: hosted
     version: "0.0.6"
   typed_data:
-    dependency: transitive
+    dependency: "direct dev"
     description:
       name: typed_data
       url: "https://pub.dartlang.org"
