@@ -94,7 +94,6 @@ class CoreCoder {
   static CoreCoder? _instance;
   static CoreCoder get instance{
     _instance ??= CoreCoder();
-    _printDartFunc = _instance!._print;
     return _instance!;
   }
   
@@ -188,10 +187,6 @@ class CoreCoder {
     return nullptr;
   }
   
-  /*static JSObjectCallAsFunctionCallbackDart? get jsAddTemplate{
-    return _jsAddTemplate;  
-  }*/
-
 
   /// # ======== THE PRINT FUNCTION ========== # ///
   static Pointer flutterPrint(
@@ -201,15 +196,9 @@ class CoreCoder {
       int argumentCount,
       Pointer<Pointer> arguments,
       Pointer<Pointer> exception) {
-    if (_printDartFunc != null) {
-      _printDartFunc!(
-          ctx, function, thisObject, argumentCount, arguments, exception);
-    }
+    instance._print(ctx, function, thisObject, argumentCount, arguments, exception);
     return nullptr;
   }
-
-  static JSObjectCallAsFunctionCallbackDart?
-  _printDartFunc; // points to non static function
 
   Pointer _print(
       Pointer ctx,
