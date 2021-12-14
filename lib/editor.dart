@@ -165,7 +165,7 @@ class _EditorPageState extends State<EditorPage> {
   void openFile(String filepath) async {
     var filename = path.basename(filepath);
     var content = await File(filepath).readAsString();
-    debugPrint(content);
+    //debugPrint(content);
     content = content.replaceAll("\t", "    ");
     setState(() {
       var language = 'javascript';
@@ -211,6 +211,11 @@ class _EditorPageState extends State<EditorPage> {
         title: null,
         centerTitle: false,
         actions: [
+          IconButton(
+            onPressed: () => {project.run()},
+            icon: const Icon(FontAwesomeIcons.play),
+            tooltip: "Run Project",
+          ),
           IconButton(
             onPressed: () => {Navigator.pop(context)},
             icon: const Icon(FontAwesomeIcons.timesCircle),
