@@ -107,9 +107,9 @@ class CoreCoder {
       Pointer thisObject,
       int argumentCount,
       Pointer<Pointer> arguments,
-      Pointer<Pointer> exception) {
+      Pointer<Pointer> exception)  async {
     debugPrint("[Template] $argumentCount");
-    if (argumentCount > 0) {
+    if (argumentCount > 0){
       Pointer jsValueRef = arguments[0];
       if (js.jSValueIsObject(ctx, jsValueRef) == 1) {
         /// the provided argument 0 is an object, then parse it
@@ -161,9 +161,10 @@ class CoreCoder {
               var sln = await CCSolution.loadFromFile(slnPath);
               if (sln != null) {
                 debugPrint("Loading solution $slnPath");
-                loadSolution(sln, module.buildContext);
-                RecentProjectsManager.instance.addSolution(slnPath);
+                await RecentProjectsManager.instance.addSolution(slnPath);
                 RecentProjectsManager.staticCommit();
+                Navigator.pop(module.buildContext,2);
+                loadSolution(sln, module.buildContext);
               }
             } else {
               debugPrint("[JSError] onInitialized not returning string");
