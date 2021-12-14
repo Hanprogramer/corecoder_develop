@@ -56,7 +56,7 @@ class MinecraftModule extends Module {
   }
 
   @override
-  void onInitialized(ModulesManager modulesManager) {
+  void onInitialized(ModulesManager modulesManager, BuildContext buildContext) {
     if (Platform.isWindows) {
       comMojang = Platform.environment['LOCALAPPDATA'] as String;
       comMojang +=

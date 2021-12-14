@@ -46,7 +46,7 @@ class PluginsManager {
     isInitialized = true;
   }
 
-  static Future<void> reloadPlugins(ModulesManager modulesManager) async {
+  static Future<void> reloadPlugins(ModulesManager modulesManager,BuildContext context) async {
     if (!isInitialized) {
       await initialize();
     }
@@ -64,7 +64,7 @@ class PluginsManager {
             ModulesManager.externalModules.add(module);
           } //TODO:warn user if module not loaded
         }
-        modulesManager.onInitialized();
+        modulesManager.onInitialized(context);
       });
     } catch (err) {
       debugPrint(err.toString());

@@ -1,10 +1,12 @@
 import 'dart:ffi';
 import 'dart:typed_data';
 import 'package:corecoder_develop/modules/jsapi.dart';
+import 'package:corecoder_develop/util/cc_project_structure.dart';
 import 'package:corecoder_develop/util/modules_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_jscore/jscore_bindings.dart';
 import 'package:ffi/ffi.dart';
+import 'package:corecoder_develop/homepage.dart';
 import 'package:flutter_jscore/flutter_jscore.dart' as jscore
     show
         JSContext,
@@ -14,17 +16,20 @@ import 'package:flutter_jscore/flutter_jscore.dart' as jscore
         JSClassDefinition,
         JSPropertyAttributes,
         JSClassAttributes,
-        JSStaticFunction;
+        JSStaticFunction,
+        JSValue,
+        JSPropertyNameArray,
+        JSValuePointer;
 
 class JsModule extends Module {
   String mainScript = "";
 
   late jscore.JSContext context;
   late jscore.JSObject globalObj;
+  late BuildContext buildContext;
 
   Pointer get _ctxPtr => context.pointer;
   late Pointer _globalObjPtr;
-
 
   /// Expose the CoreCoder class to js
   void initializeCC3JS() {
@@ -159,7 +164,9 @@ class JsModule extends Module {
   }
 
   @override
-  void onInitialized(ModulesManager modulesManager) {
+  void onInitialized(
+      ModulesManager modulesManager, BuildContext buildContext) async {
+    this.buildContext = buildContext;
     context =
         jscore.JSContext.createInGroup(group: jscore.JSContextGroup.create());
     globalObj = context.globalObject;
@@ -171,22 +178,27 @@ class JsModule extends Module {
     initializeCC3JS();
     initializeCC3JSFileIO();
     debugPrint("Initializing JSModule $name");
-    jSEvaluateScript(
+    jSCheckScriptSyntax(
         _ctxPtr,
         jSStringCreateWithUTF8CString(mainScript.toNativeUtf8()),
         nullptr,
-        nullptr,
         1,
-        nullptr);
-    Pointer onInitializedValueRef = jSObjectGetProperty(
-      _ctxPtr,
-      _globalObjPtr,
-      jSStringCreateWithUTF8CString('onInitialized'.toNativeUtf8()),
-      nullptr,
-    );
-    Pointer onInitializedObj =
-        jSValueToObject(_ctxPtr, onInitializedValueRef, nullptr);
-    jSObjectCallAsFunction(
-        _ctxPtr, onInitializedObj, nullptr, 0, nullptr, nullptr);
+        context.exception.pointer);
+
+    if(context.exception.getValue(context).isNull == false){
+      var errorObj = context.exception.getValue(context).toObject();
+      var name = errorObj.getProperty("name").string;
+      var message = errorObj.getProperty("message").string;
+      var lineNumber = errorObj.getProperty("line").string;
+      debugPrint("[JSError](line $lineNumber) $name : $message");
+    }
+    context.evaluate(mainScript);
+    jscore.JSValue onInitializedValue = globalObj.getProperty("onInitialized");
+    jscore.JSObject onInitializedObj = onInitializedValue.toObject();
+    jscore.JSValuePointer? err;
+    onInitializedObj.callAsFunction(globalObj, jscore.JSValuePointer.array([]),exception: err);
+    if(err != null && err.getValue(context).isNull == false){
+      debugPrint("[JSError] ${err.getValue(context).toString()}");
+    }
   }
 }

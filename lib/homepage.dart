@@ -24,12 +24,18 @@ void touchFile(File file, CCSolution solution) {
   file.setLastModifiedSync(newTime);
 }
 
-void loadSolution(
-    CCSolution solution, BuildContext context, ModulesManager modulesManager) {
+void loadSolution(CCSolution solution, BuildContext context) {
   Navigator.pushNamed(context, EditorPage.routeName, arguments: solution);
 }
 
 class RecentProjectsManager {
+  static RecentProjectsManager? _instance;
+
+  static RecentProjectsManager get instance {
+    _instance ??= RecentProjectsManager();
+    return _instance!;
+  }
+
   List<CCSolution> projects = List.empty(growable: true);
 
   /// Commit the recent projects to the pref
@@ -41,6 +47,10 @@ class RecentProjectsManager {
     (await _pref).setStringList("recentProjectsSln", list).then((bool success) {
       debugPrint("Success: $success");
     });
+  }
+
+  static void staticCommit(){
+    instance.commit(SharedPreferences.getInstance());
   }
 
   /// Add a solution file to the list
@@ -70,8 +80,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  ModulesManager mm = ModulesManager();
-  RecentProjectsManager rpm = RecentProjectsManager();
+  late ModulesManager mm;
   final Future<SharedPreferences> _pref = SharedPreferences.getInstance();
   var projectsWidgets = <Widget>[];
 
@@ -151,15 +160,16 @@ class _HomePageState extends State<HomePage> {
                                 /// Go Ahead and create project asynchronously
                                 var slnPath = await t.onCreated(
                                     values); //TODO: This is prone to error (not checking if the file existed first)
-                                if(slnPath == null) return;
+                                if (slnPath == null) return;
+
                                 /// Add it to recent projects
                                 CCSolution? project =
-                                    await rpm.addSolution(slnPath);
+                                    await RecentProjectsManager.instance.addSolution(slnPath);
                                 if (project != null) {
-                                  await rpm.commit(_pref);
+                                  await RecentProjectsManager.instance.commit(_pref);
                                   Navigator.pop(context, 3);
                                   refreshRecentProjects();
-                                  loadSolution(project, context, mm);
+                                  loadSolution(project, context);
                                 }
                               },
                             )
@@ -204,9 +214,9 @@ class _HomePageState extends State<HomePage> {
     debugPrint("LOADING PREFS");
     var pref = await _pref;
     // Read recent projects list
-    rpm.clear();
+    RecentProjectsManager.instance.clear();
     for (var sln in pref.getStringList("recentProjectsSln") ?? []) {
-      await rpm.addSolution(sln);
+      await RecentProjectsManager.instance.addSolution(sln);
       //debugPrint(sln);
     }
     debugPrint("DONE");
@@ -216,8 +226,8 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    mm = ModulesManager(context);
     refreshRecentProjects();
-
   }
 
   @override
@@ -268,10 +278,10 @@ class _HomePageState extends State<HomePage> {
     await loadPrefs();
     setState(() {
       projectsWidgets.clear();
-      rpm.projects.sort((CCSolution a, CCSolution b) {
+      RecentProjectsManager.instance.projects.sort((CCSolution a, CCSolution b) {
         return b.dateModified.compareTo(a.dateModified);
       });
-      for (CCSolution p in rpm.projects) {
+      for (CCSolution p in RecentProjectsManager.instance.projects) {
         if (p.name == "") {
           continue;
         } // TODO: add better way to check if project is corrupt
@@ -281,12 +291,13 @@ class _HomePageState extends State<HomePage> {
                 onTap: () {
                   touchFile(File(p.slnPath), p);
                   refreshRecentProjects();
-                  loadSolution(p, context, mm);
+                  loadSolution(p, context);
                 },
-                leading: p.image ?? const Icon(
-                        Icons.insert_drive_file,
-                        size: 48,
-                      ),
+                leading: p.image ??
+                    const Icon(
+                      Icons.insert_drive_file,
+                      size: 48,
+                    ),
                 title: Text(p.name),
                 subtitle: Text(
                     p.desc + " Last Modified: " + p.dateModified.toString()),

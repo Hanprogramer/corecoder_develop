@@ -12,20 +12,20 @@ class ModulesManager{
   }
   static const JsonDecoder decoder = JsonDecoder();
   static const JsonEncoder encoder = JsonEncoder.withIndent('\t');
-  void initialize() async {
-    await PluginsManager.reloadPlugins(this);
+  void initialize(BuildContext context) async {
+    await PluginsManager.reloadPlugins(this,context);
   }
 
-  void onInitialized(){ /// called by PluginsManager so the timing is right
+  void onInitialized(BuildContext context){ /// called by PluginsManager so the timing is right
     debugPrint("Initializing modules (${modules.length})");
     for (Module m in modules) {
-      m.onInitialized(this);
+      m.onInitialized(this, context);
     }
   }
 
-  ModulesManager() {
+  ModulesManager(BuildContext context) {
     internalModules.add(MinecraftModule());
-    initialize();
+    initialize(context);
   }
 
   static Module? getModuleByIdentifier(String id){
@@ -74,7 +74,7 @@ abstract class Module{
   }
   String identifier;
   Module(this.name, this.desc, this.author, this.version, this.imageRaw, this.identifier);
-  void onInitialized(ModulesManager modulesManager);
+  void onInitialized(ModulesManager modulesManager, BuildContext buildContext);
   void addTemplate(Template template){
     templates.add(template);
   }
