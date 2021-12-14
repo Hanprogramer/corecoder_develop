@@ -168,7 +168,14 @@ class _EditorPageState extends State<EditorPage> {
     debugPrint(content);
     content = content.replaceAll("\t", "    ");
     setState(() {
-      tabs.add(createFileTab(filename, content, 'json'));
+      var language = 'javascript';
+      if(filename.endsWith(".json")){
+        language = 'json';
+      }
+      if(filename.endsWith(".lua")){
+        language = 'lua';
+      }
+      tabs.add(createFileTab(filename, content, language));
     });
   }
 
@@ -179,10 +186,6 @@ class _EditorPageState extends State<EditorPage> {
       // Populate the file browser tree once
       initializeTreeView();
     }
-    final codeBox = InnerField(
-        language: 'json',
-        theme: ThemeManager.getHighlighting(),
-        source: project.name);
     final page = Column(//direction: Axis.vertical,
         children: [
       Expanded(

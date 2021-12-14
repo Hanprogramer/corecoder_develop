@@ -227,7 +227,11 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     mm = ModulesManager(context);
-    refreshRecentProjects();
+
+    mm.initialize(context);
+    mm.onFinishedLoading = (){
+      refreshRecentProjects();
+    };
   }
 
   @override

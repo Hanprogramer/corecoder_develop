@@ -4,33 +4,41 @@ import 'dart:typed_data';
 import 'package:corecoder_develop/modules/module_minecraft.dart';
 import 'package:corecoder_develop/util/plugins_manager.dart';
 import 'package:flutter/material.dart';
-class ModulesManager{
+
+class ModulesManager {
   static List<Module> internalModules = List.empty(growable: true);
   static List<Module> externalModules = List.empty(growable: true);
-  static List<Module> get modules{
+  Function? onFinishedLoading;
+
+  static List<Module> get modules {
     return List.from(internalModules)..addAll(externalModules);
   }
+
   static const JsonDecoder decoder = JsonDecoder();
   static const JsonEncoder encoder = JsonEncoder.withIndent('\t');
-  void initialize(BuildContext context) async {
-    await PluginsManager.reloadPlugins(this,context);
+
+  Future<void> initialize(BuildContext context) async {
+    await PluginsManager.reloadPlugins(this, context);
   }
 
-  void onInitialized(BuildContext context){ /// called by PluginsManager so the timing is right
+  void onInitialized(BuildContext context) {
+    /// called by PluginsManager so the timing is right
     debugPrint("Initializing modules (${modules.length})");
     for (Module m in modules) {
       m.onInitialized(this, context);
+    }
+    if (onFinishedLoading != null) {
+      onFinishedLoading!();
     }
   }
 
   ModulesManager(BuildContext context) {
     internalModules.add(MinecraftModule());
-    initialize(context);
   }
 
-  static Module? getModuleByIdentifier(String id){
-    for(var m in modules){
-      if(m.identifier == id){
+  static Module? getModuleByIdentifier(String id) {
+    for (var m in modules) {
+      if (m.identifier == id) {
         return m;
       }
     }
@@ -48,7 +56,8 @@ class ModulesManager{
     return null;
   }
 }
-class Template{
+
+class Template {
   String title = "Template.Title",
       desc = "Template.Desc",
       version = "Template.Version",
@@ -61,22 +70,32 @@ class Template{
       this.icon, this.identifier);
 }
 
-abstract class Module{
+abstract class Module {
   List<Template> templates = List.empty(growable: true);
-  String name="Module.name", desc="Module.desc", author="Module.author", version="Module.version";
+  String name = "Module.name",
+      desc = "Module.desc",
+      author = "Module.author",
+      version = "Module.version";
   Uint8List? imageRaw;
-  Widget get icon{
-    if(imageRaw != null) {
+
+  Widget get icon {
+    if (imageRaw != null) {
       return Image(
-          image: ResizeImage.resizeIfNeeded(48, 48, Image.memory(imageRaw!).image));
+          image: ResizeImage.resizeIfNeeded(
+              48, 48, Image.memory(imageRaw!).image));
     }
     return const Icon(Icons.insert_drive_file);
   }
+
   String identifier;
-  Module(this.name, this.desc, this.author, this.version, this.imageRaw, this.identifier);
+
+  Module(this.name, this.desc, this.author, this.version, this.imageRaw,
+      this.identifier);
+
   void onInitialized(ModulesManager modulesManager, BuildContext buildContext);
-  void addTemplate(Template template){
+
+  void addTemplate(Template template) {
     templates.add(template);
   }
-  //TODO: void onGetAutoComplete(...)
+//TODO: void onGetAutoComplete(...)
 }
