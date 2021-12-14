@@ -31,7 +31,7 @@ class CCSolution {
 
   void run() async {
 
-    if (Platform.isWindows) {
+    if (Platform.isWindows && currentRunConfig < runConfig.length) {
       debugPrint(
           "[CC Debug] starting project on windows config `${runConfig[currentRunConfig].executable}` on $slnFolderPath");
       if (runConfig[currentRunConfig].type == "process") {

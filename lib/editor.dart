@@ -1,6 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 
-import 'package:corecoder_develop/util/custom_code_box.dart';
+import 'package:corecoder_develop/util/custom_code_box.dart' show InnerField, InnerFieldState;
 import 'package:corecoder_develop/editor_drawer.dart';
 import 'package:corecoder_develop/util/theme_manager.dart';
 import 'package:tabbed_view/tabbed_view.dart';
@@ -10,7 +11,7 @@ import 'package:path/path.dart' as path;
 import 'package:url_launcher/url_launcher.dart';
 import 'util/cc_project_structure.dart';
 import 'filebrowser/models/document.dart';
-
+import 'package:async/async.dart' show RestartableTimer;
 class EditorPage extends StatefulWidget {
   static const String routeName = "/EditorPage";
 
@@ -28,6 +29,7 @@ class _EditorPageState extends State<EditorPage> {
   @override
   void initState() {
     super.initState();
+    autoSaveTimer = RestartableTimer(const Duration(seconds: 1), onAutoSave);
   }
 
   @override
@@ -144,8 +146,34 @@ class _EditorPageState extends State<EditorPage> {
   // List<Node> fileBrowserNodes = <Node>[];
   List<Tab> editorTabs = <Tab>[];
   List<Tab> tempTabs = <Tab>[];
+  List<InnerField> codeFields = <InnerField>[];
+  late RestartableTimer autoSaveTimer;
 
-  TabData createFileTab(String title, String source, String language) {
+  void onAutoSave() async {
+    debugPrint("autosave");
+    for (var tab in tabs) {
+      var field = (((tab.content as SingleChildScrollView).child as Container)
+          .child as InnerField);
+
+      //TODO: better saving function
+      await File(field.filePath).writeAsString(field.codeController.rawText);
+    }
+  }
+
+  TabData createFileTab(
+      String title, String source, String language, String filePath) {
+    GlobalKey<InnerFieldState> _innerFieldState = GlobalKey<InnerFieldState>();
+    var field = InnerField(key: _innerFieldState,
+        language: language,
+        theme: ThemeManager.getHighlighting(),
+        source: source,
+        filePath: filePath,
+        onChange : (String filePath, String source){
+          autoSaveTimer.reset();
+        }
+    );
+
+    codeFields.add(field);
     return TabData(
         text: title,
         closable: true,
@@ -155,10 +183,7 @@ class _EditorPageState extends State<EditorPage> {
             child: Container(
               constraints: BoxConstraints(
                   minHeight: MediaQuery.of(context).size.height * 2),
-              child: InnerField(
-                  language: language,
-                  theme: ThemeManager.getHighlighting(),
-                  source: source),
+              child: field,
             )));
   }
 
@@ -169,13 +194,13 @@ class _EditorPageState extends State<EditorPage> {
     content = content.replaceAll("\t", "    ");
     setState(() {
       var language = 'javascript';
-      if(filename.endsWith(".json")){
+      if (filename.endsWith(".json")) {
         language = 'json';
       }
-      if(filename.endsWith(".lua")){
+      if (filename.endsWith(".lua")) {
         language = 'lua';
       }
-      tabs.add(createFileTab(filename, content, language));
+      tabs.add(createFileTab(filename, content, language, filepath));
     });
   }
 
@@ -192,14 +217,15 @@ class _EditorPageState extends State<EditorPage> {
           child: tabs.isNotEmpty
               ? TabbedViewTheme(
                   data: getTabTheme(),
-                  child: TabbedView(onTabClose: (tabIndex, tabData) {
-                    setState(() {
-                      /// Just refresh the state
-                    });
-                  },
+                  child: TabbedView(
+                    onTabClose: (tabIndex, tabData) {
+                      setState(() {
+                        /// Just refresh the state
+                      });
+                    },
                     controller: TabbedViewController(tabs),
                   ))
-              : const Center(child:Text("No file opened"))),
+              : const Center(child: Text("No file opened"))),
     ]);
 
     return Scaffold(
@@ -222,7 +248,8 @@ class _EditorPageState extends State<EditorPage> {
             tooltip: "Close Project",
           ),
           IconButton(
-              onPressed: () => {}, icon: const Icon(FontAwesomeIcons.ellipsisV)),
+              onPressed: () => {},
+              icon: const Icon(FontAwesomeIcons.ellipsisV)),
           const SizedBox(width: 16.0),
         ],
       ),
