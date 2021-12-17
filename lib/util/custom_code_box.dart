@@ -113,28 +113,22 @@ class _CustomCodeBoxState extends State<CustomCodeBox> {
   }
 }
 
-class InnerField extends StatefulWidget {
+class InnerField extends StatelessWidget {
   late CodeController codeController;
-
-
-  static of(BuildContext context, {bool root = false}) => root
-      ? context.findRootAncestorStateOfType<InnerFieldState>()
-      : context.findAncestorStateOfType<InnerFieldState>();
 
   final String language;
   final Map<String, TextStyle> theme;
   final String source;
   Function(String filePath, String source)? onChange;
+  Function(Offset offset)? setCursorOffset;
+  Function(String lastToken)? onAutoComplete;
   final String filePath;
+  late CodeField codeField;
 
-  InnerField({Key? key, required this.language, required this.theme, required this.source, required this.filePath, this.onChange})
+
+  InnerField({Key? key, required this.language, required this.theme, required this.source, required this.filePath, this.onChange, this.onAutoComplete, this.setCursorOffset})
       : super(key: key){
     codeController = CodeController(
-      onChange: (String source) {
-        if(onChange != null){
-          onChange!.call(filePath, codeController.rawText);
-        }
-      },
       text: source,
       params: EditorParams(tabSpaces: 4),
       patternMap: {
@@ -151,34 +145,22 @@ class InnerField extends StatefulWidget {
       },
       language: allLanguages[language],
       theme: theme,
+      onAutoComplete: (String lastToken){
+        if(onAutoComplete != null) {
+          onAutoComplete!.call(lastToken);
+        }
+      });
+    codeField = CodeField(
+      onCursorPosChanged: setCursorOffset,
+      controller: codeController,
+      textStyle: const TextStyle(fontFamily: 'SourceCode'),
+
     );
-  }
-
-  @override
-  InnerFieldState createState() => InnerFieldState();
-
-}
-
-class InnerFieldState extends State<InnerField> {
-
-  @override
-  void initState() {
-    super.initState();
-
-  }
-
-  @override
-  void dispose() {
-    // widget._codeController?.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return CodeField(
-      controller: widget.codeController,
-      textStyle: TextStyle(fontFamily: 'SourceCode'),
-
-    );
+    return codeField;
   }
+
 }

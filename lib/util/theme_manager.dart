@@ -10,11 +10,18 @@ class ThemeManager {
     debugPrint("Set theme: $themeName");
   }
 
-  static Color? getThemeColor(String name, {String? themeName}){
+  static Color? getThemeSchemeColor(String name, {String? themeName}){
     themeName ??= currentTheme.value; // if name is not mentioned
     var editor = editorThemes[themeName];
     var scheme = editor!["scheme"] as Map<String, Color>;
     return scheme[name];
+  }
+
+  static Color? getThemeColor(String name, {String? themeName}){
+    themeName ??= currentTheme.value; // if name is not mentioned
+    var editor = editorThemes[themeName];
+    var value = editor![name];
+    return value != null? value as Color : null;
   }
 
   static ThemeData getThemeData({String? themeName}) {

@@ -158,6 +158,7 @@ class CoreCoder {
             if (result.isString) {
               /// Project creation successful
               var slnPath = result.string!;
+              debugPrint("Reading solution $slnPath");
               var sln = await CCSolution.loadFromFile(slnPath);
               if (sln != null) {
                 debugPrint("Loading solution $slnPath");
@@ -165,6 +166,8 @@ class CoreCoder {
                 RecentProjectsManager.staticCommit();
                 Navigator.pop(module.buildContext,2);
                 loadSolution(sln, module.buildContext);
+              }else{
+                debugPrint("Error: Project solution is not found or corrupted");
               }
             } else {
               debugPrint("[JSError] onInitialized not returning string");
@@ -211,6 +214,7 @@ class CoreCoder {
           "JS Plugin Error: getProjectFolder: Argument Count expected: 2");
       return nullptr;
     }
+
     var result = PluginsManager.projectsPath +
         _getJsValue(ctx, arguments[0]) +
         Platform.pathSeparator +

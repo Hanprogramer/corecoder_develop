@@ -34,11 +34,20 @@ class PluginsManager {
     }
     projectsPath = path+"projects"+
         Platform.pathSeparator;
+    Directory dir;
+    dir = Directory(projectsPath);
+    if(await dir.exists() == false){
+      dir.createSync(recursive: true);
+    }
     syncPluginsPath = path+"plugins"+
         Platform.pathSeparator;
 
+    dir = Directory(syncPluginsPath);
+    if(await dir.exists() == false){
+      dir.createSync(recursive: true);
+    }
     // Check if the folder is created or not
-    var dir = Directory(path);
+    dir = Directory(path);
     if (!await dir.exists()) {
       await dir.create(recursive: true);
     }

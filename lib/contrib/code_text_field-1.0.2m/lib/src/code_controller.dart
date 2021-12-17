@@ -41,11 +41,13 @@ class CodeController extends TextEditingController {
 
   /// onChange callback, called whenever the content is changed
   final void Function(String)? onChange;
+  final void Function(String lastToken)? onAutoComplete;
 
   /* Computed members */
   final String languageId = _genId();
   final styleList = <TextStyle>[];
   final modifierMap = <String, CodeModifier>{};
+  final autoCompleteKeystroke = <String>[".",":"];
   RegExp? styleRegExp;
 
   CodeController({
@@ -62,6 +64,7 @@ class CodeController extends TextEditingController {
     ],
     this.webSpaceFix = true,
     this.onChange,
+    this.onAutoComplete
   }) : super(text: text) {
     // PatternMap
     if (language != null && theme == null)
@@ -137,6 +140,11 @@ class CodeController extends TextEditingController {
     if (event.isKeyPressed(LogicalKeyboardKey.backspace)){
       backspace();
       return KeyEventResult.handled;
+    }
+    else if( autoCompleteKeystroke.contains(event.logicalKey.keyLabel) && event.isKeyPressed(event.logicalKey)){
+      if(onAutoComplete != null) {
+        onAutoComplete?.call("");
+      }
     }
     return KeyEventResult.ignored;
   }
