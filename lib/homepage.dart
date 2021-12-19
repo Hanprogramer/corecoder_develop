@@ -403,9 +403,6 @@ class _HomePageState extends State<HomePage> {
             onPressed: () {},
             child: const Text("Add"),
           ),
-          ElevatedButton(
-              onPressed: () => showCreateProjectDialog(),
-              child: const Text("New")),
         ]),
         Column(
           children: projectsWidgets,
@@ -425,6 +422,10 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: SingleChildScrollView(child: page),
+      floatingActionButton: FloatingActionButton(
+          onPressed: () => showCreateProjectDialog(),
+          child: const Icon(Icons.create_new_folder)
+      )
     );
   }
 }
