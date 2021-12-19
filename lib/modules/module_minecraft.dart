@@ -3,7 +3,7 @@ import 'dart:io' show Directory, File, Platform;
 import 'package:corecoder_develop/util/modules_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-
+import 'android
 class MinecraftModule extends Module {
   String comMojang = ""; // platform dependent
 
@@ -62,6 +62,7 @@ class MinecraftModule extends Module {
       comMojang +=
           "\\Packages\\Microsoft.MinecraftUWP_8wekyb3d8bbwe\\LocalState\\games\\com.mojang\\";
     } else if (Platform.isAndroid) {
+      comMojang = ExtStorage.getExternalStorageDirectory()
       comMojang = "/storage/emulated/0/games/com.mojang/";
     } else {
       comMojang = "UNKNOWN";
