@@ -234,6 +234,7 @@ class _EditorPageState extends State<EditorPage> {
         language = 'lua';
       }
       tabs.add(createFileTab(filename, content, language, filepath));
+      selectedTab = tabs.length - 1;
     });
   }
 
