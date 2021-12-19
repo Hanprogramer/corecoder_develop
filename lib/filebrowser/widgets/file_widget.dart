@@ -40,7 +40,7 @@ class FileWidget extends StatelessWidget {
       Utils.getFormattedDateTime(dateTime: lastModified),
     );
     Icon fileIcon = const Icon(
-      FontAwesomeIcons.fileCode,
+      Icons.insert_drive_file_rounded,
       size: 24,
     ); //const Icon(Icons.insert_drive_file);
 

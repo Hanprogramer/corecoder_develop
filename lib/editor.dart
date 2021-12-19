@@ -342,17 +342,17 @@ class _EditorPageState extends State<EditorPage> {
         actions: [
           IconButton(
             onPressed: () => {project.run()},
-            icon: const Icon(FontAwesomeIcons.play),
+            icon: const Icon(Icons.play_arrow),
             tooltip: "Run Project",
           ),
           IconButton(
             onPressed: () => {Navigator.pop(context)},
-            icon: const Icon(FontAwesomeIcons.timesCircle),
+            icon: const Icon(Icons.close),
             tooltip: "Close Project",
           ),
           IconButton(
               onPressed: () => {},
-              icon: const Icon(FontAwesomeIcons.ellipsisV)),
+              icon: const Icon(Icons.more_horiz)),
           const SizedBox(width: 16.0),
         ],
       ),
