@@ -32,7 +32,7 @@ class DirectoryWidget extends StatelessWidget {
         child: Text(directoryName,
             style: TextStyle(
                 fontSize: 16,
-                color: ThemeManager.getThemeColor("foreground"))));
+                color: ThemeManager.getThemeSchemeColor("foreground"))));
 
     Icon folderIcon = const Icon(Icons.folder);
 

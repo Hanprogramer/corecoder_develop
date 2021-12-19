@@ -24,11 +24,16 @@ class DrawerStateInfo with ChangeNotifier {
 }
 
 class MyDrawer extends StatelessWidget {
-  MyDrawer(this.documentList, this.project, this.onFileTap);
 
-  CCSolution project;
-  List<Document> documentList = [];
-  void Function(String filepath) onFileTap;
+  final CCSolution project;
+  final List<Document> documentList;
+  final void Function(String filepath) onFileTap;
+
+  const MyDrawer(this.documentList, this.project, this.onFileTap);
+
+  void onFileLongTap(String filepath){
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +71,7 @@ class MyDrawer extends StatelessWidget {
     return childDocuments.map((document) {
       if (!document.isFile) {
         return Container(
-          margin: EdgeInsets.only(left: 16.0),
+          margin: const EdgeInsets.only(left: 16.0),
           child: TreeViewChild(
             parent: _getDocumentWidget(
               document: document,
@@ -112,5 +117,6 @@ class MyDrawer extends StatelessWidget {
         fileName: document.name,
         lastModified: document.dateModified,
         onTap: onFileTap,
+        onLongTap: onFileLongTap,
       );
 }

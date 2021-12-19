@@ -92,6 +92,8 @@ class CodeField extends StatefulWidget {
   final TextSelectionThemeData? textSelectionTheme;
   final FocusNode? focusNode;
 
+  final Function(Offset pos)? onCursorPosChanged;
+
   const CodeField({
     Key? key,
     required this.controller,
@@ -109,6 +111,7 @@ class CodeField extends StatefulWidget {
     this.textSelectionTheme,
     this.lineNumberBuilder,
     this.focusNode,
+    this.onCursorPosChanged
   }) : super(key: key);
 
   @override
@@ -116,6 +119,7 @@ class CodeField extends StatefulWidget {
 }
 
 class CodeFieldState extends State<CodeField> {
+
 // Add a controller
   LinkedScrollControllerGroup? _controllers;
   ScrollController? _numberScroll;
@@ -126,6 +130,8 @@ class CodeFieldState extends State<CodeField> {
   FocusNode? _focusNode;
   String? lines;
   String longestLine = "";
+  Offset cursorOffset = Offset.zero;
+  TextField? codeField;
 
   @override
   void initState() {
@@ -158,8 +164,27 @@ class CodeFieldState extends State<CodeField> {
   void rebuild() {
     setState(() {});
   }
+  void _updateOffset(){
+    if(codeField == null) return;
+    TextPainter painter = TextPainter(
+      textDirection: TextDirection.ltr,
+      text: TextSpan(
+        style: codeField?.style,
+        text: widget.controller.rawText,
+      ),
+    );
+    painter.layout();
+    TextPosition cursorTextPosition = widget.controller.selection.base;
+    Rect caretPrototype = Rect.fromLTWH(
+        0.0, 0.0, codeField!.cursorWidth, codeField!.cursorHeight ?? 0);
+    Offset caretOffset = painter.getOffsetForCaret(cursorTextPosition, caretPrototype);
 
+    if(widget.onCursorPosChanged != null){
+      widget.onCursorPosChanged?.call(caretOffset);
+    }
+  }
   void _onTextChanged() {
+    _updateOffset();
     // Rebuild line number
     final str = widget.controller.text.split("\n");
     final buf = <String>[];
@@ -173,6 +198,7 @@ class CodeFieldState extends State<CodeField> {
       if (line.length > longestLine.length) longestLine = line;
     });
     setState(() {});
+
   }
 
   // Wrap the codeField in a horizontal scrollView
@@ -209,6 +235,8 @@ class CodeFieldState extends State<CodeField> {
       child: intrinsic,
     );
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -265,7 +293,7 @@ class CodeFieldState extends State<CodeField> {
       child: lineNumberCol,
     );
 
-    final codeField = TextField(
+    codeField = TextField(
       focusNode: _focusNode,
       scrollPadding: widget.padding,
       style: textStyle,
@@ -274,7 +302,7 @@ class CodeFieldState extends State<CodeField> {
       maxLines: widget.maxLines,
       expands: widget.expands,
       scrollController: _codeScroll,
-      decoration: InputDecoration(
+      decoration: const InputDecoration(
         disabledBorder: InputBorder.none,
         border: InputBorder.none,
         focusedBorder: InputBorder.none,
@@ -293,8 +321,8 @@ class CodeFieldState extends State<CodeField> {
         builder: (BuildContext context, BoxConstraints constraints) {
           // Control horizontal scrolling
           return widget.wrap
-              ? codeField
-              : _wrapInScrollView(codeField, textStyle, constraints.maxWidth);
+              ? codeField??Column()
+              : _wrapInScrollView(codeField??Column(), textStyle, constraints.maxWidth);
         },
       ),
     );

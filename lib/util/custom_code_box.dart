@@ -103,6 +103,7 @@ class _CustomCodeBoxState extends State<CustomCodeBox> {
       language: language!,
       theme: theme,
       source: source!,
+      filePath: "",
     );
     // return Column(children: [
     //   dropdowns,
@@ -112,31 +113,23 @@ class _CustomCodeBoxState extends State<CustomCodeBox> {
   }
 }
 
-class InnerField extends StatefulWidget {
+class InnerField extends StatelessWidget {
+  late CodeController codeController;
+
   final String language;
   final Map<String, TextStyle> theme;
   final String source;
+  Function(String filePath, String source)? onChange;
+  Function(Offset offset)? setCursorOffset;
+  Function(String lastToken)? onAutoComplete;
+  final String filePath;
+  late CodeField codeField;
 
-  const InnerField({Key? key, required this.language, required this.theme, required this.source})
-      : super(key: key);
 
-  @override
-  _InnerFieldState createState() => _InnerFieldState();
-}
-
-class _InnerFieldState extends State<InnerField> {
-  CodeController? _codeController;
-
-  void setSource(String source){
-    _codeController!.text = source;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _codeController = CodeController(
-      onChange: (String source) {},
-      text: widget.source,
+  InnerField({Key? key, required this.language, required this.theme, required this.source, required this.filePath, this.onChange, this.onAutoComplete, this.setCursorOffset})
+      : super(key: key){
+    codeController = CodeController(
+      text: source,
       params: EditorParams(tabSpaces: 4),
       patternMap: {
         r"\B#[a-zA-Z0-9]+\b": TextStyle(color: Colors.red),
@@ -145,28 +138,28 @@ class _InnerFieldState extends State<InnerField> {
           color: Colors.blue,
         ),
         r"\B![a-zA-Z0-9]+\b":
-            TextStyle(color: Colors.yellow, fontStyle: FontStyle.italic),
+        TextStyle(color: Colors.yellow, fontStyle: FontStyle.italic),
       },
       stringMap: {
         "bev": TextStyle(color: Colors.indigo),
       },
-      language: allLanguages[widget.language],
-      theme: widget.theme,
+      language: allLanguages[language],
+      theme: theme,
+      onAutoComplete: (String lastToken){
+        if(onAutoComplete != null) {
+          onAutoComplete!.call(lastToken);
+        }
+      });
+    codeField = CodeField(
+      onCursorPosChanged: setCursorOffset,
+      controller: codeController,
+      textStyle: const TextStyle(fontFamily: 'SourceCode'),
     );
-  }
-
-  @override
-  void dispose() {
-    _codeController?.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return CodeField(
-      controller: _codeController!,
-      textStyle: TextStyle(fontFamily: 'SourceCode'),
-
-    );
+    return codeField;
   }
+
 }

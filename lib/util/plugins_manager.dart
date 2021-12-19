@@ -9,34 +9,45 @@ import 'modules_manager.dart';
 
 class PluginsManager {
   static bool isInitialized = false;
-  static String _pluginsPath = "";
+  static String syncPluginsPath = "";
+  static String projectsPath = ""; // todo: move this somewhere more general
 
   static Future<String> get pluginsPath async {
     if (!isInitialized) {
       await initialize();
     }
-    return _pluginsPath;
+    return syncPluginsPath;
   }
 
   static Future<void> initialize() async {
     String path = (await getApplicationDocumentsDirectory()).path +
         Platform.pathSeparator +
         "CoreCoder" +
-        Platform.pathSeparator +
-        "plugins";
+        Platform.pathSeparator;
     if (Platform.isAndroid) {
       path = (await getExternalStorageDirectory())!.path +
           Platform.pathSeparator +
           "CoreCoder" +
-          Platform.pathSeparator +
-          "plugins";
+          Platform.pathSeparator;
     } else {
       //TODO: add more platforms
     }
-    _pluginsPath = path;
+    projectsPath = path+"projects"+
+        Platform.pathSeparator;
+    Directory dir;
+    dir = Directory(projectsPath);
+    if(await dir.exists() == false){
+      dir.createSync(recursive: true);
+    }
+    syncPluginsPath = path+"plugins"+
+        Platform.pathSeparator;
 
+    dir = Directory(syncPluginsPath);
+    if(await dir.exists() == false){
+      dir.createSync(recursive: true);
+    }
     // Check if the folder is created or not
-    var dir = Directory(path);
+    dir = Directory(path);
     if (!await dir.exists()) {
       await dir.create(recursive: true);
     }
@@ -44,7 +55,7 @@ class PluginsManager {
     isInitialized = true;
   }
 
-  static Future<void> reloadPlugins(ModulesManager modulesManager) async {
+  static Future<void> reloadPlugins(ModulesManager modulesManager,BuildContext context) async {
     if (!isInitialized) {
       await initialize();
     }
@@ -62,7 +73,7 @@ class PluginsManager {
             ModulesManager.externalModules.add(module);
           } //TODO:warn user if module not loaded
         }
-        modulesManager.onInitialized();
+        modulesManager.onInitialized(context);
       });
     } catch (err) {
       debugPrint(err.toString());

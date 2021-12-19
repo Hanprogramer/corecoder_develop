@@ -1,10 +1,12 @@
 import 'dart:ffi';
 import 'dart:typed_data';
 import 'package:corecoder_develop/modules/jsapi.dart';
+import 'package:corecoder_develop/util/cc_project_structure.dart';
 import 'package:corecoder_develop/util/modules_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_jscore/jscore_bindings.dart';
 import 'package:ffi/ffi.dart';
+import 'package:corecoder_develop/homepage.dart';
 import 'package:flutter_jscore/flutter_jscore.dart' as jscore
     show
         JSContext,
@@ -14,17 +16,23 @@ import 'package:flutter_jscore/flutter_jscore.dart' as jscore
         JSClassDefinition,
         JSPropertyAttributes,
         JSClassAttributes,
-        JSStaticFunction;
+        JSStaticFunction,
+        JSValue,
+        JSPropertyNameArray,
+        JSStaticValueArray,
+        JSTypedArrayType,
+        JSValuePointer;
 
 class JsModule extends Module {
   String mainScript = "";
 
   late jscore.JSContext context;
   late jscore.JSObject globalObj;
+  late BuildContext buildContext;
 
   Pointer get _ctxPtr => context.pointer;
   late Pointer _globalObjPtr;
-
+  List<String> Function(String lang, String lastToken)? onAutocomplete;
 
   /// Expose the CoreCoder class to js
   void initializeCC3JS() {
@@ -40,6 +48,11 @@ class JsModule extends Module {
       JSStaticFunctionStruct(
         name: 'addTemplate'.toNativeUtf8(),
         callAsFunction: Pointer.fromFunction(CoreCoder.jsAddTemplate),
+        attributes: JSPropertyAttributes.kJSPropertyAttributeNone,
+      ),
+      JSStaticFunctionStruct(
+        name: 'getProjectFolder'.toNativeUtf8(),
+        callAsFunction: Pointer.fromFunction(CoreCoder.jsGetProjectFolder),
         attributes: JSPropertyAttributes.kJSPropertyAttributeNone,
       ),
     ]);
@@ -79,27 +92,39 @@ class JsModule extends Module {
       jscore.JSStaticFunction(
           name: "writeFile",
           attributes: jscore.JSPropertyAttributes.kJSPropertyAttributeReadOnly,
-          callAsFunction: Pointer.fromFunction(CoreCoder.jsPrint)),
+          callAsFunction: Pointer.fromFunction(FileIO.jsWriteFile)),
       jscore.JSStaticFunction(
           name: "appendFile",
           attributes: jscore.JSPropertyAttributes.kJSPropertyAttributeReadOnly,
-          callAsFunction: Pointer.fromFunction(CoreCoder.jsPrint)),
+          callAsFunction: Pointer.fromFunction(FileIO.jsAppendFile)),
       jscore.JSStaticFunction(
           name: "readFile",
           attributes: jscore.JSPropertyAttributes.kJSPropertyAttributeReadOnly,
-          callAsFunction: Pointer.fromFunction(CoreCoder.jsPrint)),
+          callAsFunction: Pointer.fromFunction(FileIO.jsReadFile)),
       jscore.JSStaticFunction(
           name: "isExists",
           attributes: jscore.JSPropertyAttributes.kJSPropertyAttributeReadOnly,
-          callAsFunction: Pointer.fromFunction(CoreCoder.jsPrint)),
+          callAsFunction: Pointer.fromFunction(FileIO.jsIsExists)),
       jscore.JSStaticFunction(
           name: "isFile",
           attributes: jscore.JSPropertyAttributes.kJSPropertyAttributeReadOnly,
-          callAsFunction: Pointer.fromFunction(CoreCoder.jsPrint)),
+          callAsFunction: Pointer.fromFunction(FileIO.jsIsFile)),
       jscore.JSStaticFunction(
           name: "isDirectory",
           attributes: jscore.JSPropertyAttributes.kJSPropertyAttributeReadOnly,
-          callAsFunction: Pointer.fromFunction(CoreCoder.jsPrint)),
+          callAsFunction: Pointer.fromFunction(FileIO.jsIsDirectory)),
+      jscore.JSStaticFunction(
+          name: "mkdir",
+          attributes: jscore.JSPropertyAttributes.kJSPropertyAttributeReadOnly,
+          callAsFunction: Pointer.fromFunction(FileIO.jsMkdir)),
+      jscore.JSStaticFunction(
+          name: "mkdirRecursive",
+          attributes: jscore.JSPropertyAttributes.kJSPropertyAttributeReadOnly,
+          callAsFunction: Pointer.fromFunction(FileIO.jsMkdirRecursive)),
+      jscore.JSStaticFunction(
+          name: "rmdir",
+          attributes: jscore.JSPropertyAttributes.kJSPropertyAttributeReadOnly,
+          callAsFunction: Pointer.fromFunction(FileIO.jsRmdir)),
     ];
     var classDef = jscore.JSClassDefinition(
       version: 0,
@@ -142,7 +167,9 @@ class JsModule extends Module {
   }
 
   @override
-  void onInitialized(ModulesManager modulesManager) {
+  void onInitialized(
+      ModulesManager modulesManager, BuildContext buildContext) async {
+    this.buildContext = buildContext;
     context =
         jscore.JSContext.createInGroup(group: jscore.JSContextGroup.create());
     globalObj = context.globalObject;
@@ -154,22 +181,87 @@ class JsModule extends Module {
     initializeCC3JS();
     initializeCC3JSFileIO();
     debugPrint("Initializing JSModule $name");
-    jSEvaluateScript(
+    jSCheckScriptSyntax(
         _ctxPtr,
         jSStringCreateWithUTF8CString(mainScript.toNativeUtf8()),
         nullptr,
-        nullptr,
         1,
-        nullptr);
-    Pointer onInitializedValueRef = jSObjectGetProperty(
-      _ctxPtr,
-      _globalObjPtr,
-      jSStringCreateWithUTF8CString('onInitialized'.toNativeUtf8()),
-      nullptr,
-    );
-    Pointer onInitializedObj =
-        jSValueToObject(_ctxPtr, onInitializedValueRef, nullptr);
-    jSObjectCallAsFunction(
-        _ctxPtr, onInitializedObj, nullptr, 0, nullptr, nullptr);
+        context.exception.pointer);
+
+    if (context.exception.getValue(context).isNull == false) {
+      var errorObj = context.exception.getValue(context).toObject();
+      var name = errorObj.getProperty("name").string;
+      var message = errorObj.getProperty("message").string;
+      var lineNumber = errorObj.getProperty("line").string;
+      debugPrint("[JSError](line $lineNumber) $name : $message");
+    }
+    context.evaluate(mainScript);
+
+    /// ************************
+    /// Overridable functions
+    /// ************************
+
+    if (globalObj.hasProperty("onInitialized")) {
+      jscore.JSValue onInitializedValue =
+          globalObj.getProperty("onInitialized");
+      jscore.JSObject onInitializedObj = onInitializedValue.toObject();
+      jscore.JSValuePointer? err;
+      onInitializedObj.callAsFunction(
+          globalObj, jscore.JSValuePointer.array([]),
+          exception: err);
+      if (err != null && err.getValue(context).isNull == false) {
+        debugPrint("[JSError] ${err.getValue(context).toString()}");
+      }
+    }
+
+    if (globalObj.hasProperty("onGetAutocomplete")) {
+      jscore.JSValue onInitializedValue =
+          globalObj.getProperty("onGetAutocomplete");
+      jscore.JSObject onInitializedObj = onInitializedValue.toObject();
+      onAutocomplete = (String lang, String lastToken) {
+        var result = <String>[];
+        jscore.JSValuePointer? err;
+        var jsResult = onInitializedObj.callAsFunction(
+            globalObj, jscore.JSValuePointer.array([
+              jscore.JSValue.makeString(context, "string"),
+              jscore.JSValue.makeString(context, "love"),
+        ]),
+            exception: err);
+        if (err != null && err.getValue(context).isNull == false) {
+          debugPrint("[JSError] ${err.getValue(context).toString()}");
+        }
+        if(jsResult.isObject){
+          var arr = jsResult.toObject();
+          var props = arr.copyPropertyNames();
+          for(var i = 0; i < props.count; i++){
+            var name = props.propertyNameArrayGetNameAtIndex(i);
+            if(lastToken != "" && name == lastToken){
+              var inner = arr.getProperty(name).toObject();
+              var props2 = inner.copyPropertyNames();
+              for(var k = 0; k < props2.count; k++) {
+                result.add(props2.propertyNameArrayGetNameAtIndex(k));
+              }
+            }
+            if(lastToken == ""){
+              result.add(name);
+            }
+          }
+        }else{
+          debugPrint("It's not an object");
+        }
+        return result;
+      };
+    }
+  }
+
+  @override
+  List<String> onAutoComplete(String language, String lastToken) {
+    if(onAutocomplete != null) {
+      List<String>? list = onAutocomplete?.call(language, lastToken);
+      if(list != null){
+        return list;
+      }
+    }
+    return [];
   }
 }

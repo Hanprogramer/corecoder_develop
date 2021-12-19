@@ -1,8 +1,12 @@
+import 'dart:async';
 import 'dart:io';
 
-import 'package:corecoder_develop/util/custom_code_box.dart';
+import 'package:corecoder_develop/util/custom_code_box.dart'
+    show InnerField, InnerFieldState;
 import 'package:corecoder_develop/editor_drawer.dart';
+import 'package:corecoder_develop/util/modules_manager.dart';
 import 'package:corecoder_develop/util/theme_manager.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:tabbed_view/tabbed_view.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -10,6 +14,7 @@ import 'package:path/path.dart' as path;
 import 'package:url_launcher/url_launcher.dart';
 import 'util/cc_project_structure.dart';
 import 'filebrowser/models/document.dart';
+import 'package:async/async.dart' show RestartableTimer;
 
 class EditorPage extends StatefulWidget {
   static const String routeName = "/EditorPage";
@@ -24,10 +29,21 @@ class _EditorPageState extends State<EditorPage> {
   late CCSolution project;
   List<Document> documentList = [];
   List<TabData> tabs = [];
+  bool autoCompleteShown = false;
+  List<String> autoComplete = <String>[
+    "var|hello",
+    "var|world",
+    "func|helloWorld",
+    "func|helloCoreCoder",
+  ];
+  double autoCompleteX = 0;
+  double autoCompleteY = 0;
+  int selectedTab = 0;
 
   @override
   void initState() {
     super.initState();
+    autoSaveTimer = RestartableTimer(const Duration(seconds: 1), onAutoSave);
   }
 
   @override
@@ -144,8 +160,48 @@ class _EditorPageState extends State<EditorPage> {
   // List<Node> fileBrowserNodes = <Node>[];
   List<Tab> editorTabs = <Tab>[];
   List<Tab> tempTabs = <Tab>[];
+  List<InnerField> codeFields = <InnerField>[];
+  late RestartableTimer autoSaveTimer;
 
-  TabData createFileTab(String title, String source, String language) {
+  void onAutoSave() async {
+    debugPrint("autosave");
+    for (var tab in tabs) {
+      var field = (((tab.content as SingleChildScrollView).child as Container)
+          .child as InnerField);
+
+      //TODO: better saving function
+      await File(field.filePath).writeAsString(field.codeController.rawText);
+    }
+  }
+
+  TabData createFileTab(
+      String title, String source, String language, String filePath) {
+    var field = InnerField(
+      language: language,
+      theme: ThemeManager.getHighlighting(),
+      source: source,
+      filePath: filePath,
+      onChange: (String filePath, String source) {
+        autoSaveTimer.reset();
+      },
+      onAutoComplete: (String lastToken) {
+        autoComplete = [];
+        for(var module in ModulesManager.modules){
+           autoComplete.addAll(module.onAutoComplete(language, lastToken));
+        }
+        setState(() {
+          autoCompleteShown = true;
+        });
+      },
+      setCursorOffset: (Offset offset) {
+        setState(() {
+          autoCompleteX = offset.dx;
+          autoCompleteY = offset.dy + 64;
+        });
+      },
+    );
+
+    codeFields.add(field);
     return TabData(
         text: title,
         closable: true,
@@ -155,21 +211,81 @@ class _EditorPageState extends State<EditorPage> {
             child: Container(
               constraints: BoxConstraints(
                   minHeight: MediaQuery.of(context).size.height * 2),
-              child: InnerField(
-                  language: language,
-                  theme: ThemeManager.getHighlighting(),
-                  source: source),
+              child: field,
             )));
   }
 
   void openFile(String filepath) async {
     var filename = path.basename(filepath);
     var content = await File(filepath).readAsString();
-    debugPrint(content);
+    //debugPrint(content);
     content = content.replaceAll("\t", "    ");
     setState(() {
-      tabs.add(createFileTab(filename, content, 'json'));
+      var language = 'javascript';
+      if (filename.endsWith(".json")) {
+        language = 'json';
+      }
+      if (filename.endsWith(".lua")) {
+        language = 'lua';
+      }
+      tabs.add(createFileTab(filename, content, language, filepath));
     });
+  }
+
+  List<Widget> getAutoCompleteControls(String? a) {
+    List<Widget> result = List.generate(autoComplete.length, (index) {
+      var item = autoComplete[index].split("|");
+      var type = item[0];
+      var name = item[1];
+      var desc = "";
+      if(item.length > 2)
+        {
+          desc = item[2];
+        }
+      var color = Colors.black12;
+      switch(type){
+        case "var":
+          color = Colors.blueAccent;
+          break;
+        case "func":
+          color = Colors.purpleAccent;
+          break;
+      }
+      return InkWell(
+        //style: TextStyle(padding: MaterialStateProperty.all(EdgeInsets.zero)),
+        child: Row(
+          children: [
+            Container(
+              color: color,
+              child: Text(
+                type.characters.first,
+                textAlign: TextAlign.center,
+              ),
+              padding: const EdgeInsets.all(8.0),
+              margin: const EdgeInsets.only(right: 8.0),
+              width: 32,
+            ),
+            Text(
+              name,
+            ),
+            const Spacer(),
+            Flexible(child:Text(desc,overflow: TextOverflow.ellipsis,))
+          ],
+        ),
+        onTap: () {
+          setState(() {
+            autoCompleteShown = false;
+            if(selectedTab < 0) return;
+            var currentTab = tabs[selectedTab];
+            var currentField = ((currentTab.content as SingleChildScrollView).child as Container).child as InnerField;
+            var controller = currentField.codeController;
+            controller.insertStr(name);
+          });
+        },
+      );
+    });
+
+    return result;
   }
 
   @override
@@ -179,24 +295,40 @@ class _EditorPageState extends State<EditorPage> {
       // Populate the file browser tree once
       initializeTreeView();
     }
-    final codeBox = InnerField(
-        language: 'json',
-        theme: ThemeManager.getHighlighting(),
-        source: project.name);
-    final page = Column(//direction: Axis.vertical,
-        children: [
-      Expanded(
+    final page = Stack(children: [
+      Column(//direction: Axis.vertical,
+          children: [
+        Expanded(
           child: tabs.isNotEmpty
               ? TabbedViewTheme(
                   data: getTabTheme(),
-                  child: TabbedView(onTabClose: (tabIndex, tabData) {
-                    setState(() {
-                      /// Just refresh the state
-                    });
-                  },
+                  child: TabbedView(
+                    onTabSelection: (int? selection){
+                      selectedTab = selection ?? -1;
+                    },
+                    onTabClose: (tabIndex, tabData) {
+                      setState(() {
+                        /// Just refresh the state
+                      });
+                    },
                     controller: TabbedViewController(tabs),
                   ))
-              : const Center(child:Text("No file opened"))),
+              : const Center(child: Text("No file opened")),
+        ),
+      ]),
+      if (autoCompleteShown)
+        Positioned(
+            top: autoCompleteY,
+            left: autoCompleteX,
+            width: 512,
+            child: ClipRRect(
+                child: Container(
+                  constraints: const BoxConstraints(minWidth: 256,maxWidth: 600,minHeight: 16,maxHeight: 300),
+                    clipBehavior: Clip.none,
+                    color: ThemeManager.getThemeSchemeColor("foreground"),
+                    child: Material(
+                        child: ListView(
+                            children: getAutoCompleteControls(null))))))
     ]);
 
     return Scaffold(
@@ -209,12 +341,18 @@ class _EditorPageState extends State<EditorPage> {
         centerTitle: false,
         actions: [
           IconButton(
+            onPressed: () => {project.run()},
+            icon: const Icon(FontAwesomeIcons.play),
+            tooltip: "Run Project",
+          ),
+          IconButton(
             onPressed: () => {Navigator.pop(context)},
             icon: const Icon(FontAwesomeIcons.timesCircle),
             tooltip: "Close Project",
           ),
           IconButton(
-              onPressed: () => {}, icon: const Icon(FontAwesomeIcons.ellipsisV)),
+              onPressed: () => {},
+              icon: const Icon(FontAwesomeIcons.ellipsisV)),
           const SizedBox(width: 16.0),
         ],
       ),
