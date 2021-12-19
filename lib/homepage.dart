@@ -285,12 +285,20 @@ class _HomePageState extends State<HomePage> {
       RecentProjectsManager.instance.projects.sort((CCSolution a, CCSolution b) {
         return b.dateModified.compareTo(a.dateModified);
       });
+      if (RecentProjectsManager.instance.projects.isEmpty) {
+        projectsWidgets.add(
+            const Text(
+                'No recent projects found. Create one using the button below!',
+            )
+        );
+      }
+      else {
       for (CCSolution p in RecentProjectsManager.instance.projects) {
         if (p.name == "") {
           continue;
         } // TODO: add better way to check if project is corrupt
         //debugPrint(p.name);
-        projectsWidgets.add(Card(
+        projectsWidgets.add(Card( //TODO: refactor this as a widget elsewhere, then reference that widget from here
             child: ListTile(
                 onTap: () {
                   touchFile(File(p.slnPath), p);
@@ -387,6 +395,8 @@ class _HomePageState extends State<HomePage> {
         //   icon: const Icon(FontAwesomeIcons.ellipsisV),
         // )));
       }
+
+      }
     });
   }
 
@@ -439,7 +449,7 @@ class _HomePageState extends State<HomePage> {
       body: SingleChildScrollView(child: page),
       floatingActionButton: FloatingActionButton(
           onPressed: () => showCreateProjectDialog(),
-          child: const Icon(Icons.create_new_folder)
+          child: const Icon(Icons.create_new_folder),
       )
     );
   }
