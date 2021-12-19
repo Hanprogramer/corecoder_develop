@@ -38,7 +38,7 @@ class _EditorPageState extends State<EditorPage> {
   ];
   double autoCompleteX = 0;
   double autoCompleteY = 0;
-  int selectedTab = 0;
+  int? selectedTab = null;
 
   @override
   void initState() {
@@ -290,8 +290,8 @@ class _EditorPageState extends State<EditorPage> {
         onTap: () {
           setState(() {
             autoCompleteShown = false;
-            if(selectedTab < 0) return;
-            var currentTab = tabs[selectedTab];
+            if(selectedTab == null || selectedTab!< 0) return;
+            var currentTab = tabs[selectedTab!];
             var currentField = ((currentTab.content as SingleChildScrollView).child as Container).child as InnerField;
             var controller = currentField.codeController;
             controller.insertStr(name);
