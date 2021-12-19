@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'util/plugins_manager.dart';
 
 class AppSettings {
-  static String appTheme = "atom-one-dark";
+  static String appTheme = "core-coder-dark";
 }
 
 class Settings {
@@ -56,7 +56,7 @@ class SettingsPage extends StatelessWidget {
         "The theme for entire app",
         (dynamic val) => {ThemeManager.setTheme(val)},
         SettingsPageItemType.TypeStringList,
-        <String>["atom-one-dark", "atom-one-light"],
+        <String>["core-coder-dark", "core-coder-light"],
         "Atom One Dark")
   ];
 

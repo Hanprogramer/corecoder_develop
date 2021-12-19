@@ -24,7 +24,7 @@ class CoreCoderApp extends StatefulWidget {
 }
 
 class CoreCoderAppState extends State<CoreCoderApp>{
-  String themeName = "atom-one-dark";
+  String themeName = "core-coder-dark";
   @override
   void initState(){
     super.initState();
