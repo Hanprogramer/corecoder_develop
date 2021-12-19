@@ -93,7 +93,7 @@ abstract class Module {
       this.identifier);
 
   void onInitialized(ModulesManager modulesManager, BuildContext buildContext);
-
+  List<String> onAutoComplete(String language, String lastToken);
   void addTemplate(Template template) {
     templates.add(template);
   }

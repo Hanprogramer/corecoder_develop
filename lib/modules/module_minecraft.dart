@@ -303,4 +303,11 @@ class MinecraftModule extends Module {
     templates.add(bpTemplate);
     templates.add(rpTemplate);
   }
+
+  @override
+  List<String> onAutoComplete(String language, String lastToken) {
+    // TODO: implement onAutoComplete
+    return [];
+  }
+
 }

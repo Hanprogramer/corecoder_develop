@@ -19,6 +19,8 @@ import 'package:flutter_jscore/flutter_jscore.dart' as jscore
         JSStaticFunction,
         JSValue,
         JSPropertyNameArray,
+        JSStaticValueArray,
+        JSTypedArrayType,
         JSValuePointer;
 
 class JsModule extends Module {
@@ -30,6 +32,7 @@ class JsModule extends Module {
 
   Pointer get _ctxPtr => context.pointer;
   late Pointer _globalObjPtr;
+  List<String> Function(String lang, String lastToken)? onAutocomplete;
 
   /// Expose the CoreCoder class to js
   void initializeCC3JS() {
@@ -185,7 +188,7 @@ class JsModule extends Module {
         1,
         context.exception.pointer);
 
-    if(context.exception.getValue(context).isNull == false){
+    if (context.exception.getValue(context).isNull == false) {
       var errorObj = context.exception.getValue(context).toObject();
       var name = errorObj.getProperty("name").string;
       var message = errorObj.getProperty("message").string;
@@ -193,12 +196,72 @@ class JsModule extends Module {
       debugPrint("[JSError](line $lineNumber) $name : $message");
     }
     context.evaluate(mainScript);
-    jscore.JSValue onInitializedValue = globalObj.getProperty("onInitialized");
-    jscore.JSObject onInitializedObj = onInitializedValue.toObject();
-    jscore.JSValuePointer? err;
-    onInitializedObj.callAsFunction(globalObj, jscore.JSValuePointer.array([]),exception: err);
-    if(err != null && err.getValue(context).isNull == false){
-      debugPrint("[JSError] ${err.getValue(context).toString()}");
+
+    /// ************************
+    /// Overridable functions
+    /// ************************
+
+    if (globalObj.hasProperty("onInitialized")) {
+      jscore.JSValue onInitializedValue =
+          globalObj.getProperty("onInitialized");
+      jscore.JSObject onInitializedObj = onInitializedValue.toObject();
+      jscore.JSValuePointer? err;
+      onInitializedObj.callAsFunction(
+          globalObj, jscore.JSValuePointer.array([]),
+          exception: err);
+      if (err != null && err.getValue(context).isNull == false) {
+        debugPrint("[JSError] ${err.getValue(context).toString()}");
+      }
     }
+
+    if (globalObj.hasProperty("onGetAutocomplete")) {
+      jscore.JSValue onInitializedValue =
+          globalObj.getProperty("onGetAutocomplete");
+      jscore.JSObject onInitializedObj = onInitializedValue.toObject();
+      onAutocomplete = (String lang, String lastToken) {
+        var result = <String>[];
+        jscore.JSValuePointer? err;
+        var jsResult = onInitializedObj.callAsFunction(
+            globalObj, jscore.JSValuePointer.array([
+              jscore.JSValue.makeString(context, "string"),
+              jscore.JSValue.makeString(context, "love"),
+        ]),
+            exception: err);
+        if (err != null && err.getValue(context).isNull == false) {
+          debugPrint("[JSError] ${err.getValue(context).toString()}");
+        }
+        if(jsResult.isObject){
+          var arr = jsResult.toObject();
+          var props = arr.copyPropertyNames();
+          for(var i = 0; i < props.count; i++){
+            var name = props.propertyNameArrayGetNameAtIndex(i);
+            if(lastToken != "" && name == lastToken){
+              var inner = arr.getProperty(name).toObject();
+              var props2 = inner.copyPropertyNames();
+              for(var k = 0; k < props2.count; k++) {
+                result.add(props2.propertyNameArrayGetNameAtIndex(k));
+              }
+            }
+            if(lastToken == ""){
+              result.add(name);
+            }
+          }
+        }else{
+          debugPrint("It's not an object");
+        }
+        return result;
+      };
+    }
+  }
+
+  @override
+  List<String> onAutoComplete(String language, String lastToken) {
+    if(onAutocomplete != null) {
+      List<String>? list = onAutocomplete?.call(language, lastToken);
+      if(list != null){
+        return list;
+      }
+    }
+    return [];
   }
 }

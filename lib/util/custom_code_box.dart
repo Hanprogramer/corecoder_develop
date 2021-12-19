@@ -154,7 +154,6 @@ class InnerField extends StatelessWidget {
       onCursorPosChanged: setCursorOffset,
       controller: codeController,
       textStyle: const TextStyle(fontFamily: 'SourceCode'),
-
     );
   }
 

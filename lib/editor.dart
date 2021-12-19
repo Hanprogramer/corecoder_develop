@@ -4,7 +4,9 @@ import 'dart:io';
 import 'package:corecoder_develop/util/custom_code_box.dart'
     show InnerField, InnerFieldState;
 import 'package:corecoder_develop/editor_drawer.dart';
+import 'package:corecoder_develop/util/modules_manager.dart';
 import 'package:corecoder_develop/util/theme_manager.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:tabbed_view/tabbed_view.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -183,6 +185,10 @@ class _EditorPageState extends State<EditorPage> {
         autoSaveTimer.reset();
       },
       onAutoComplete: (String lastToken) {
+        autoComplete = [];
+        for(var module in ModulesManager.modules){
+           autoComplete.addAll(module.onAutoComplete(language, lastToken));
+        }
         setState(() {
           autoCompleteShown = true;
         });
@@ -231,6 +237,11 @@ class _EditorPageState extends State<EditorPage> {
       var item = autoComplete[index].split("|");
       var type = item[0];
       var name = item[1];
+      var desc = "";
+      if(item.length > 2)
+        {
+          desc = item[2];
+        }
       var color = Colors.black12;
       switch(type){
         case "var":
@@ -256,7 +267,9 @@ class _EditorPageState extends State<EditorPage> {
             ),
             Text(
               name,
-            )
+            ),
+            const Spacer(),
+            Flexible(child:Text(desc,overflow: TextOverflow.ellipsis,))
           ],
         ),
         onTap: () {

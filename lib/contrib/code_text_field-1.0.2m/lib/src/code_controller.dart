@@ -14,7 +14,7 @@ class EditorParams {
 }
 
 class CodeController extends TextEditingController {
-  /// A highligh language to parse the text with
+  /// A highlight language to parse the text with
   final Mode? language;
 
   /// The theme to apply to the [language] parsing result
@@ -47,7 +47,7 @@ class CodeController extends TextEditingController {
   final String languageId = _genId();
   final styleList = <TextStyle>[];
   final modifierMap = <String, CodeModifier>{};
-  final autoCompleteKeystroke = <String>[".",":"];
+  final autoCompleteKeystroke = <String>[".",":"]; //TODO: make this controllable by plugins
   RegExp? styleRegExp;
 
   CodeController({
