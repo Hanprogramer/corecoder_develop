@@ -56,7 +56,10 @@ class ThemeManager {
         ),
       ),
       cardColor: backgroundColor,
-
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: primaryColor,
+        foregroundColor: foregroundColor
+      )
     );
     return theme;
   }

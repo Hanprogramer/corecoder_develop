@@ -193,7 +193,7 @@ const editorThemes = {
       // Controls
       "background": Color(0xFF1E2127),
       "backgroundSecondary": Color(0xFF282C34),
-      "foreground": Color(0xFFb9bab8),
+      "foreground": Color(0xfffdfdfd),
 
       // Colors
       "black": Color(0xFF000000),
