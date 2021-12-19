@@ -199,6 +199,11 @@ class _EditorPageState extends State<EditorPage> {
           autoCompleteY = offset.dy + 64;
         });
       },
+      onUnAutoComplete: (){
+        setState(() {
+          autoCompleteShown = false;
+        });
+      },
     );
 
     codeFields.add(field);
@@ -235,13 +240,12 @@ class _EditorPageState extends State<EditorPage> {
   List<Widget> getAutoCompleteControls(String? a) {
     List<Widget> result = List.generate(autoComplete.length, (index) {
       var item = autoComplete[index].split("|");
-      var type = item[0];
-      var name = item[1];
-      var desc = "";
-      if(item.length > 2)
-        {
-          desc = item[2];
-        }
+      var type = "undefined", name = "name", desc = "undefined";
+      if(item.isNotEmpty) {
+        type = item.length > 1 ? item[0] : "undefined";
+        name = item.length > 1 ? item[1] : item[0];
+        desc = item.length > 2 ? item[2] : "";
+      }
       var color = Colors.black12;
       switch(type){
         case "var":
@@ -249,6 +253,12 @@ class _EditorPageState extends State<EditorPage> {
           break;
         case "func":
           color = Colors.purpleAccent;
+          break;
+        case "type":
+          color = Colors.orangeAccent;
+          break;
+        case "module":
+          color = Colors.redAccent;
           break;
       }
       return InkWell(
@@ -268,8 +278,13 @@ class _EditorPageState extends State<EditorPage> {
             Text(
               name,
             ),
-            const Spacer(),
-            Flexible(child:Text(desc,overflow: TextOverflow.ellipsis,))
+            const Spacer(flex: 1,),
+            Flexible(
+              child:Text(desc,overflow: TextOverflow.ellipsis,textAlign: TextAlign.end,),
+              fit: FlexFit.tight,
+            ),
+            const SizedBox.square(dimension: 12,)
+
           ],
         ),
         onTap: () {

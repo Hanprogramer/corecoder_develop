@@ -122,26 +122,27 @@ class InnerField extends StatelessWidget {
   Function(String filePath, String source)? onChange;
   Function(Offset offset)? setCursorOffset;
   Function(String lastToken)? onAutoComplete;
+  Function()? onUnAutoComplete;
   final String filePath;
   late CodeField codeField;
 
 
-  InnerField({Key? key, required this.language, required this.theme, required this.source, required this.filePath, this.onChange, this.onAutoComplete, this.setCursorOffset})
+  InnerField({Key? key, required this.language, required this.theme, required this.source, required this.filePath, this.onChange, this.onAutoComplete, this.onUnAutoComplete, this.setCursorOffset})
       : super(key: key){
     codeController = CodeController(
       text: source,
-      params: EditorParams(tabSpaces: 4),
+      params: const EditorParams(tabSpaces: 4),
       patternMap: {
-        r"\B#[a-zA-Z0-9]+\b": TextStyle(color: Colors.red),
-        r"\B@[a-zA-Z0-9]+\b": TextStyle(
+        r"\B#[a-zA-Z0-9]+\b": const TextStyle(color: Colors.red),
+        r"\B@[a-zA-Z0-9]+\b": const TextStyle(
           fontWeight: FontWeight.w800,
           color: Colors.blue,
         ),
         r"\B![a-zA-Z0-9]+\b":
-        TextStyle(color: Colors.yellow, fontStyle: FontStyle.italic),
+        const TextStyle(color: Colors.yellow, fontStyle: FontStyle.italic),
       },
       stringMap: {
-        "bev": TextStyle(color: Colors.indigo),
+        "bev": const TextStyle(color: Colors.indigo),
       },
       language: allLanguages[language],
       theme: theme,
@@ -149,7 +150,13 @@ class InnerField extends StatelessWidget {
         if(onAutoComplete != null) {
           onAutoComplete!.call(lastToken);
         }
-      });
+      },
+      onUnAutoComplete: (){
+        if(onUnAutoComplete != null) {
+          onUnAutoComplete!.call();
+        }
+      },
+    );
     codeField = CodeField(
       onCursorPosChanged: setCursorOffset,
       controller: codeController,

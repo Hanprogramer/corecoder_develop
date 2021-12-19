@@ -6,7 +6,6 @@ import 'package:highlight/highlight_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 const _MIDDLE_DOT = '·';
-
 class EditorParams {
   final int tabSpaces;
 
@@ -40,14 +39,16 @@ class CodeController extends TextEditingController {
   final bool webSpaceFix;
 
   /// onChange callback, called whenever the content is changed
-  final void Function(String)? onChange;
-  final void Function(String lastToken)? onAutoComplete;
+  final void Function(String)? onChange;                  // when the code change
+  final void Function(String lastToken)? onAutoComplete;  // when autocomplete keystroke is pressed
+  final void Function()? onUnAutoComplete;// when a token delimiter is deleted
 
   /* Computed members */
   final String languageId = _genId();
   final styleList = <TextStyle>[];
   final modifierMap = <String, CodeModifier>{};
-  final autoCompleteKeystroke = <String>[".",":"]; //TODO: make this controllable by plugins
+  var autoCompleteKeystroke = <String>[".",":"]; //TODO: make this controllable by plugins
+  var autoCompleteTokenDelimiter = <String>[".",":"," "]; //TODO: make this controllable by plugins
   RegExp? styleRegExp;
 
   CodeController({
@@ -64,7 +65,8 @@ class CodeController extends TextEditingController {
     ],
     this.webSpaceFix = true,
     this.onChange,
-    this.onAutoComplete
+    this.onAutoComplete,
+    this.onUnAutoComplete
   }) : super(text: text) {
     // PatternMap
     if (language != null && theme == null)
@@ -105,6 +107,10 @@ class CodeController extends TextEditingController {
         return;
       }
     }
+    var char = text.characters.characterAt(selection.start-1).string;
+    if(autoCompleteTokenDelimiter.contains(char)){
+      onUnAutoComplete?.call();
+    }
     final sel = selection;
     text = text.replaceRange(selection.start - 1, selection.start, "");
     selection = sel.copyWith(
@@ -126,8 +132,10 @@ class CodeController extends TextEditingController {
 
   /// Remove the selection or last char if the selection is empty
   void backspace() {
-    if (selection.start < selection.end)
+    if (selection.start < selection.end) {
       removeSelection();
+      onUnAutoComplete?.call();
+    }
     else
       removeChar();
   }
@@ -143,7 +151,7 @@ class CodeController extends TextEditingController {
     }
     else if( autoCompleteKeystroke.contains(event.logicalKey.keyLabel) && event.isKeyPressed(event.logicalKey)){
       if(onAutoComplete != null) {
-        onAutoComplete?.call("");
+        onAutoComplete?.call("love");
       }
     }
     return KeyEventResult.ignored;
