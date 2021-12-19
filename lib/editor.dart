@@ -310,6 +310,8 @@ class _EditorPageState extends State<EditorPage> {
       // Populate the file browser tree once
       initializeTreeView();
     }
+    var tabController = TabbedViewController(tabs,);
+    tabController.selectedIndex = selectedTab;
     final page = Stack(children: [
       Column(//direction: Axis.vertical,
           children: [
@@ -326,7 +328,7 @@ class _EditorPageState extends State<EditorPage> {
                         /// Just refresh the state
                       });
                     },
-                    controller: TabbedViewController(tabs),
+                    controller: tabController,
                   ))
               : const Center(child: Text("No file opened")),
         ),
