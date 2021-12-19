@@ -215,38 +215,30 @@ class JsModule extends Module {
     }
 
     if (globalObj.hasProperty("onGetAutocomplete")) {
-      jscore.JSValue onInitializedValue =
+      jscore.JSValue onGetAutoComplete =
           globalObj.getProperty("onGetAutocomplete");
-      jscore.JSObject onInitializedObj = onInitializedValue.toObject();
+      jscore.JSObject funcObj = onGetAutoComplete.toObject();
       onAutocomplete = (String lang, String lastToken) {
         var result = <String>[];
         jscore.JSValuePointer? err;
-        var jsResult = onInitializedObj.callAsFunction(
-            globalObj, jscore.JSValuePointer.array([
-              jscore.JSValue.makeString(context, "string"),
-              jscore.JSValue.makeString(context, "love"),
-        ]),
+        var jsResult = funcObj.callAsFunction(
+            globalObj,
+            jscore.JSValuePointer.array([
+              jscore.JSValue.makeString(context, lang),
+              jscore.JSValue.makeString(context, lastToken),
+            ]),
             exception: err);
         if (err != null && err.getValue(context).isNull == false) {
           debugPrint("[JSError] ${err.getValue(context).toString()}");
         }
-        if(jsResult.isObject){
+        if (jsResult.isObject) {
           var arr = jsResult.toObject();
           var props = arr.copyPropertyNames();
-          for(var i = 0; i < props.count; i++){
+          for (var i = 0; i < props.count; i++) {
             var name = props.propertyNameArrayGetNameAtIndex(i);
-            if(lastToken != "" && name == lastToken){
-              var inner = arr.getProperty(name).toObject();
-              var props2 = inner.copyPropertyNames();
-              for(var k = 0; k < props2.count; k++) {
-                result.add(props2.propertyNameArrayGetNameAtIndex(k));
-              }
-            }
-            if(lastToken == ""){
-              result.add(name);
-            }
+            result.add(name);
           }
-        }else{
+        } else {
           debugPrint("It's not an object");
         }
         return result;
@@ -256,9 +248,9 @@ class JsModule extends Module {
 
   @override
   List<String> onAutoComplete(String language, String lastToken) {
-    if(onAutocomplete != null) {
+    if (onAutocomplete != null) {
       List<String>? list = onAutocomplete?.call(language, lastToken);
-      if(list != null){
+      if (list != null) {
         return list;
       }
     }
