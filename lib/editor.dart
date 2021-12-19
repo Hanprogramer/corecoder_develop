@@ -186,8 +186,8 @@ class _EditorPageState extends State<EditorPage> {
       },
       onAutoComplete: (String lastToken) {
         autoComplete = [];
-        for(var module in ModulesManager.modules){
-           autoComplete.addAll(module.onAutoComplete(language, lastToken));
+        for (var module in ModulesManager.modules) {
+          autoComplete.addAll(module.onAutoComplete(language, lastToken));
         }
         setState(() {
           autoCompleteShown = true;
@@ -199,7 +199,7 @@ class _EditorPageState extends State<EditorPage> {
           autoCompleteY = offset.dy + 64;
         });
       },
-      onUnAutoComplete: (){
+      onUnAutoComplete: () {
         setState(() {
           autoCompleteShown = false;
         });
@@ -242,17 +242,17 @@ class _EditorPageState extends State<EditorPage> {
     List<Widget> result = List.generate(autoComplete.length, (index) {
       var item = autoComplete[index].split("|");
       var type = "undefined", name = "name", desc = "undefined";
-      if(item.isNotEmpty) {
+      if (item.isNotEmpty) {
         type = item.length > 1 ? item[0] : "undefined";
         name = item.length > 1 ? item[1] : item[0];
         desc = item.length > 2 ? item[2] : "";
       }
       var color = Colors.black12;
-      switch(type){
+      switch (type) {
         case "var":
           color = Colors.blueAccent;
           break;
-        case "func":
+        case "function":
           color = Colors.purpleAccent;
           break;
         case "type":
@@ -262,43 +262,56 @@ class _EditorPageState extends State<EditorPage> {
           color = Colors.redAccent;
           break;
       }
-      return InkWell(
-        //style: TextStyle(padding: MaterialStateProperty.all(EdgeInsets.zero)),
-        child: Row(
-          children: [
-            Container(
-              color: color,
-              child: Text(
-                type.characters.first,
-                textAlign: TextAlign.center,
-              ),
-              padding: const EdgeInsets.all(8.0),
-              margin: const EdgeInsets.only(right: 8.0),
-              width: 32,
+      return Tooltip(
+        verticalOffset: 200,
+          message: desc,
+          child: InkWell(
+            //style: TextStyle(padding: MaterialStateProperty.all(EdgeInsets.zero)),
+            child: Row(
+              children: [
+                Container(
+                  color: color,
+                  child: Text(
+                    type.characters.first,
+                    textAlign: TextAlign.center,
+                  ),
+                  padding: const EdgeInsets.all(8.0),
+                  margin: const EdgeInsets.only(right: 8.0),
+                  width: 32,
+                ),
+                Text(
+                  name,
+                ),
+                const Spacer(
+                  flex: 1,
+                ),
+                Flexible(
+                  child: Text(
+                    desc,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.end,
+                  ),
+                  fit: FlexFit.tight,
+                ),
+                const SizedBox.square(
+                  dimension: 12,
+                )
+              ],
             ),
-            Text(
-              name,
-            ),
-            const Spacer(flex: 1,),
-            Flexible(
-              child:Text(desc,overflow: TextOverflow.ellipsis,textAlign: TextAlign.end,),
-              fit: FlexFit.tight,
-            ),
-            const SizedBox.square(dimension: 12,)
-
-          ],
-        ),
-        onTap: () {
-          setState(() {
-            autoCompleteShown = false;
-            if(selectedTab == null || selectedTab!< 0) return;
-            var currentTab = tabs[selectedTab!];
-            var currentField = ((currentTab.content as SingleChildScrollView).child as Container).child as InnerField;
-            var controller = currentField.codeController;
-            controller.insertStr(name);
-          });
-        },
-      );
+            onTap: () {
+              setState(() {
+                autoCompleteShown = false;
+                if (selectedTab == null || selectedTab! < 0) return;
+                var currentTab = tabs[selectedTab!];
+                var currentField =
+                    ((currentTab.content as SingleChildScrollView).child
+                            as Container)
+                        .child as InnerField;
+                var controller = currentField.codeController;
+                controller.insertStr(name);
+              });
+            },
+          ));
     });
 
     return result;
@@ -311,7 +324,9 @@ class _EditorPageState extends State<EditorPage> {
       // Populate the file browser tree once
       initializeTreeView();
     }
-    var tabController = TabbedViewController(tabs,);
+    var tabController = TabbedViewController(
+      tabs,
+    );
     tabController.selectedIndex = selectedTab;
     final page = Stack(children: [
       Column(//direction: Axis.vertical,
@@ -321,7 +336,7 @@ class _EditorPageState extends State<EditorPage> {
               ? TabbedViewTheme(
                   data: getTabTheme(),
                   child: TabbedView(
-                    onTabSelection: (int? selection){
+                    onTabSelection: (int? selection) {
                       selectedTab = selection ?? -1;
                     },
                     onTabClose: (tabIndex, tabData) {
@@ -341,7 +356,11 @@ class _EditorPageState extends State<EditorPage> {
             width: 512,
             child: ClipRRect(
                 child: Container(
-                  constraints: const BoxConstraints(minWidth: 256,maxWidth: 600,minHeight: 16,maxHeight: 300),
+                    constraints: const BoxConstraints(
+                        minWidth: 256,
+                        maxWidth: 600,
+                        minHeight: 16,
+                        maxHeight: 300),
                     clipBehavior: Clip.none,
                     color: ThemeManager.getThemeSchemeColor("foreground"),
                     child: Material(
@@ -368,9 +387,7 @@ class _EditorPageState extends State<EditorPage> {
             icon: const Icon(Icons.close),
             tooltip: "Close Project",
           ),
-          IconButton(
-              onPressed: () => {},
-              icon: const Icon(Icons.more_horiz)),
+          IconButton(onPressed: () => {}, icon: const Icon(Icons.more_horiz)),
           const SizedBox(width: 16.0),
         ],
       ),

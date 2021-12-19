@@ -48,7 +48,7 @@ class CodeController extends TextEditingController {
   final styleList = <TextStyle>[];
   final modifierMap = <String, CodeModifier>{};
   var autoCompleteKeystroke = <String>[".",":"]; //TODO: make this controllable by plugins
-  var autoCompleteTokenDelimiter = <String>[".",":"," "]; //TODO: make this controllable by plugins
+  var autoCompleteTokenDelimiter = <String>[".",":"," ","\n"]; //TODO: make this controllable by plugins
   RegExp? styleRegExp;
 
   CodeController({
@@ -136,8 +136,9 @@ class CodeController extends TextEditingController {
       removeSelection();
       onUnAutoComplete?.call();
     }
-    else
+    else {
       removeChar();
+    }
   }
 
   KeyEventResult onKey(RawKeyEvent event) {
@@ -151,7 +152,15 @@ class CodeController extends TextEditingController {
     }
     else if( autoCompleteKeystroke.contains(event.logicalKey.keyLabel) && event.isKeyPressed(event.logicalKey)){
       if(onAutoComplete != null) {
-        onAutoComplete?.call("love");
+        int i = selection.start;
+        while(i > 0){
+          i--;
+          var char = rawText.characters.characterAt(i).string;
+          if(autoCompleteTokenDelimiter.contains(char)){
+            break;
+          }
+        }
+        onAutoComplete?.call(rawText.substring(i+1,selection.start));
       }
     }
     return KeyEventResult.ignored;
@@ -208,11 +217,13 @@ class CodeController extends TextEditingController {
       }
     }
     // Now fix the textfield for web
-    if (_webSpaceFix)
+    if (_webSpaceFix) {
       newValue = newValue.copyWith(text: _spacesToMiddleDots(newValue.text));
-    if (onChange != null)
+    }
+    if (onChange != null) {
       onChange!(
           _webSpaceFix ? _middleDotsToSpaces(newValue.text) : newValue.text);
+    }
     super.value = newValue;
   }
 
@@ -258,8 +269,9 @@ class CodeController extends TextEditingController {
       if (val != null) {
         if (_webSpaceFix) val = _spacesToMiddleDots(val);
         var child = TextSpan(text: val, style: theme?[node.className]);
-        if (styleRegExp != null)
+        if (styleRegExp != null) {
           child = _processPatterns(val, theme?[node.className]);
+        }
         currentSpans.add(child);
       } else if (nodeChildren != null) {
         List<TextSpan> tmp = [];
@@ -278,7 +290,11 @@ class CodeController extends TextEditingController {
       }
     }
 
-    if (nodes != null) for (var node in nodes) _traverse(node);
+    if (nodes != null) {
+      for (var node in nodes) {
+        _traverse(node);
+      }
+    }
     return TextSpan(style: style, children: children);
   }
 
@@ -289,7 +305,7 @@ class CodeController extends TextEditingController {
     final patternList = <String>[];
     if (_webSpaceFix) {
       patternList.add("(" + _MIDDLE_DOT + ")");
-      styleList.add(TextStyle(color: Colors.transparent));
+      styleList.add(const TextStyle(color: Colors.transparent));
     }
     if (stringMap != null) {
       patternList.addAll(stringMap!.keys.map((e) => r'(\b' + e + r'\b)'));
@@ -302,11 +318,12 @@ class CodeController extends TextEditingController {
     styleRegExp = RegExp(patternList.join('|'), multiLine: true);
 
     // Return parsing
-    if (language != null)
+    if (language != null) {
       return _processLanguage(text, style);
-    else if (styleRegExp != null)
+    } else if (styleRegExp != null) {
       return _processPatterns(text, style);
-    else
+    } else {
       return TextSpan(text: text, style: style);
+    }
   }
 }
