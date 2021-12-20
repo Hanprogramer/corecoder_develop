@@ -1,3 +1,4 @@
+import 'package:corecoder_develop/plugins_browser.dart';
 import 'package:corecoder_develop/util/modules_manager.dart';
 import 'package:corecoder_develop/util/theme_manager.dart';
 import 'package:flutter/cupertino.dart';
@@ -145,6 +146,15 @@ class SettingsPage extends StatelessWidget {
                         snapshot.data!,
                       ),
                     ),
+                    ListTile(
+                      leading: Icon(Icons.download,size: 48,),
+                      title: Text("Download Plugins"),
+                      subtitle: Text("Get plugins from the internet"),
+                      onTap: () {
+                        Navigator.pushNamed(context, PluginsBrowser.routeName);
+                      },
+                    ),
+                    const Text("Installed Plugins"),
                     Column(children:List.generate(ModulesManager.modules.length, (index) {
                       var mod = ModulesManager.modules[index];
                       return ListTile(

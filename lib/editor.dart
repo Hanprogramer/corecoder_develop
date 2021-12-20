@@ -263,7 +263,7 @@ class _EditorPageState extends State<EditorPage> {
           break;
       }
       return Tooltip(
-        verticalOffset: 200,
+        verticalOffset: 64,
           message: desc,
           child: InkWell(
             //style: TextStyle(padding: MaterialStateProperty.all(EdgeInsets.zero)),

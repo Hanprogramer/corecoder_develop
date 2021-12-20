@@ -1,4 +1,5 @@
 import 'package:corecoder_develop/editor.dart';
+import 'package:corecoder_develop/plugins_browser.dart';
 import 'package:corecoder_develop/settings.dart';
 import 'package:corecoder_develop/util/plugins_manager.dart';
 import 'package:corecoder_develop/util/theme_manager.dart';
@@ -47,7 +48,8 @@ class CoreCoderAppState extends State<CoreCoderApp>{
         routes: {
           "/": (context) => HomePage(),
           EditorPage.routeName: (context) => const EditorPage(),
-          SettingsPage.routeName: (context) => SettingsPage()
+          SettingsPage.routeName: (context) => SettingsPage(),
+          PluginsBrowser.routeName: (context) => const PluginsBrowser()
         },
       ),
       providers: <SingleChildWidget>[

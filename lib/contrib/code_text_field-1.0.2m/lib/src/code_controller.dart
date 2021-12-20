@@ -48,7 +48,7 @@ class CodeController extends TextEditingController {
   final styleList = <TextStyle>[];
   final modifierMap = <String, CodeModifier>{};
   var autoCompleteKeystroke = <String>[".",":"]; //TODO: make this controllable by plugins
-  var autoCompleteTokenDelimiter = <String>[".",":"," ","\n"]; //TODO: make this controllable by plugins
+  var autoCompleteTokenDelimiter = <String>[" ","\n","\t","[","]","(",")","//"]; //TODO: make this controllable by plugins
   RegExp? styleRegExp;
 
   CodeController({
