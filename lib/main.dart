@@ -1,17 +1,16 @@
 import 'package:corecoder_develop/editor.dart';
 import 'package:corecoder_develop/plugins_browser.dart';
 import 'package:corecoder_develop/settings.dart';
-import 'package:corecoder_develop/util/plugins_manager.dart';
 import 'package:corecoder_develop/util/theme_manager.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
-
 import 'homepage.dart';
 import 'editor_drawer.dart';
 
-void main() {
-  runApp(CoreCoderApp());
+void main() async{
+  runApp(const CoreCoderApp());
 }
 
 
