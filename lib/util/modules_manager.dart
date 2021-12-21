@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:corecoder_develop/modules/module_jsplugins.dart';
 import 'package:corecoder_develop/modules/module_minecraft.dart';
 import 'package:corecoder_develop/util/plugins_manager.dart';
 import 'package:flutter/material.dart';
 
 class ModulesManager {
   static List<Module> internalModules = List.empty(growable: true);
-  static List<Module> externalModules = List.empty(growable: true);
+  static List<JsModule> externalModules = List.empty(growable: true);
   Function? onFinishedLoading;
 
   static List<Module> get modules {

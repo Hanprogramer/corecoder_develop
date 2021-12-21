@@ -35,14 +35,19 @@ class SettingsPageItem {
       this.provided, this.defaultVal);
 }
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
+  final ModulesManager modulesManager;
+  const SettingsPage(this.modulesManager,{Key? key}) : super(key: key);
+  @override
+  State<StatefulWidget> createState() => SettingsPageState();
+}
+class SettingsPageState extends State<SettingsPage> {
   static var routeName = "/SettingsPage";
   var tabs = <Widget>[
     const Tab(text: "General",),
     const Tab(text: "Plugins"),
     const Tab(text: "About"),
   ];
-
   Widget getSettingsTabContent(BuildContext context) {
     return Column(
         children: List.generate(items.length, (index) {
@@ -50,7 +55,6 @@ class SettingsPage extends StatelessWidget {
     }));
   }
 
-  SettingsPage({Key? key}) : super(key: key);
   List<SettingsPageItem> items = [
     SettingsPageItem(
         "Theme",
@@ -147,11 +151,20 @@ class SettingsPage extends StatelessWidget {
                       ),
                     ),
                     ListTile(
-                      leading: Icon(Icons.download,size: 48,),
-                      title: Text("Download Plugins"),
-                      subtitle: Text("Get plugins from the internet"),
+                      leading: const Icon(Icons.download,size: 48,),
+                      title: const Text("Download Plugins"),
+                      subtitle: const Text("Get plugins from the internet"),
                       onTap: () {
                         Navigator.pushNamed(context, PluginsBrowser.routeName);
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.refresh,size: 48,),
+                      title: const Text("Reload Plugins"),
+                      subtitle: const Text("Reload plugins from the disk"),
+                      onTap: () {
+                        widget.modulesManager.initialize(context);
+                        setState(() {});
                       },
                     ),
                     const Text("Installed Plugins"),

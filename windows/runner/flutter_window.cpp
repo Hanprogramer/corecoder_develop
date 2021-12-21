@@ -4,9 +4,8 @@
 
 #include "flutter/generated_plugin_registrant.h"
 using namespace std;
-
-FlutterWindow::FlutterWindow(const flutter::DartProject& project)
-    : project_(project) {}
+FlutterWindow::FlutterWindow(const flutter::DartProject& project, std::string run_args)
+    : project_(project), run_argument(run_args) {}
 
 FlutterWindow::~FlutterWindow() {}
 
@@ -60,4 +59,30 @@ FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
   }
 
   return Win32Window::MessageHandler(hwnd, message, wparam, lparam);
+}
+
+
+void initMethodChannel(flutter::FlutterEngine* flutter_instance) {
+    // name your channel
+    const static std::string channel_name("test_channel");
+
+    auto channel =
+        std::make_unique<flutter::MethodChannel<>>(
+            flutter_instance->messenger(), channel_name,
+            &flutter::StandardMethodCodec::GetInstance());
+
+    channel->SetMethodCallHandler(
+        [](const flutter::MethodCall<>& call,
+            std::unique_ptr<flutter::MethodResult<>> result) {
+
+                // cheack method name called from dart
+                if (call.method_name().compare("test") == 0) {
+                    // do whate ever you want
+
+                    result->Success("pass result here");
+                }
+                else {
+                    result->NotImplemented();
+                }
+        });
 }

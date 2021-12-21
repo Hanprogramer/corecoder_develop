@@ -46,7 +46,6 @@ class CoreCoderAppState extends State<CoreCoderApp>{
         routes: {
           "/": (context) => HomePage(),
           EditorPage.routeName: (context) => const EditorPage(),
-          SettingsPage.routeName: (context) => SettingsPage(),
           PluginsBrowser.routeName: (context) => const PluginsBrowser()
         },
       ),

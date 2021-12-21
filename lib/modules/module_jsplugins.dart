@@ -24,7 +24,8 @@ import 'package:flutter_jscore/flutter_jscore.dart' as jscore
         JSValuePointer;
 
 class JsModule extends Module {
-  String mainScript = "";
+  String mainScript;
+  String moduleFolder;
 
   late jscore.JSContext context;
   late jscore.JSObject globalObj;
@@ -34,6 +35,11 @@ class JsModule extends Module {
   late Pointer _globalObjPtr;
   List<String> Function(String lang, String lastToken)? onAutocomplete;
 
+  //TODO: check if any parameter is invalid
+  @override
+  JsModule(String title, String desc, String author, String version,
+      Uint8List? icon64, String identifier, this.mainScript, this.moduleFolder)
+      : super(title, desc, author, version, icon64, identifier);
   /// Expose the CoreCoder class to js
   void initializeCC3JS() {
     //TODO: this doesn't use JSCore, which is easier to read, see `initializeCC3JSFileIO`
@@ -152,11 +158,6 @@ class JsModule extends Module {
         jscore.JSPropertyAttributes.kJSPropertyAttributeDontDelete);
   }
 
-  //TODO: check if any parameter is invalid
-  @override
-  JsModule(String title, String desc, String author, String version,
-      Uint8List? icon64, String identifier, this.mainScript)
-      : super(title, desc, author, version, icon64, identifier);
 
   Future<void> createSolution(String filepath, Map<String, dynamic> args,
       {String? bpPath, String? rpPath}) async {

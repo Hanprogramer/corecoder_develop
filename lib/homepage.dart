@@ -85,7 +85,8 @@ class _HomePageState extends State<HomePage> {
   var projectsWidgets = <Widget>[];
 
   void showSettings() {
-    Navigator.pushNamed(context, SettingsPage.routeName);
+    Navigator.push(context, MaterialPageRoute<void>(
+    builder: (BuildContext context) => SettingsPage(mm)));
   }
 
   Future<void> showCreateProjectDialog() async {

@@ -19,6 +19,14 @@ class PluginsManager {
     return syncPluginsPath;
   }
 
+  static Future<bool> checkPluginsExist(String identifier, String version)async{
+    var path = await pluginsPath;
+    if(await Directory(path + Platform.pathSeparator + identifier+"@"+version).exists()){
+      return true;
+    }
+    return false;
+  }
+
   static Future<void> initialize() async {
     String path = (await getApplicationDocumentsDirectory()).path +
         Platform.pathSeparator +
@@ -67,7 +75,7 @@ class PluginsManager {
         list.add(entity);
       }).onDone(() async {
         for(var file in list){
-          Module? module = await importModuleFromFolder(path: file.path);
+          JsModule? module = await importModuleFromFolder(path: file.path);
           if (module != null) {
             debugPrint("Loaded JSModule ${module.name}");
             ModulesManager.externalModules.add(module);
@@ -81,7 +89,7 @@ class PluginsManager {
   }
 
   /// Reads the module from a file asynchronously
-  static Future<Module?> importModuleFromFolder({required String path}) async {
+  static Future<JsModule?> importModuleFromFolder({required String path}) async {
     try {
       // the required files
       var folder = Directory(path);
@@ -109,7 +117,7 @@ class PluginsManager {
         icon64 = await icon.readAsBytes();
       }
       JsModule module = JsModule(title, description, author, version, icon64,
-          identifier, await main.readAsString());
+          identifier, await main.readAsString(), path);
       return module;
     } on IOException catch (error) {
       debugPrint("IOException:${error.toString()}");

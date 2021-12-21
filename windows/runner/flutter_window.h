@@ -4,6 +4,12 @@
 #include <flutter/dart_project.h>
 #include <flutter/flutter_view_controller.h>
 
+
+#include <flutter/binary_messenger.h>
+#include <flutter/standard_method_codec.h>
+#include <flutter/method_channel.h>
+#include <flutter/method_result_functions.h>
+
 #include <memory>
 
 #include "win32_window.h"
@@ -12,7 +18,7 @@
 class FlutterWindow : public Win32Window {
  public:
   // Creates a new FlutterWindow hosting a Flutter view running |project|.
-  explicit FlutterWindow(const flutter::DartProject& project);
+  explicit FlutterWindow(const flutter::DartProject& project, std::string run_args);
   virtual ~FlutterWindow();
 
  protected:
@@ -25,6 +31,7 @@ class FlutterWindow : public Win32Window {
  private:
   // The project to run.
   flutter::DartProject project_;
+  std::string run_argument;
 
   // The Flutter instance hosted by this window.
   std::unique_ptr<flutter::FlutterViewController> flutter_controller_;
