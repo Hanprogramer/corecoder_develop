@@ -31,6 +31,7 @@ jobs:
   build-android:
     name: Build android and upload
     runs-on: ubuntu-latest
+    needs: create-release 
 
     steps:
       - uses: actions/checkout@v2
@@ -58,6 +59,7 @@ jobs:
   build-windows:
     name: Build windows and upload
     runs-on: windows-latest
+    needs: create-release
     steps:
       - uses: actions/checkout@v2
       - uses: subosito/flutter-action@v1
