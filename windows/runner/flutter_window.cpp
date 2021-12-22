@@ -4,11 +4,15 @@
 
 #include "flutter/generated_plugin_registrant.h"
 using namespace std;
+
+using flutter::EncodableList;
+using flutter::EncodableMap;
+using flutter::EncodableValue;
+
 FlutterWindow::FlutterWindow(const flutter::DartProject& project, std::string run_args)
     : project_(project), run_argument(run_args) {}
 
 FlutterWindow::~FlutterWindow() {}
-void initMethodChannel(flutter::FlutterEngine* flutter_instance);
 bool FlutterWindow::OnCreate() {
   if (!Win32Window::OnCreate()) {
     return false;
@@ -62,24 +66,22 @@ FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
 }
 
 
-void initMethodChannel(flutter::FlutterEngine* flutter_instance) {
+void FlutterWindow::initMethodChannel(flutter::FlutterEngine* flutter_instance) {
     // name your channel
-    const static std::string channel_name("test_channel");
+    const static std::string channel_name("corecoder_develop");
 
     auto channel =
         std::make_unique<flutter::MethodChannel<>>(
             flutter_instance->messenger(), channel_name,
             &flutter::StandardMethodCodec::GetInstance());
-
     channel->SetMethodCallHandler(
-        [](const flutter::MethodCall<>& call,
+        [this](const flutter::MethodCall<>& call,
             std::unique_ptr<flutter::MethodResult<>> result) {
 
                 // cheack method name called from dart
-                if (call.method_name().compare("test") == 0) {
+                if (call.method_name().compare("getRunArgs") == 0) {
                     // do whate ever you want
-
-                    result->Success("pass result here");
+                    result->Success(EncodableValue(run_argument.c_str()));
                 }
                 else {
                     result->NotImplemented();

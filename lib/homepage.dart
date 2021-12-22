@@ -27,6 +27,18 @@ void touchFile(File file, CCSolution solution) {
 void loadSolution(CCSolution solution, BuildContext context) {
   Navigator.pushNamed(context, EditorPage.routeName, arguments: solution);
 }
+enum HistoryItemType{
+  solution,
+  singleFile
+}
+class HistoryItem{
+  HistoryItemType type;
+  CCSolution? solution;
+  String? filePath;
+  DateTime dateModified;
+  String name;
+  HistoryItem(this.type, {this.solution, this.filePath, required this.dateModified, required this.name});
+}
 
 class RecentProjectsManager {
   static RecentProjectsManager? _instance;
@@ -36,13 +48,16 @@ class RecentProjectsManager {
     return _instance!;
   }
 
-  List<CCSolution> projects = List.empty(growable: true);
+  List<HistoryItem> projects = List.empty(growable: true);
 
   /// Commit the recent projects to the pref
   Future<void> commit(Future<SharedPreferences> _pref) async {
     List<String> list = List.empty(growable: true);
-    for (CCSolution p in projects) {
-      list.add(p.slnPath);
+    for (HistoryItem p in projects) {
+      if(p.type == HistoryItemType.solution) {
+        list.add(p.solution!.slnPath);
+      }
+      //TODO: support single file
     }
     (await _pref).setStringList("recentProjectsSln", list).then((bool success) {
       debugPrint("Success: $success");
@@ -57,12 +72,14 @@ class RecentProjectsManager {
   Future<CCSolution?> addSolution(String slnPath) async {
     // Prevent project with same solution to be loaded
     for (var p in projects) {
-      if (p.slnPath == slnPath) return null;
+      if (p.solution?.slnPath == slnPath) return null;
     }
 
     var sln = await CCSolution.loadFromFile(slnPath);
+
     if (sln != null) {
-      projects.add(sln);
+      var item = HistoryItem(HistoryItemType.solution, solution: sln, dateModified: sln.dateModified, name: sln.name);
+      projects.add(item);
     }
     return sln;
   }
@@ -283,7 +300,7 @@ class _HomePageState extends State<HomePage> {
     await loadPrefs();
     setState(() {
       projectsWidgets.clear();
-      RecentProjectsManager.instance.projects.sort((CCSolution a, CCSolution b) {
+      RecentProjectsManager.instance.projects.sort((HistoryItem a, HistoryItem b) {
         return b.dateModified.compareTo(a.dateModified);
       });
       if (RecentProjectsManager.instance.projects.isEmpty) {
@@ -294,75 +311,88 @@ class _HomePageState extends State<HomePage> {
         );
       }
       else {
-      for (CCSolution p in RecentProjectsManager.instance.projects) {
-        if (p.name == "") {
-          continue;
-        } // TODO: add better way to check if project is corrupt
+      for (HistoryItem p in RecentProjectsManager.instance.projects) {
+        // if (p.name == "") {
+        //   continue;
+        // } // TODO: add better way to check if project is corrupt
         //debugPrint(p.name);
         projectsWidgets.add(Card( //TODO: refactor this as a widget elsewhere, then reference that widget from here
             child: ListTile(
                 onTap: () {
-                  touchFile(File(p.slnPath), p);
-                  refreshRecentProjects();
-                  loadSolution(p, context);
+                  if(p.type == HistoryItemType.solution) {
+                    touchFile(File(p.solution!.slnPath), p.solution!);
+                    refreshRecentProjects();
+                    loadSolution(p.solution!, context);
+                  }
+                  //TODO: Handle single file
                 },
-                leading: p.image ??
+                leading: p.type == HistoryItemType.solution? p.solution!.image ??
                     const Icon(
                       Icons.insert_drive_file,
                       size: 48,
-                    ),
+                    ):
+                const Icon(
+                  Icons.insert_drive_file,
+                  size: 48,
+                ),
                 title: Text(p.name),
                 subtitle: Text(
-                    p.desc + " Last Modified: " + p.dateModified.toString()),
+                    (p.type == HistoryItemType.solution? p.solution!.desc : "")
+                        + " Last Modified: " + p.dateModified.toString()),
                 trailing: PopupMenuButton<String>(
                   onSelected: (String result) {
                     switch (result) {
                       case "delete":
-                        showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text("Delete ${p.name}?"),
-                                content: Text(
-                                    "This action cannot be undone!\n folders will be deleted: ${() {
-                                  String result = "";
-                                  for (var folder in p.folders.keys) {
-                                    result +=
-                                        (p.folders[folder] as String) + ", \n";
-                                  }
-                                  return result;
-                                }()}"),
-                                actions: [
-                                  TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: const Text("No")),
-                                  TextButton(
-                                      onPressed: () {
-                                        var folders = <String>[];
-                                        for (var folder in p.folders.keys) {
-                                          folders.add(p.slnFolderPath +
-                                              Platform.pathSeparator +
-                                              p.folders[folder]!);
+                        if(p.type == HistoryItemType.solution) {
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text("Delete ${p.name}?"),
+                                  content: Text(
+                                      "This action cannot be undone!\n folders will be deleted: ${() {
+                                        String result = "";
+                                        for (var folder in p.solution!.folders.keys) {
+                                          result +=
+                                              (p.solution!.folders[folder] as String) +
+                                                  ", \n";
                                         }
-                                        deleteFolderWithIndicator(
-                                            context, folders);
-                                        // Delete the solution file too
-                                        File(p.slnPath).deleteSync();
+                                        return result;
+                                      }()}"),
+                                  actions: [
+                                    TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text("No")),
+                                    TextButton(
+                                        onPressed: () {
+                                          var folders = <String>[];
+                                          for (var folder in p.solution!.folders.keys) {
+                                            folders.add(p.solution!.slnFolderPath +
+                                                Platform.pathSeparator +
+                                                p.solution!.folders[folder]!);
+                                          }
+                                          deleteFolderWithIndicator(
+                                              context, folders);
+                                          // Delete the solution file too
+                                          File(p.solution!.slnPath).deleteSync();
 
-                                        // Quit and refresh
-                                        Navigator.pop(context);
-                                        refreshRecentProjects();
-                                      },
-                                      child: const Text(
-                                        "Delete",
-                                        style:
-                                            TextStyle(color: Colors.redAccent),
-                                      )),
-                                ],
-                              );
-                            });
+                                          // Quit and refresh
+                                          Navigator.pop(context);
+                                          refreshRecentProjects();
+                                        },
+                                        child: const Text(
+                                          "Delete",
+                                          style:
+                                          TextStyle(color: Colors.redAccent),
+                                        )),
+                                  ],
+                                );
+                              });
+                        }else{
+                          //TODO: Handle single file delete
+                        }
                         break;
                     }
                   },
