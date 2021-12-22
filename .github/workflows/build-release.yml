@@ -13,14 +13,20 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+    - name: Create short commit SHA
+      id: create_short_sha
+      run: echo "::set-output name=sha_short::$(git rev-parse --short ${{ github.event.pull_request.head.sha }})"
+      
     - name: release
       uses: actions/create-release@v1
       id: create_release
       with:
-        release_name: ${{ github.event.title }} #pull request title
-        tag_name: ${{ github.ref }}
+        release_name: ${{ github.event.pull_request.title }} #pull request title
+        body: ${{ github.event.pull_request.body }}
+        tag_name: ${{ steps.create_short_sha.outputs.sha_short }}
       env:
         GITHUB_TOKEN: ${{ github.token }}
+    
 
   build-android:
     name: Build android and upload
@@ -47,7 +53,7 @@ jobs:
         with:
           upload_url: ${{ needs.jobs.create-release.outputs.upload_url }}
           asset_path: ${{ env.GITHUB_WORKSPACE }}/build/app/outputs/flutter-apk/app-release.apk
-          asset_name: corecoder_develop_${{ github.ref }}.apk
+          asset_name: corecoder_develop_${{ needs.jobs.create-release.outputs.sha_short }}.apk
           asset_content_type: application/gzip
   build-windows:
     name: Build windows and upload
