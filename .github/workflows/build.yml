@@ -4,7 +4,8 @@ on:
   push:
 
 jobs:
-  build_android:
+  build-android:
+    name: Build android
     runs-on: ubuntu-latest
 
     steps:
@@ -20,7 +21,11 @@ jobs:
         
       - name: Build apk
         run: flutter build apk
-  build_windows:
+        
+      - name: Build appbundle
+        run: flutter build appbundle
+  build-windows:
+    name: Build windows
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
