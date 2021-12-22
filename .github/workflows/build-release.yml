@@ -15,7 +15,7 @@ jobs:
     steps:
     - name: Create short commit SHA
       id: create_short_sha
-      run: echo "::set-output name=sha_short::$(cd $GITHUB_WORKSPACE || git rev-parse --short ${{ github.event.pull_request.head.sha }})"
+      run: echo "::set-output name=sha_short::$(echo ${{ github.event.pull_request.head.sha }} | cut -c1-8))"
       
     - name: release
       uses: actions/create-release@v1
