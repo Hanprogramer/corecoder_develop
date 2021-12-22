@@ -23,7 +23,7 @@ jobs:
         GITHUB_TOKEN: ${{ github.token }}
 
   build-android:
-    name: Build android
+    name: Build android and upload
     runs-on: ubuntu-latest
 
     steps:
@@ -45,12 +45,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          upload_url: ${{ jobs.create-release.outputs.upload_url }}
+          upload_url: ${{ needs.jobs.create-release.outputs.upload_url }}
           asset_path: ${{ env.GITHUB_WORKSPACE }}/build/app/outputs/flutter-apk/app-release.apk
           asset_name: corecoder_develop_${{ github.ref }}.apk
           asset_content_type: application/gzip
   build-windows:
-    name: Build windows
+    name: Build windows and upload
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
