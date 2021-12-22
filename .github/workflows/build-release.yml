@@ -43,7 +43,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          upload_url: ${{ jobs.create-release.steps.create_release.outputs.upload_url }}
+          upload_url: ${{ github.jobs.create-release.steps.create_release.outputs.upload_url }}
           asset_path: ${{ env.GITHUB_WORKSPACE }}/build/app/outputs/flutter-apk/app-release.apk
           asset_name: corecoder_develop_${{ github.ref }}.apk
           asset_content_type: application/gzip
