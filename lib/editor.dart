@@ -56,7 +56,7 @@ class _EditorPageState extends State<EditorPage> {
     themeData.tabsArea
       //..border = Border(bottom: BorderSide(color: Colors.green[700]!, width: 3))
       ..middleGap = 0
-      ..color = const Color(0x3C3F4566);
+      ..color = ThemeManager.getThemeSchemeColor("background");
     themeData.menu..textStyle = const TextStyle(color: Colors.white);
     Radius radius = Radius.zero;
     BorderRadiusGeometry? borderRadius =

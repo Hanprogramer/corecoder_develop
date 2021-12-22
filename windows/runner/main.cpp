@@ -26,7 +26,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   std::transform(mywstr.begin(), mywstr.end(), str.begin(), [](wchar_t c) {
       return (char)c;
       });
-  MessageBox(NULL, convertCharArrayToLPCWSTR(str.c_str()), convertCharArrayToLPCWSTR("Caption"), 0);
+  //MessageBox(NULL, convertCharArrayToLPCWSTR(str.c_str()), convertCharArrayToLPCWSTR("Caption"), 0);
 
   // Initialize COM, so that it is available for use in the library and/or
   // plugins.

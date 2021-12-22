@@ -8,7 +8,7 @@ FlutterWindow::FlutterWindow(const flutter::DartProject& project, std::string ru
     : project_(project), run_argument(run_args) {}
 
 FlutterWindow::~FlutterWindow() {}
-
+void initMethodChannel(flutter::FlutterEngine* flutter_instance);
 bool FlutterWindow::OnCreate() {
   if (!Win32Window::OnCreate()) {
     return false;
@@ -25,7 +25,7 @@ bool FlutterWindow::OnCreate() {
     return false;
   }
   RegisterPlugins(flutter_controller_->engine());
-
+  initMethodChannel(flutter_controller_->engine());
   SetChildContent(flutter_controller_->view()->GetNativeWindow());
   return true;
 }
