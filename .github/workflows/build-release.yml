@@ -3,7 +3,7 @@ name: Build and Release
 on:
   pull_request:
     branches:
-      - test
+      - main
     types:
       - closed
 
@@ -23,7 +23,7 @@ jobs:
       with:
         release_name: ${{ github.event.pull_request.title }} #pull request title
         body: ${{ github.event.pull_request.body }}
-        tag_name: ${{ steps.create_short_sha.outputs.sha_short }}
+        tag_name: ${{ github.event.pull_request.title }}
       env:
         GITHUB_TOKEN: ${{ github.token }}
 
@@ -60,7 +60,7 @@ jobs:
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: ${{ github.workspace }}/build/app/outputs/flutter-apk/app-release.apk
-          asset_name: corecoder_develop_${{ needs.jobs.create-release.outputs.sha_short }}.apk
+          asset_name: corecoder_develop_android.apk
           asset_content_type: application/gzip
   build-windows:
     name: Build windows and upload
@@ -86,5 +86,5 @@ jobs:
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: ${{ github.workspace }}/windows_build.zip
-          asset_name: corecoder_develop_${{ needs.jobs.create-release.outputs.sha_short }}.zip
+          asset_name: corecoder_develop_windows.zip
           asset_content_type: application/gzip
