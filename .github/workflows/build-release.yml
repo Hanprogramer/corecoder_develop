@@ -58,7 +58,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ env.GITHUB_WORKSPACE }}/build/app/outputs/flutter-apk/app-release.apk
+          asset_path: ${{ github.workspace }}/build/app/outputs/flutter-apk/app-release.apk
           asset_name: corecoder_develop_${{ needs.jobs.create-release.outputs.sha_short }}.apk
           asset_content_type: application/gzip
   build-windows:
@@ -77,13 +77,13 @@ jobs:
       - name: Build windows
         run: flutter build windows
       - name: Zip windows build
-        run: zip -r corecoder_develop_${{ needs.jobs.create-release.outputs.sha_short }}.zip ${{ env.GITHUB_WORKSPACE }}/build/windows/runner/Release/
+        run: zip -r corecoder_develop_${{ needs.jobs.create-release.outputs.sha_short }}.zip ${{ github.workspace }}/build/windows/runner/Release/
       - name: Upload windows build to release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ env.GITHUB_WORKSPACE }}/build/windows/runner/Release/corecoder_develop_${{ needs.jobs.create-release.outputs.sha_short }}.zip
+          asset_path: ${{ github.workspace }}/build/windows/runner/Release/corecoder_develop_${{ needs.jobs.create-release.outputs.sha_short }}.zip
           asset_name: corecoder_develop_${{ needs.jobs.create-release.outputs.sha_short }}.zip
           asset_content_type: application/gzip
