@@ -76,4 +76,14 @@ jobs:
         run: flutter config --enable-windows-desktop
       - name: Build windows
         run: flutter build windows
-        #TODO: upload windows i dont know windows file path help
+      - name: Zip windows build
+        run: zip -r corecoder_develop_${{ needs.jobs.create-release.outputs.sha_short }}.zip ${{ env.GITHUB_WORKSPACE }}/build/windows/runner/Release/
+      - name: Upload windows build to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ env.GITHUB_WORKSPACE }}/build/windows/runner/Release/corecoder_develop_${{ needs.jobs.create-release.outputs.sha_short }}.zip
+          asset_name: corecoder_develop_${{ needs.jobs.create-release.outputs.sha_short }}.zip
+          asset_content_type: application/gzip
