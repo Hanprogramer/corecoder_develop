@@ -14,7 +14,7 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 
 void main() async {
   runApp(const CoreCoderApp());
-  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+  if (CoreCoderApp.isDesktop) {
     doWhenWindowReady(() {
       const initialSize = Size(800, 600);
       appWindow.minSize = const Size(256, 256);
@@ -88,6 +88,7 @@ class CoreCoderAppState extends State<CoreCoderApp> {
                   child: Column(
                     children: [
                       // The title bar
+                      if(CoreCoderApp.isDesktop)
                       WindowTitleBarBox(
                           child: Row(children: [
                         Expanded(
@@ -127,24 +128,25 @@ class CoreCoderAppState extends State<CoreCoderApp> {
   }
 }
 
-final buttonColors = WindowButtonColors(
-    iconNormal: borderColor,
-    mouseOver: Color(0xFFF6A00C),
-    mouseDown: Color(0xFF805306),
-    iconMouseOver: Color(0xFF805306),
-    iconMouseDown: Color(0xFFFFD500));
-
-final closeButtonColors = WindowButtonColors(
-    mouseOver: const Color(0xFFD32F2F),
-    mouseDown: const Color(0xFFB71C1C),
-    iconNormal: borderColor,
-    iconMouseOver: Colors.white);
-
 class WindowButtons extends StatelessWidget {
   const WindowButtons({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    var theme = Theme.of(context);
+    var buttonColors = WindowButtonColors(
+        mouseOver: theme.canvasColor,
+        mouseDown: theme.backgroundColor,
+        iconNormal: theme.textTheme.bodyText1?.color,
+        iconMouseOver: theme.textTheme.bodyText1?.color,
+        iconMouseDown: theme.textTheme.bodyText1?.color);
+
+    var closeButtonColors = WindowButtonColors(
+        mouseOver: const Color(0xFFD32F2F),
+        mouseDown: const Color(0xFFB71C1C),
+        iconNormal: theme.textTheme.bodyText1?.color,
+        iconMouseOver: theme.textTheme.bodyText1?.color);
+
     return Row(
       children: [
         MinimizeWindowButton(colors: buttonColors),
