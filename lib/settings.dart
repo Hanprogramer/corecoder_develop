@@ -62,7 +62,7 @@ class SettingsPageState extends State<SettingsPage> {
         (dynamic val) => {ThemeManager.setTheme(val)},
         SettingsPageItemType.TypeStringList,
         <String>["core-coder-dark", "core-coder-light"],
-        "Atom One Dark")
+        ThemeManager.currentTheme.value)
   ];
 
   Widget generateListItem(int index, BuildContext context) {
