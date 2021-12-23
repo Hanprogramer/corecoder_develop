@@ -295,7 +295,7 @@ class _HomePageState extends State<HomePage> {
     }
     Navigator.pop(context);
   }
-
+  /// Reload the recent projects from saved preferences
   void refreshRecentProjects() async {
     await loadPrefs();
     setState(() {
