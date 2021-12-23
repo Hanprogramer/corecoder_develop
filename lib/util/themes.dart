@@ -233,6 +233,7 @@ const editorThemes = {
       // Controls
       "background": Color(0xFF191919),
       "backgroundSecondary": Color(0xFF202020),
+      "backgroundTertiary": Color(0xFF2B2B2B),
       "foreground": Color(0xFFFFFFFF),
 
       // Color symbols
@@ -253,6 +254,7 @@ const editorThemes = {
       // Controls
       "background": Color(0xFFE5E5E5),
       "backgroundSecondary": Color(0xFFFFFFFF),
+      "backgroundTertiary": Color(0xFFDCDCDC),
       "foreground": Color(0xFF000000),
 
       // Color symbols
