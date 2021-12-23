@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:corecoder_develop/plugins_browser.dart';
 import 'package:corecoder_develop/settings.dart';
 import 'package:corecoder_develop/util/cc_project_structure.dart';
 import 'package:corecoder_develop/util/desktop_tabbar.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import 'editor.dart';
+import 'main.dart';
 import 'util/modules_manager.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -106,7 +108,7 @@ class _HomePageState extends State<HomePage> {
   late ModulesManager mm;
   final Future<SharedPreferences> _pref = SharedPreferences.getInstance();
 
-  List<Widget> get projectWidgetsMobile {
+  List<Widget> get projectsWidgetList {
     var result = <Widget>[];
     for (HistoryItem p in RecentProjectsManager.instance.projects) {
       // if (p.name == "") {
@@ -457,7 +459,7 @@ class _HomePageState extends State<HomePage> {
         child: Container(
       padding: isLandscape? EdgeInsets.zero : const EdgeInsets.all(16.0),
       constraints: BoxConstraints(
-          minHeight: MediaQuery.of(context).size.height - 50,
+          minHeight: MediaQuery.of(context).size.height - 34,
           minWidth: double.infinity),
       child:
       isLandscape?
@@ -468,13 +470,13 @@ class _HomePageState extends State<HomePage> {
           DesktopTabBar(
             tabs: <DesktopTabData>[
               DesktopTabData(icon: const Icon(Icons.featured_play_list), title: const Text("Projects")),
-              DesktopTabData(icon: const Icon(Icons.featured_play_list), title: const Text("Plugins")),
-              DesktopTabData(icon: const Icon(Icons.featured_play_list), title: const Text("Examples")),
+              DesktopTabData(icon: const Icon(Icons.input), title: const Text("Plugins")),
+              DesktopTabData(icon: const Icon(Icons.settings), title: const Text("Settings")),
             ],
               content:<Widget>[
-            Column(children:projectWidgetsMobile),
-            Column(),
-            Column(),
+            Column(children:projectsWidgetList),
+            const PluginsBrowser(),
+            SettingsPage(mm),
           ])
           :
 
@@ -503,12 +505,12 @@ class _HomePageState extends State<HomePage> {
                 ),
               ]),
               Column(
-                children: projectWidgetsMobile,
+                children: projectsWidgetList,
               )
             ]),
     ));
     return Scaffold(
-        appBar: AppBar(
+        appBar: CoreCoderApp.isLandscape(context)? null: AppBar(
           title: const Text("CoreCoder Develop"),
           centerTitle: true,
           actions: [

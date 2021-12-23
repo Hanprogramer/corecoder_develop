@@ -30,7 +30,11 @@ const borderColor = Color(0xFF3BBA73);
 class CoreCoderApp extends StatefulWidget {
   const CoreCoderApp({Key? key}) : super(key: key);
   static const String version = "v0.0.1";
-
+  static bool isDesktop = (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
+  static bool isLandscape(BuildContext context){
+    var q = MediaQuery.of(context);
+    return q.orientation == Orientation.landscape || q.size.width > q.size.height;
+  }
   @override
   State<StatefulWidget> createState() {
     return CoreCoderAppState();
