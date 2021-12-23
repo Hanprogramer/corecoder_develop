@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:corecoder_develop/settings.dart';
 import 'package:corecoder_develop/util/cc_project_structure.dart';
+import 'package:corecoder_develop/util/desktop_tabbar.dart';
 import 'package:corecoder_develop/util/plugins_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -27,17 +28,21 @@ void touchFile(File file, CCSolution solution) {
 void loadSolution(CCSolution solution, BuildContext context) {
   Navigator.pushNamed(context, EditorPage.routeName, arguments: solution);
 }
-enum HistoryItemType{
-  solution,
-  singleFile
-}
-class HistoryItem{
+
+enum HistoryItemType { solution, singleFile }
+
+class HistoryItem {
   HistoryItemType type;
   CCSolution? solution;
   String? filePath;
   DateTime dateModified;
   String name;
-  HistoryItem(this.type, {this.solution, this.filePath, required this.dateModified, required this.name});
+
+  HistoryItem(this.type,
+      {this.solution,
+      this.filePath,
+      required this.dateModified,
+      required this.name});
 }
 
 class RecentProjectsManager {
@@ -54,7 +59,7 @@ class RecentProjectsManager {
   Future<void> commit(Future<SharedPreferences> _pref) async {
     List<String> list = List.empty(growable: true);
     for (HistoryItem p in projects) {
-      if(p.type == HistoryItemType.solution) {
+      if (p.type == HistoryItemType.solution) {
         list.add(p.solution!.slnPath);
       }
       //TODO: support single file
@@ -64,7 +69,7 @@ class RecentProjectsManager {
     });
   }
 
-  static void staticCommit(){
+  static void staticCommit() {
     instance.commit(SharedPreferences.getInstance());
   }
 
@@ -78,7 +83,8 @@ class RecentProjectsManager {
     var sln = await CCSolution.loadFromFile(slnPath);
 
     if (sln != null) {
-      var item = HistoryItem(HistoryItemType.solution, solution: sln, dateModified: sln.dateModified, name: sln.name);
+      var item = HistoryItem(HistoryItemType.solution,
+          solution: sln, dateModified: sln.dateModified, name: sln.name);
       projects.add(item);
     }
     return sln;
@@ -99,11 +105,136 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late ModulesManager mm;
   final Future<SharedPreferences> _pref = SharedPreferences.getInstance();
-  var projectsWidgets = <Widget>[];
+
+  List<Widget> get projectWidgetsMobile {
+    var result = <Widget>[];
+    for (HistoryItem p in RecentProjectsManager.instance.projects) {
+      // if (p.name == "") {
+      //   continue;
+      // } // TODO: add better way to check if project is corrupt
+      //debugPrint(p.name);
+      result.add(Card(
+          //TODO: refactor this as a widget elsewhere, then reference that widget from here
+          child: ListTile(
+              onTap: () {
+                if (p.type == HistoryItemType.solution) {
+                  touchFile(File(p.solution!.slnPath), p.solution!);
+                  refreshRecentProjects();
+                  loadSolution(p.solution!, context);
+                }
+                //TODO: Handle single file
+              },
+              leading: p.type == HistoryItemType.solution
+                  ? p.solution!.image ??
+                      const Icon(
+                        Icons.insert_drive_file,
+                        size: 48,
+                      )
+                  : const Icon(
+                      Icons.insert_drive_file,
+                      size: 48,
+                    ),
+              title: Text(p.name),
+              subtitle: Text(
+                  (p.type == HistoryItemType.solution ? p.solution!.desc : "") +
+                      " Last Modified: " +
+                      p.dateModified.toString()),
+              trailing: PopupMenuButton<String>(
+                onSelected: (String result) {
+                  switch (result) {
+                    case "delete":
+                      if (p.type == HistoryItemType.solution) {
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text("Delete ${p.name}?"),
+                                content: Text(
+                                    "This action cannot be undone!\n folders will be deleted: ${() {
+                                  String result = "";
+                                  for (var folder in p.solution!.folders.keys) {
+                                    result += (p.solution!.folders[folder]
+                                            as String) +
+                                        ", \n";
+                                  }
+                                  return result;
+                                }()}"),
+                                actions: [
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text("No")),
+                                  TextButton(
+                                      onPressed: () {
+                                        var folders = <String>[];
+                                        for (var folder
+                                            in p.solution!.folders.keys) {
+                                          folders.add(
+                                              p.solution!.slnFolderPath +
+                                                  Platform.pathSeparator +
+                                                  p.solution!.folders[folder]!);
+                                        }
+                                        deleteFolderWithIndicator(
+                                            context, folders);
+                                        // Delete the solution file too
+                                        File(p.solution!.slnPath).deleteSync();
+
+                                        // Quit and refresh
+                                        Navigator.pop(context);
+                                        refreshRecentProjects();
+                                      },
+                                      child: const Text(
+                                        "Delete",
+                                        style:
+                                            TextStyle(color: Colors.redAccent),
+                                      )),
+                                ],
+                              );
+                            });
+                      } else {
+                        //TODO: Handle single file delete
+                      }
+                      break;
+                  }
+                },
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                  const PopupMenuItem<String>(
+                    value: "delete",
+                    child: Text('Delete Project'),
+                  ),
+                  const PopupMenuItem<String>(
+                    //TODO: Implement this menu
+                    value: "rename",
+                    child: Text('Rename Project'),
+                  ),
+                  const PopupMenuItem<String>(
+                    //TODO: Implement this menu
+                    value: "export",
+                    child: Text('Export Project'),
+                  ),
+                ],
+              ))));
+      // IconButton(
+      //   onPressed: () {
+      //     showMenu(context: context, position: RelativeRect.fromLTRB(
+      //       details.globalPosition.dx,
+      //       details.globalPosition.dy,
+      //       details.globalPosition.dx,
+      //       details.globalPosition.dy,
+      //     ), items: <PopupMenuEntry<dynamic>>[]);
+      //   },
+      //   icon: const Icon(FontAwesomeIcons.ellipsisV),
+      // )));
+    }
+    return result;
+  }
 
   void showSettings() {
-    Navigator.push(context, MaterialPageRoute<void>(
-    builder: (BuildContext context) => SettingsPage(mm)));
+    Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+            builder: (BuildContext context) => SettingsPage(mm)));
   }
 
   Future<void> showCreateProjectDialog() async {
@@ -182,9 +313,11 @@ class _HomePageState extends State<HomePage> {
 
                                 /// Add it to recent projects
                                 CCSolution? project =
-                                    await RecentProjectsManager.instance.addSolution(slnPath);
+                                    await RecentProjectsManager.instance
+                                        .addSolution(slnPath);
                                 if (project != null) {
-                                  await RecentProjectsManager.instance.commit(_pref);
+                                  await RecentProjectsManager.instance
+                                      .commit(_pref);
                                   Navigator.pop(context, 3);
                                   refreshRecentProjects();
                                   loadSolution(project, context);
@@ -247,7 +380,7 @@ class _HomePageState extends State<HomePage> {
     mm = ModulesManager(context);
 
     mm.initialize(context);
-    mm.onFinishedLoading = (){
+    mm.onFinishedLoading = () {
       refreshRecentProjects();
     };
   }
@@ -295,193 +428,101 @@ class _HomePageState extends State<HomePage> {
     }
     Navigator.pop(context);
   }
+
   /// Reload the recent projects from saved preferences
   void refreshRecentProjects() async {
     await loadPrefs();
     setState(() {
-      projectsWidgets.clear();
-      RecentProjectsManager.instance.projects.sort((HistoryItem a, HistoryItem b) {
+      //projectWidgetsMobile.clear();
+      RecentProjectsManager.instance.projects
+          .sort((HistoryItem a, HistoryItem b) {
         return b.dateModified.compareTo(a.dateModified);
       });
       if (RecentProjectsManager.instance.projects.isEmpty) {
-        projectsWidgets.add(
+        /*projectWidgetsMobile.add(
             const Text(
                 'No recent projects found. Create one using the button below!',
             )
-        );
-      }
-      else {
-      for (HistoryItem p in RecentProjectsManager.instance.projects) {
-        // if (p.name == "") {
-        //   continue;
-        // } // TODO: add better way to check if project is corrupt
-        //debugPrint(p.name);
-        projectsWidgets.add(Card( //TODO: refactor this as a widget elsewhere, then reference that widget from here
-            child: ListTile(
-                onTap: () {
-                  if(p.type == HistoryItemType.solution) {
-                    touchFile(File(p.solution!.slnPath), p.solution!);
-                    refreshRecentProjects();
-                    loadSolution(p.solution!, context);
-                  }
-                  //TODO: Handle single file
-                },
-                leading: p.type == HistoryItemType.solution? p.solution!.image ??
-                    const Icon(
-                      Icons.insert_drive_file,
-                      size: 48,
-                    ):
-                const Icon(
-                  Icons.insert_drive_file,
-                  size: 48,
-                ),
-                title: Text(p.name),
-                subtitle: Text(
-                    (p.type == HistoryItemType.solution? p.solution!.desc : "")
-                        + " Last Modified: " + p.dateModified.toString()),
-                trailing: PopupMenuButton<String>(
-                  onSelected: (String result) {
-                    switch (result) {
-                      case "delete":
-                        if(p.type == HistoryItemType.solution) {
-                          showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: Text("Delete ${p.name}?"),
-                                  content: Text(
-                                      "This action cannot be undone!\n folders will be deleted: ${() {
-                                        String result = "";
-                                        for (var folder in p.solution!.folders.keys) {
-                                          result +=
-                                              (p.solution!.folders[folder] as String) +
-                                                  ", \n";
-                                        }
-                                        return result;
-                                      }()}"),
-                                  actions: [
-                                    TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: const Text("No")),
-                                    TextButton(
-                                        onPressed: () {
-                                          var folders = <String>[];
-                                          for (var folder in p.solution!.folders.keys) {
-                                            folders.add(p.solution!.slnFolderPath +
-                                                Platform.pathSeparator +
-                                                p.solution!.folders[folder]!);
-                                          }
-                                          deleteFolderWithIndicator(
-                                              context, folders);
-                                          // Delete the solution file too
-                                          File(p.solution!.slnPath).deleteSync();
-
-                                          // Quit and refresh
-                                          Navigator.pop(context);
-                                          refreshRecentProjects();
-                                        },
-                                        child: const Text(
-                                          "Delete",
-                                          style:
-                                          TextStyle(color: Colors.redAccent),
-                                        )),
-                                  ],
-                                );
-                              });
-                        }else{
-                          //TODO: Handle single file delete
-                        }
-                        break;
-                    }
-                  },
-                  itemBuilder: (BuildContext context) =>
-                      <PopupMenuEntry<String>>[
-                    const PopupMenuItem<String>(
-                      value: "delete",
-                      child: Text('Delete Project'),
-                    ),
-                    const PopupMenuItem<String>(
-                      //TODO: Implement this menu
-                      value: "rename",
-                      child: Text('Rename Project'),
-                    ),
-                    const PopupMenuItem<String>(
-                      //TODO: Implement this menu
-                      value: "export",
-                      child: Text('Export Project'),
-                    ),
-                  ],
-                ))));
-        // IconButton(
-        //   onPressed: () {
-        //     showMenu(context: context, position: RelativeRect.fromLTRB(
-        //       details.globalPosition.dx,
-        //       details.globalPosition.dy,
-        //       details.globalPosition.dx,
-        //       details.globalPosition.dy,
-        //     ), items: <PopupMenuEntry<dynamic>>[]);
-        //   },
-        //   icon: const Icon(FontAwesomeIcons.ellipsisV),
-        // )));
-      }
-
-      }
+        );*/
+      } else {}
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final query = MediaQuery.of(context);
+    final isLandscape = (query.orientation == Orientation.landscape &&
+        query.size.width > query.size.height);
     final page = Center(
         child: Container(
-      padding: const EdgeInsets.all(16.0),
+      padding: isLandscape? EdgeInsets.zero : const EdgeInsets.all(16.0),
       constraints: BoxConstraints(
-          minHeight: MediaQuery.of(context).size.height,
+          minHeight: MediaQuery.of(context).size.height - 50,
           minWidth: double.infinity),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Row(children: [
-          const Text(
-            "Recent Projects",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 24.0,
-            ),
-          ),
-          const Spacer(flex: 1),
-          OutlinedButton(
-            onPressed: () {
-              refreshRecentProjects();
-            },
-            child: const Text("Refresh"),
-          ),
-          OutlinedButton(
-            onPressed: () {},
-            child: const Text("Add"),
-          ),
-        ]),
-        Column(
-          children: projectsWidgets,
-        )
-      ]),
+      child:
+      isLandscape?
+
+          /// ==================
+          /// The windows layout
+          /// ==================
+          DesktopTabBar(
+            tabs: <DesktopTabData>[
+              DesktopTabData(icon: const Icon(Icons.featured_play_list), title: const Text("Projects")),
+              DesktopTabData(icon: const Icon(Icons.featured_play_list), title: const Text("Plugins")),
+              DesktopTabData(icon: const Icon(Icons.featured_play_list), title: const Text("Examples")),
+            ],
+              content:<Widget>[
+            Column(children:projectWidgetsMobile),
+            Column(),
+            Column(),
+          ])
+          :
+
+          /// ==================
+          /// The android layout
+          /// ==================
+          Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              Row(children: [
+                const Text(
+                  "Recent Projects",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24.0,
+                  ),
+                ),
+                const Spacer(flex: 1),
+                OutlinedButton(
+                  onPressed: () {
+                    refreshRecentProjects();
+                  },
+                  child: const Text("Refresh"),
+                ),
+                OutlinedButton(
+                  onPressed: () {},
+                  child: const Text("Add"),
+                ),
+              ]),
+              Column(
+                children: projectWidgetsMobile,
+              )
+            ]),
     ));
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("CoreCoder Develop"),
-        centerTitle: true,
-        actions: [
-          IconButton(
-              onPressed: () => {showSettings()},
-              icon: const Icon(Icons.settings),
-              tooltip: "Settings"),
-          const SizedBox(width: 16.0),
-        ],
-      ),
-      body: SingleChildScrollView(child: page),
-      floatingActionButton: FloatingActionButton(
+        appBar: AppBar(
+          title: const Text("CoreCoder Develop"),
+          centerTitle: true,
+          actions: [
+            IconButton(
+                onPressed: () => {showSettings()},
+                icon: const Icon(Icons.settings),
+                tooltip: "Settings"),
+            const SizedBox(width: 16.0),
+          ],
+        ),
+        body: SingleChildScrollView(child: page),
+        floatingActionButton: FloatingActionButton(
           onPressed: () => showCreateProjectDialog(),
           child: const Icon(Icons.create_new_folder),
-      )
-    );
+        ));
   }
 }
