@@ -1,3 +1,4 @@
+import 'package:corecoder_develop/main.dart';
 import 'package:corecoder_develop/plugins_browser.dart';
 import 'package:corecoder_develop/util/modules_manager.dart';
 import 'package:corecoder_develop/util/theme_manager.dart';
@@ -251,10 +252,11 @@ class SettingsPageState extends State<SettingsPage> {
                     }))
                   ]),
                   /// About page
-                  Column(children:const [
-                    Text("CoreCoder Develop"),
-                    Text("v0.0.1 dev beta"),
-                  ])
+                  ListTile(
+                    leading: Image.asset("assets/logo.png"),
+                    title: const Text("CoreCoder Develop"),
+                    subtitle: const Text(CoreCoderApp.version),
+                  )
                 ],
               );
             },future: PluginsManager.pluginsPath,)));

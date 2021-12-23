@@ -29,6 +29,7 @@ const borderColor = Color(0xFF3BBA73);
 
 class CoreCoderApp extends StatefulWidget {
   const CoreCoderApp({Key? key}) : super(key: key);
+  static const String version = "v0.0.1";
 
   @override
   State<StatefulWidget> createState() {
@@ -85,12 +86,28 @@ class CoreCoderAppState extends State<CoreCoderApp> {
                       // The title bar
                       WindowTitleBarBox(
                           child: Row(children: [
-                        Expanded(child: MoveWindow(child: Row(children:[
-                          const SizedBox(width: 16.0,),
-                          Image.asset("assets/logo.png",width: 20,height: 20,),
-                          const SizedBox(width: 16.0,),
-                          Text("CoreCoder v0.0.1", style: Theme.of(context).textTheme.bodyText1!,)
-                        ]),)),
+                        Expanded(
+                            child: MoveWindow(
+                          child: Row(children: [
+                            const SizedBox(
+                              width: 16.0,
+                            ),
+                            Image.asset(
+                              "assets/logo.png",
+                              isAntiAlias: true,
+                              filterQuality: FilterQuality.high,
+                              width: 20,
+                              height: 20,
+                            ),
+                            const SizedBox(
+                              width: 16.0,
+                            ),
+                            Text(
+                              "CoreCoder:Develop ${CoreCoderApp.version}",
+                              style: Theme.of(context).textTheme.bodyText1!,
+                            )
+                          ]),
+                        )),
                         const WindowButtons()
                       ])),
                       if (widget != null) Expanded(child: widget)
