@@ -156,6 +156,7 @@ class InnerField extends StatelessWidget {
           onUnAutoComplete!.call();
         }
       },
+      onChange: (String lastToken) { if(onChange!=null) onChange!(language, lastToken); }
     );
     codeField = CodeField(
       onCursorPosChanged: setCursorOffset,

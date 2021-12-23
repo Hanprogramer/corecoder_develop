@@ -141,8 +141,8 @@ class PluginsBrowserState extends State<PluginsBrowser> {
             obj[key]["identifier"], isInstalled
         ));
       }
+      setState(() {}); // refresh
     }
-    setState(() {}); // refresh
   }
 
   @override

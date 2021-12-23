@@ -327,7 +327,7 @@ class _EditorPageState extends State<EditorPage> {
     var tabController = TabbedViewController(
       tabs,
     );
-    tabController.selectedIndex = selectedTab;
+    tabController.selectedIndex = tabs.isNotEmpty? selectedTab : null;
     final page = Stack(children: [
       Column(//direction: Axis.vertical,
           children: [
