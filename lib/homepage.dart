@@ -457,70 +457,106 @@ class _HomePageState extends State<HomePage> {
         query.size.width > query.size.height);
     final page = Center(
         child: Container(
-      padding: isLandscape? EdgeInsets.zero : const EdgeInsets.all(16.0),
       constraints: BoxConstraints(
           minHeight: MediaQuery.of(context).size.height - 34,
           minWidth: double.infinity),
-      child:
-      isLandscape?
+      child: isLandscape
+          ?
 
           /// ==================
           /// The windows layout
           /// ==================
-          DesktopTabBar(
-            tabs: <DesktopTabData>[
-              DesktopTabData(icon: const Icon(Icons.featured_play_list), title: const Text("Projects")),
-              DesktopTabData(icon: const Icon(Icons.input), title: const Text("Plugins")),
-              DesktopTabData(icon: const Icon(Icons.settings), title: const Text("Settings")),
-            ],
-              content:<Widget>[
-            Column(children:projectsWidgetList),
-            const PluginsBrowser(),
-            SettingsPage(mm),
-          ])
+          DesktopTabBar(tabs: <DesktopTabData>[
+              DesktopTabData(
+                  icon: const Icon(Icons.featured_play_list),
+                  title: const Text("Projects")),
+              DesktopTabData(
+                  icon: const Icon(Icons.input), title: const Text("Plugins")),
+              DesktopTabData(
+                  icon: const Icon(Icons.settings),
+                  title: const Text("Settings")),
+            ], content: <Widget>[
+              Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(children: [
+                          const Text(
+                            "Recent Projects",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 24.0,
+                            ),
+                          ),
+                          const Spacer(flex: 1),
+                          OutlinedButton(
+                            onPressed: () {
+                              refreshRecentProjects();
+                            },
+                            child: const Text("Refresh"),
+                          ),
+                          OutlinedButton(
+                            onPressed: () {},
+                            child: const Text("Add"),
+                          ),
+                        ]),
+                        Column(
+                          children: projectsWidgetList,
+                        )
+                      ])),
+              const PluginsBrowser(),
+              SettingsPage(mm),
+            ])
           :
 
           /// ==================
           /// The android layout
           /// ==================
-          Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              Row(children: [
-                const Text(
-                  "Recent Projects",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24.0,
+      Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(children: [
+                  const Text(
+                    "Recent Projects",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 24.0,
+                    ),
                   ),
-                ),
-                const Spacer(flex: 1),
-                OutlinedButton(
-                  onPressed: () {
-                    refreshRecentProjects();
-                  },
-                  child: const Text("Refresh"),
-                ),
-                OutlinedButton(
-                  onPressed: () {},
-                  child: const Text("Add"),
-                ),
-              ]),
-              Column(
-                children: projectsWidgetList,
-              )
-            ]),
+                  const Spacer(flex: 1),
+                  OutlinedButton(
+                    onPressed: () {
+                      refreshRecentProjects();
+                    },
+                    child: const Text("Refresh"),
+                  ),
+                  OutlinedButton(
+                    onPressed: () {},
+                    child: const Text("Add"),
+                  ),
+                ]),
+                Column(
+                  children: projectsWidgetList,
+                )
+              ])),
     ));
     return Scaffold(
-        appBar: CoreCoderApp.isLandscape(context)? null: AppBar(
-          title: const Text("CoreCoder Develop"),
-          centerTitle: true,
-          actions: [
-            IconButton(
-                onPressed: () => {showSettings()},
-                icon: const Icon(Icons.settings),
-                tooltip: "Settings"),
-            const SizedBox(width: 16.0),
-          ],
-        ),
+        appBar: CoreCoderApp.isLandscape(context)
+            ? null
+            : AppBar(
+                title: const Text("CoreCoder Develop"),
+                centerTitle: true,
+                actions: [
+                  IconButton(
+                      onPressed: () => {showSettings()},
+                      icon: const Icon(Icons.settings),
+                      tooltip: "Settings"),
+                  const SizedBox(width: 16.0),
+                ],
+              ),
         body: SingleChildScrollView(child: page),
         floatingActionButton: FloatingActionButton(
           onPressed: () => showCreateProjectDialog(),
