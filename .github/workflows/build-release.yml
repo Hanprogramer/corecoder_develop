@@ -3,7 +3,7 @@ name: Build and Release
 on:
   pull_request:
     branches:
-      - test
+      - main
     types:
       - closed
 
@@ -23,18 +23,16 @@ jobs:
       with:
         release_name: ${{ github.event.pull_request.title }} #pull request title
         body: ${{ github.event.pull_request.body }}
-        tag_name: ${{ steps.create_short_sha.outputs.sha_short }}
+        tag_name: ${{ github.event.pull_request.title }}
       env:
         GITHUB_TOKEN: ${{ github.token }}
-      
-    - id: step_version
-      run: echo "::set-output name=version::${{ steps.package_version.outputs.version }}"
+
+
     - id: step_upload_url
       run: echo "::set-output name=upload_url::${{ steps.create_release.outputs.upload_url }}"
     outputs:
-      version: ${{ steps.step_version.outputs.version }}
       upload_url: ${{ steps.step_upload_url.outputs.upload_url }}
-    
+      sha_short: ${{ steps.create_short_sha.outputs.sha_short }}
 
   build-android:
     name: Build android and upload
@@ -61,8 +59,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ env.GITHUB_WORKSPACE }}/build/app/outputs/flutter-apk/app-release.apk
-          asset_name: corecoder_develop_${{ needs.jobs.create-release.outputs.sha_short }}.apk
+          asset_path: ${{ github.workspace }}/build/app/outputs/flutter-apk/app-release.apk
+          asset_name: corecoder_develop_android.apk
           asset_content_type: application/gzip
   build-windows:
     name: Build windows and upload
@@ -79,4 +77,14 @@ jobs:
         run: flutter config --enable-windows-desktop
       - name: Build windows
         run: flutter build windows
-        #TODO: upload windows i dont know windows file path help
+      - name: Zip windows build
+        run: powershell Compress-Archive -DestinationPath ${{ github.workspace }}/windows_build.zip -Path ${{ github.workspace }}/build/windows/runner/Release/*
+      - name: Upload windows build to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ github.workspace }}/windows_build.zip
+          asset_name: corecoder_develop_windows.zip
+          asset_content_type: application/gzip
