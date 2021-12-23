@@ -26,6 +26,14 @@ jobs:
         tag_name: ${{ steps.create_short_sha.outputs.sha_short }}
       env:
         GITHUB_TOKEN: ${{ github.token }}
+      
+    - id: step_version
+      run: echo "::set-output name=version::${{ steps.package_version.outputs.version }}"
+    - id: step_upload_url
+      run: echo "::set-output name=upload_url::${{ steps.create_release.outputs.upload_url }}"
+    outputs:
+      version: ${{ steps.step_version.outputs.version }}
+      upload_url: ${{ steps.step_upload_url.outputs.upload_url }}
     
 
   build-android:
