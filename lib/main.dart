@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'homepage.dart';
 import 'editor_drawer.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
@@ -48,9 +49,15 @@ class CoreCoderAppState extends State<CoreCoderApp> {
   @override
   void initState() {
     super.initState();
-    ThemeManager.currentTheme.addListener(() {
+    _pref.then((value) {
       setState(() {
-        themeName = ThemeManager.currentTheme.value;
+        themeName = value.getString("theme") ?? themeName;
+        ThemeManager.currentTheme = ValueNotifier(themeName);
+      });
+      ThemeManager.currentTheme.addListener(() {
+        setState(() {
+          themeName = ThemeManager.currentTheme.value;
+        });
       });
     });
     if (Platform.isWindows) {
@@ -64,6 +71,8 @@ class CoreCoderAppState extends State<CoreCoderApp> {
       });
     }
   }
+  static final Future<SharedPreferences> _pref =
+  SharedPreferences.getInstance();
 
   @override
   Widget build(BuildContext context) {
