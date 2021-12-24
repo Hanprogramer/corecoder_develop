@@ -200,7 +200,14 @@ class CoreCoder {
         ctx, function, thisObject, argumentCount, arguments, exception);
     return nullptr;
   }
-
+  static String getProjectFolder(String moduleFolderName, String folderName) {
+    var result = PluginsManager.projectsPath +
+        moduleFolderName +
+        Platform.pathSeparator +
+        folderName +
+        Platform.pathSeparator;
+    return result;
+  }
   static Pointer jsGetProjectFolder(
       Pointer ctx,
       Pointer function,
