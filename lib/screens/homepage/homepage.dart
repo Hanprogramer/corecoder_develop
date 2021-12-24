@@ -200,6 +200,13 @@ class _HomePageState extends State<HomePage> {
                         //TODO: Handle single file delete
                       }
                       break;
+                    case "remove":
+                      setState(() {
+                        /// Remove item from the list without deleting the actual file
+                        RecentProjectsManager.instance.projects.remove(p);
+                        RecentProjectsManager.staticCommit();
+                      });
+                      break;
                   }
                 },
                 itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -217,6 +224,10 @@ class _HomePageState extends State<HomePage> {
                     value: "export",
                     child: Text('Export Project'),
                   ),
+              const PopupMenuItem<String>(
+                //TODO: Implement this menu
+                value: "remove",
+                child: Text('Remove from list')),
                 ],
               ))));
       // IconButton(
@@ -471,8 +482,18 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  //TODO: Implement add project
-  void onAddProject() {}
+  /// Add project from a specific folder path
+  /// Called from ProjectList
+  void onAddProject(String path) async {
+    CCSolution? sln = await CCSolution.loadFromFile(path);
+    if(sln != null){
+      await RecentProjectsManager.instance.addSolution(path);
+      setState(() {
+        RecentProjectsManager.staticCommit();
+      });
+      loadSolution(sln, context);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

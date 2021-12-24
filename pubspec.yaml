@@ -61,6 +61,7 @@ dependencies:
   archive: ^3.1.6
   android_intent_plus: ^3.0.2
   bitsdojo_window: ^0.1.1+1
+  file_picker: ^4.3.0
 
 dev_dependencies:
   flutter_test:
