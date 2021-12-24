@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:corecoder_develop/util/custom_code_box.dart'
-    show InnerField;
+import 'package:corecoder_develop/util/custom_code_box.dart' show InnerField;
 import 'package:corecoder_develop/screens/editor/editor_drawer.dart';
 import 'package:corecoder_develop/util/modules_manager.dart';
 import 'package:corecoder_develop/util/theme_manager.dart';
@@ -27,7 +26,7 @@ class _EditorPageState extends State<EditorPage> {
   late CCSolution project;
   List<Document> documentList = [];
   List<TabData> tabs = [];
-  Map<String,TabData> fileEditors = {};
+  Map<String, TabData> fileEditors = {};
   bool autoCompleteShown = false;
   List<String> autoComplete = <String>[
     "var|hello",
@@ -37,7 +36,7 @@ class _EditorPageState extends State<EditorPage> {
   ];
   double autoCompleteX = 0;
   double autoCompleteY = 0;
-  int? selectedTab = null;
+  int? selectedTab;
 
   @override
   void initState() {
@@ -56,7 +55,7 @@ class _EditorPageState extends State<EditorPage> {
       //..border = Border(bottom: BorderSide(color: Colors.green[700]!, width: 3))
       ..middleGap = 0
       ..color = ThemeManager.getThemeSchemeColor("background");
-    themeData.menu..textStyle = const TextStyle(color: Colors.white);
+    themeData.menu.textStyle = const TextStyle(color: Colors.white);
     Radius radius = Radius.zero;
     BorderRadiusGeometry? borderRadius =
         BorderRadius.only(topLeft: radius, topRight: radius);
@@ -71,10 +70,11 @@ class _EditorPageState extends State<EditorPage> {
           shape: BoxShape.rectangle,
           color: Colors.black38,
           borderRadius: borderRadius)
-      ..selectedStatus.decoration = BoxDecoration(
+      ..selectedStatus.decoration = const BoxDecoration(
           color: Colors.black26,
           border: Border(top: BorderSide(color: Colors.greenAccent, width: 3)))
-      ..highlightedStatus.decoration = BoxDecoration(color: Colors.black12);
+      ..highlightedStatus.decoration =
+          const BoxDecoration(color: Colors.black12);
     return themeData;
   }
 
@@ -163,7 +163,6 @@ class _EditorPageState extends State<EditorPage> {
   late RestartableTimer autoSaveTimer;
 
   void onAutoSave() async {
-    debugPrint("autosave");
     for (var tab in tabs) {
       var field = (((tab.content as SingleChildScrollView).child as Container)
           .child as InnerField);
@@ -220,7 +219,7 @@ class _EditorPageState extends State<EditorPage> {
   }
 
   void openFile(String filepath) async {
-    if(!fileEditors.containsKey(filepath)) {
+    if (!fileEditors.containsKey(filepath)) {
       var filename = path.basename(filepath);
       var content = await File(filepath).readAsString();
       //debugPrint(content);
@@ -238,10 +237,10 @@ class _EditorPageState extends State<EditorPage> {
         tabs.add(tab);
         selectedTab = tabs.length - 1;
       });
-    }else{
+    } else {
       // Tab already exists
       var tab = fileEditors[filepath];
-      if(tab != null){
+      if (tab != null) {
         setState(() {
           selectedTab = tabs.indexOf(tab);
         });
@@ -274,7 +273,7 @@ class _EditorPageState extends State<EditorPage> {
           break;
       }
       return Tooltip(
-        verticalOffset: 64,
+          verticalOffset: 64,
           message: desc,
           child: InkWell(
             //style: TextStyle(padding: MaterialStateProperty.all(EdgeInsets.zero)),
@@ -338,7 +337,7 @@ class _EditorPageState extends State<EditorPage> {
     var tabController = TabbedViewController(
       tabs,
     );
-    tabController.selectedIndex = tabs.isNotEmpty? selectedTab : null;
+    tabController.selectedIndex = tabs.isNotEmpty ? selectedTab : null;
     final page = Stack(children: [
       Column(//direction: Axis.vertical,
           children: [
@@ -398,12 +397,15 @@ class _EditorPageState extends State<EditorPage> {
             icon: const Icon(Icons.assessment_rounded),
             tooltip: "Toggle Console",
           ),
-          IconButton(
-            onPressed: () => {Navigator.pop(context)},
-            icon: const Icon(Icons.close),
-            tooltip: "Close Project",
-          ),
-          IconButton(onPressed: () => {}, icon: const Icon(Icons.more_horiz)),
+          PopupMenuButton(
+            child: const Icon(Icons.more_horiz),
+            tooltip: "Menu",
+            padding: const EdgeInsets.all(32.0),
+            itemBuilder: (BuildContext context){
+            return <PopupMenuEntry>[
+              PopupMenuItem(child: const Text("Close Project"),onTap:()=> Navigator.pop(context),)
+            ];
+          },),
           const SizedBox(width: 16.0),
         ],
       ),
