@@ -140,8 +140,8 @@ class PluginsBrowserState extends State<PluginsBrowser> {
             obj[key]["repo"], obj[key]["version"], obj[key]["icon"], obj[key]["desc"],
             obj[key]["identifier"], isInstalled
         ));
+        setState(() {}); // refresh
       }
-      setState(() {}); // refresh
     }
   }
 

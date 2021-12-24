@@ -1,12 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ui';
-
+import 'package:corecoder_develop/screens/editor/editor_console.dart';
 import 'package:flutter/material.dart';
-
-import '../editor.dart';
 import 'modules_manager.dart';
-
+import 'package:process_runner/process_runner.dart';
 /* Class for storing project information */
 class CCSolution {
   final String name, desc, author, identifier, slnPath, slnFolderPath;
@@ -29,17 +27,26 @@ class CCSolution {
   CCSolution(this.name, this.desc, this.author, this.identifier, this.slnPath,
       this.slnFolderPath, this.dateModified, this.runConfig);
 
-  void run() async {
+  void run(EditorConsoleController controller) async {
 
     if (Platform.isWindows && currentRunConfig < runConfig.length) {
       debugPrint(
           "[CC Debug] starting project on windows config `${runConfig[currentRunConfig].executable}` on $slnFolderPath");
       if (runConfig[currentRunConfig].type == "process") {
-        var result = await Process.run(
+        var proc = await Process.start(
             runConfig[currentRunConfig].executable, runConfig[currentRunConfig].arguments,
             workingDirectory: slnFolderPath);
-        debugPrint("[STDOUT] ${result.stdout}");
-        debugPrint("[STDERR] ${result.stderr}");
+        controller.setText("");
+        // stdout.addStream(proc.stdout);
+        proc.stdout.transform(utf8.decoder).forEach((event) {
+          controller.appendText(event);
+          debugPrint(event);
+        });
+        proc.stderr.transform(utf8.decoder).forEach((event) {
+          controller.appendText(event);
+          debugPrint(event);
+        });
+        //debugPrint("[STDERR] ${result.stderr}");
       }
     }
   }

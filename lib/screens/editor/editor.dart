@@ -1,19 +1,17 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:corecoder_develop/util/custom_code_box.dart'
-    show InnerField, InnerFieldState;
-import 'package:corecoder_develop/editor_drawer.dart';
+import 'package:corecoder_develop/screens/editor/editor_console.dart';
+import 'package:corecoder_develop/util/custom_code_box.dart' show InnerField;
+import 'package:corecoder_develop/screens/editor/editor_drawer.dart';
 import 'package:corecoder_develop/util/modules_manager.dart';
 import 'package:corecoder_develop/util/theme_manager.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:tabbed_view/tabbed_view.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:path/path.dart' as path;
 import 'package:url_launcher/url_launcher.dart';
-import 'util/cc_project_structure.dart';
-import 'filebrowser/models/document.dart';
+import '../../util/cc_project_structure.dart';
+import '../../filebrowser/models/document.dart';
 import 'package:async/async.dart' show RestartableTimer;
 
 class EditorPage extends StatefulWidget {
@@ -29,6 +27,7 @@ class _EditorPageState extends State<EditorPage> {
   late CCSolution project;
   List<Document> documentList = [];
   List<TabData> tabs = [];
+  Map<String, TabData> fileEditors = {};
   bool autoCompleteShown = false;
   List<String> autoComplete = <String>[
     "var|hello",
@@ -38,7 +37,9 @@ class _EditorPageState extends State<EditorPage> {
   ];
   double autoCompleteX = 0;
   double autoCompleteY = 0;
-  int? selectedTab = null;
+  int? selectedTab;
+  EditorConsoleController consoleController = EditorConsoleController();
+  bool showConsole = true;
 
   @override
   void initState() {
@@ -57,7 +58,7 @@ class _EditorPageState extends State<EditorPage> {
       //..border = Border(bottom: BorderSide(color: Colors.green[700]!, width: 3))
       ..middleGap = 0
       ..color = ThemeManager.getThemeSchemeColor("background");
-    themeData.menu..textStyle = const TextStyle(color: Colors.white);
+    themeData.menu.textStyle = const TextStyle(color: Colors.white);
     Radius radius = Radius.zero;
     BorderRadiusGeometry? borderRadius =
         BorderRadius.only(topLeft: radius, topRight: radius);
@@ -72,10 +73,11 @@ class _EditorPageState extends State<EditorPage> {
           shape: BoxShape.rectangle,
           color: Colors.black38,
           borderRadius: borderRadius)
-      ..selectedStatus.decoration = BoxDecoration(
+      ..selectedStatus.decoration = const BoxDecoration(
           color: Colors.black26,
           border: Border(top: BorderSide(color: Colors.greenAccent, width: 3)))
-      ..highlightedStatus.decoration = BoxDecoration(color: Colors.black12);
+      ..highlightedStatus.decoration =
+          const BoxDecoration(color: Colors.black12);
     return themeData;
   }
 
@@ -164,7 +166,6 @@ class _EditorPageState extends State<EditorPage> {
   late RestartableTimer autoSaveTimer;
 
   void onAutoSave() async {
-    debugPrint("autosave");
     for (var tab in tabs) {
       var field = (((tab.content as SingleChildScrollView).child as Container)
           .child as InnerField);
@@ -205,12 +206,12 @@ class _EditorPageState extends State<EditorPage> {
         });
       },
     );
-
     codeFields.add(field);
     return TabData(
         text: title,
         closable: true,
         keepAlive: true,
+        value: filePath,
         content: SingleChildScrollView(
             controller: ScrollController(),
             child: Container(
@@ -221,21 +222,33 @@ class _EditorPageState extends State<EditorPage> {
   }
 
   void openFile(String filepath) async {
-    var filename = path.basename(filepath);
-    var content = await File(filepath).readAsString();
-    //debugPrint(content);
-    content = content.replaceAll("\t", "    ");
-    setState(() {
-      var language = 'javascript';
-      if (filename.endsWith(".json")) {
-        language = 'json';
+    if (!fileEditors.containsKey(filepath)) {
+      var filename = path.basename(filepath);
+      var content = await File(filepath).readAsString();
+      //debugPrint(content);
+      content = content.replaceAll("\t", "    ");
+      setState(() {
+        var language = 'javascript';
+        if (filename.endsWith(".json")) {
+          language = 'json';
+        }
+        if (filename.endsWith(".lua")) {
+          language = 'lua';
+        }
+        var tab = createFileTab(filename, content, language, filepath);
+        fileEditors[filepath] = tab;
+        tabs.add(tab);
+        selectedTab = tabs.length - 1;
+      });
+    } else {
+      // Tab already exists
+      var tab = fileEditors[filepath];
+      if (tab != null) {
+        setState(() {
+          selectedTab = tabs.indexOf(tab);
+        });
       }
-      if (filename.endsWith(".lua")) {
-        language = 'lua';
-      }
-      tabs.add(createFileTab(filename, content, language, filepath));
-      selectedTab = tabs.length - 1;
-    });
+    }
   }
 
   List<Widget> getAutoCompleteControls(String? a) {
@@ -263,7 +276,7 @@ class _EditorPageState extends State<EditorPage> {
           break;
       }
       return Tooltip(
-        verticalOffset: 64,
+          verticalOffset: 64,
           message: desc,
           child: InkWell(
             //style: TextStyle(padding: MaterialStateProperty.all(EdgeInsets.zero)),
@@ -320,6 +333,7 @@ class _EditorPageState extends State<EditorPage> {
   @override
   Widget build(BuildContext context) {
     project = ModalRoute.of(context)!.settings.arguments as CCSolution;
+    var query = MediaQuery.of(context);
     if (documentList.isEmpty) {
       // Populate the file browser tree once
       initializeTreeView();
@@ -327,7 +341,7 @@ class _EditorPageState extends State<EditorPage> {
     var tabController = TabbedViewController(
       tabs,
     );
-    tabController.selectedIndex = tabs.isNotEmpty? selectedTab : null;
+    tabController.selectedIndex = tabs.isNotEmpty ? selectedTab : null;
     final page = Stack(children: [
       Column(//direction: Axis.vertical,
           children: [
@@ -341,7 +355,7 @@ class _EditorPageState extends State<EditorPage> {
                     },
                     onTabClose: (tabIndex, tabData) {
                       setState(() {
-                        /// Just refresh the state
+                        fileEditors.remove(tabData.value);
                       });
                     },
                     controller: tabController,
@@ -365,7 +379,15 @@ class _EditorPageState extends State<EditorPage> {
                     color: ThemeManager.getThemeSchemeColor("foreground"),
                     child: Material(
                         child: ListView(
-                            children: getAutoCompleteControls(null))))))
+                            children: getAutoCompleteControls(null)))))),
+      if(showConsole)
+        Positioned(
+          left: 0,
+          top: query.size.height / 2,
+          height: query.size.height / 2,
+          width: query.size.width,
+          child:EditorConsole(controller: consoleController),
+        )
     ]);
 
     return Scaffold(
@@ -378,20 +400,40 @@ class _EditorPageState extends State<EditorPage> {
         centerTitle: false,
         actions: [
           IconButton(
-            onPressed: () => {project.run()},
+            onPressed: () {
+              project.run(consoleController);
+            },
             icon: const Icon(Icons.play_arrow),
             tooltip: "Run Project",
           ),
           IconButton(
-            onPressed: () => {Navigator.pop(context)},
-            icon: const Icon(Icons.close),
-            tooltip: "Close Project",
+            onPressed: () {
+              setState(() {
+                /// Toggle the console
+                showConsole = !showConsole;
+              });
+            },
+            icon: const Icon(Icons.assessment_rounded),
+            tooltip: "Toggle Console",
           ),
-          IconButton(onPressed: () => {}, icon: const Icon(Icons.more_horiz)),
+          PopupMenuButton(
+            child: const Icon(Icons.more_horiz),
+            tooltip: "Menu",
+            padding: const EdgeInsets.all(32.0),
+            itemBuilder: (BuildContext context) {
+              return <PopupMenuEntry>[
+                PopupMenuItem(
+                  child: const Text("Close Project"),
+                  onTap: () => Navigator.pop(context),
+                )
+              ];
+            },
+          ),
           const SizedBox(width: 16.0),
         ],
       ),
-      body: page,
+      body:
+          page
     );
   }
 }

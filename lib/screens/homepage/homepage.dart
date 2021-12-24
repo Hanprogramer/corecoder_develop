@@ -1,24 +1,23 @@
 import 'dart:io';
 
-import 'package:corecoder_develop/plugins_browser.dart';
-import 'package:corecoder_develop/settings.dart';
+import 'package:corecoder_develop/screens/settings/plugins_browser.dart';
+import 'package:corecoder_develop/screens/settings/settings.dart';
 import 'package:corecoder_develop/util/cc_project_structure.dart';
 import 'package:corecoder_develop/util/desktop_tabbar.dart';
-import 'package:corecoder_develop/util/plugins_manager.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
-import 'editor.dart';
-import 'main.dart';
-import 'util/modules_manager.dart';
+import '../editor/editor.dart';
+import '../../main.dart';
+import '../../util/modules_manager.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'util/cc_project_structure.dart';
+import '../../util/cc_project_structure.dart';
 import 'package:corecoder_develop/util/modules_manager.dart'
     show Module, ModulesManager, Template;
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+import 'homepage_projectlist.dart';
 
 /// Updates the file last modified
 void touchFile(File file, CCSolution solution) {
@@ -29,6 +28,9 @@ void touchFile(File file, CCSolution solution) {
 
 void loadSolution(CCSolution solution, BuildContext context) {
   Navigator.pushNamed(context, EditorPage.routeName, arguments: solution);
+  // Save the last solution opened to preferences
+  SharedPreferences.getInstance()
+      .then((value) => value.setString("lastOpenedPath", solution.slnPath));
 }
 
 enum HistoryItemType { solution, singleFile }
@@ -198,6 +200,13 @@ class _HomePageState extends State<HomePage> {
                         //TODO: Handle single file delete
                       }
                       break;
+                    case "remove":
+                      setState(() {
+                        /// Remove item from the list without deleting the actual file
+                        RecentProjectsManager.instance.projects.remove(p);
+                        RecentProjectsManager.staticCommit();
+                      });
+                      break;
                   }
                 },
                 itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -215,6 +224,10 @@ class _HomePageState extends State<HomePage> {
                     value: "export",
                     child: Text('Export Project'),
                   ),
+              const PopupMenuItem<String>(
+                //TODO: Implement this menu
+                value: "remove",
+                child: Text('Remove from list')),
                 ],
               ))));
       // IconButton(
@@ -385,6 +398,25 @@ class _HomePageState extends State<HomePage> {
     mm.onFinishedLoading = () {
       refreshRecentProjects();
     };
+
+    /// Check the last opened projects
+    SharedPreferences.getInstance().then((inst) async {
+      var isAutoOpen = inst.getBool("openLastProjectOnStartup");
+      if (isAutoOpen != null && isAutoOpen) {
+        var val = inst.getString("lastOpenedPath");
+        debugPrint("Loading last opened $val");
+        if (val != null) {
+          if (val.endsWith(".ccsln.json")) {
+            var sln = await CCSolution.loadFromFile(val);
+            if (sln != null) {
+              loadSolution(sln, context);
+            }
+          } else {
+            //TODO: handle loading single file
+          }
+        }
+      }
+    });
   }
 
   @override
@@ -450,6 +482,19 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  /// Add project from a specific folder path
+  /// Called from ProjectList
+  void onAddProject(String path) async {
+    CCSolution? sln = await CCSolution.loadFromFile(path);
+    if(sln != null){
+      await RecentProjectsManager.instance.addSolution(path);
+      setState(() {
+        RecentProjectsManager.staticCommit();
+      });
+      loadSolution(sln, context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final query = MediaQuery.of(context);
@@ -476,35 +521,11 @@ class _HomePageState extends State<HomePage> {
                   icon: const Icon(Icons.settings),
                   title: const Text("Settings")),
             ], content: <Widget>[
-              Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(children: [
-                          const Text(
-                            "Recent Projects",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 24.0,
-                            ),
-                          ),
-                          const Spacer(flex: 1),
-                          OutlinedButton(
-                            onPressed: () {
-                              refreshRecentProjects();
-                            },
-                            child: const Text("Refresh"),
-                          ),
-                          OutlinedButton(
-                            onPressed: () {},
-                            child: const Text("Add"),
-                          ),
-                        ]),
-                        Column(
-                          children: projectsWidgetList,
-                        )
-                      ])),
+              ProjectList(
+                onAddProject: onAddProject,
+                onRefresh: refreshRecentProjects,
+                children: projectsWidgetList,
+              ),
               const PluginsBrowser(),
               SettingsPage(mm),
             ])
@@ -513,35 +534,11 @@ class _HomePageState extends State<HomePage> {
           /// ==================
           /// The android layout
           /// ==================
-      Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(children: [
-                  const Text(
-                    "Recent Projects",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24.0,
-                    ),
-                  ),
-                  const Spacer(flex: 1),
-                  OutlinedButton(
-                    onPressed: () {
-                      refreshRecentProjects();
-                    },
-                    child: const Text("Refresh"),
-                  ),
-                  OutlinedButton(
-                    onPressed: () {},
-                    child: const Text("Add"),
-                  ),
-                ]),
-                Column(
-                  children: projectsWidgetList,
-                )
-              ])),
+          ProjectList(
+              onAddProject: onAddProject,
+              onRefresh: refreshRecentProjects,
+              children: projectsWidgetList,
+            ),
     ));
     return Scaffold(
         appBar: CoreCoderApp.isLandscape(context)

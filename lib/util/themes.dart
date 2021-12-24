@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter_highlight/themes/a11y-dark.dart';
 import 'package:flutter_highlight/themes/a11y-light.dart';
 import 'package:flutter_highlight/themes/agate.dart';

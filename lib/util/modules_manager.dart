@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:corecoder_develop/modules/module_jsplugins.dart';
 import 'package:corecoder_develop/modules/module_minecraft.dart';
+import 'package:corecoder_develop/modules/module_core.dart';
 import 'package:corecoder_develop/util/plugins_manager.dart';
 import 'package:flutter/material.dart';
 
@@ -34,6 +35,8 @@ class ModulesManager {
   }
 
   ModulesManager(BuildContext context) {
+    internalModules.clear();
+    internalModules.add(CoreModule());
     internalModules.add(MinecraftModule());
   }
 
@@ -93,7 +96,9 @@ abstract class Module {
   Module(this.name, this.desc, this.author, this.version, this.imageRaw,
       this.identifier);
 
-  void onInitialized(ModulesManager modulesManager, BuildContext buildContext);
+  void onInitialized(ModulesManager modulesManager, BuildContext buildContext){
+    templates.clear();
+  }
   List<String> onAutoComplete(String language, String lastToken);
   void addTemplate(Template template) {
     templates.add(template);

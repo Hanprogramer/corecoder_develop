@@ -1,15 +1,16 @@
 import 'dart:io';
 
-import 'package:corecoder_develop/editor.dart';
-import 'package:corecoder_develop/plugins_browser.dart';
-import 'package:corecoder_develop/settings.dart';
+import 'package:corecoder_develop/screens/editor/editor.dart';
+import 'package:corecoder_develop/screens/settings/plugins_browser.dart';
+import 'package:corecoder_develop/util/cc_project_structure.dart';
 import 'package:corecoder_develop/util/theme_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
-import 'homepage.dart';
-import 'editor_drawer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'screens/homepage/homepage.dart';
+import 'screens/editor/editor_drawer.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 
 void main() async {
@@ -29,7 +30,7 @@ const borderColor = Color(0xFF3BBA73);
 
 class CoreCoderApp extends StatefulWidget {
   const CoreCoderApp({Key? key}) : super(key: key);
-  static const String version = "v0.0.1";
+  static const String version = "v0.0.2";
   static bool isDesktop = (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
   static bool isLandscape(BuildContext context){
     var q = MediaQuery.of(context);
@@ -48,9 +49,15 @@ class CoreCoderAppState extends State<CoreCoderApp> {
   @override
   void initState() {
     super.initState();
-    ThemeManager.currentTheme.addListener(() {
+    _pref.then((value) {
       setState(() {
-        themeName = ThemeManager.currentTheme.value;
+        themeName = value.getString("theme") ?? themeName;
+        ThemeManager.currentTheme = ValueNotifier(themeName);
+      });
+      ThemeManager.currentTheme.addListener(() {
+        setState(() {
+          themeName = ThemeManager.currentTheme.value;
+        });
       });
     });
     if (Platform.isWindows) {
@@ -63,7 +70,11 @@ class CoreCoderAppState extends State<CoreCoderApp> {
         debugPrint(result as String);
       });
     }
+
+
   }
+  static final Future<SharedPreferences> _pref =
+  SharedPreferences.getInstance();
 
   @override
   Widget build(BuildContext context) {

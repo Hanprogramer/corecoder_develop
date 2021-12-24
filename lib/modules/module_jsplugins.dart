@@ -1,12 +1,10 @@
 import 'dart:ffi';
 import 'dart:typed_data';
 import 'package:corecoder_develop/modules/jsapi.dart';
-import 'package:corecoder_develop/util/cc_project_structure.dart';
 import 'package:corecoder_develop/util/modules_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_jscore/jscore_bindings.dart';
 import 'package:ffi/ffi.dart';
-import 'package:corecoder_develop/homepage.dart';
 import 'package:flutter_jscore/flutter_jscore.dart' as jscore
     show
         JSContext,
