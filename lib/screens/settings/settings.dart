@@ -1,11 +1,11 @@
 import 'package:corecoder_develop/main.dart';
-import 'package:corecoder_develop/plugins_browser.dart';
+import 'package:corecoder_develop/screens/settings/plugins_browser.dart';
 import 'package:corecoder_develop/util/modules_manager.dart';
 import 'package:corecoder_develop/util/theme_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'util/plugins_manager.dart';
+import '../../util/plugins_manager.dart';
 
 class AppSettings {
   static String appTheme = "core-coder-dark";

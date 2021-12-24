@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:corecoder_develop/editor.dart';
-import 'package:corecoder_develop/plugins_browser.dart';
+import 'package:corecoder_develop/screens/editor/editor.dart';
+import 'package:corecoder_develop/screens/settings/plugins_browser.dart';
 import 'package:corecoder_develop/util/cc_project_structure.dart';
 import 'package:corecoder_develop/util/theme_manager.dart';
 import 'package:flutter/material.dart';
@@ -9,8 +9,8 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'homepage.dart';
-import 'editor_drawer.dart';
+import 'screens/homepage/homepage.dart';
+import 'screens/editor/editor_drawer.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 
 void main() async {

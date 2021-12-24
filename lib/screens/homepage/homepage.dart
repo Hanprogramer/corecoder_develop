@@ -1,19 +1,19 @@
 import 'dart:io';
 
-import 'package:corecoder_develop/plugins_browser.dart';
-import 'package:corecoder_develop/settings.dart';
+import 'package:corecoder_develop/screens/settings/plugins_browser.dart';
+import 'package:corecoder_develop/screens/settings/settings.dart';
 import 'package:corecoder_develop/util/cc_project_structure.dart';
 import 'package:corecoder_develop/util/desktop_tabbar.dart';
 import 'package:flutter/material.dart';
 
-import 'editor.dart';
-import 'main.dart';
-import 'util/modules_manager.dart';
+import '../editor/editor.dart';
+import '../../main.dart';
+import '../../util/modules_manager.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'util/cc_project_structure.dart';
+import '../../util/cc_project_structure.dart';
 import 'package:corecoder_develop/util/modules_manager.dart'
     show Module, ModulesManager, Template;
 
@@ -515,9 +515,10 @@ class _HomePageState extends State<HomePage> {
                             },
                             child: const Text("Refresh"),
                           ),
+                          const SizedBox(width: 4,),
                           OutlinedButton(
                             onPressed: () {},
-                            child: const Text("Add"),
+                            child: const Text("Open"),
                           ),
                         ]),
                         Column(

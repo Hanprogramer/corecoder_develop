@@ -10,7 +10,7 @@ import 'package:ffi/ffi.dart';
 import 'package:flutter_jscore/flutter_jscore.dart';
 import 'package:flutter_jscore/jscore_bindings.dart' as js;
 
-import '../homepage.dart';
+import '../screens/homepage/homepage.dart';
 
 String jsStringToDartString(Pointer resultJsString) {
   var resultCString = js.jSStringGetCharactersPtr(resultJsString);
