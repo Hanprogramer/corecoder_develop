@@ -383,6 +383,11 @@ class _EditorPageState extends State<EditorPage> {
             tooltip: "Run Project",
           ),
           IconButton(
+            onPressed: () => {},
+            icon: const Icon(Icons.assessment_rounded),
+            tooltip: "Toggle Console",
+          ),
+          IconButton(
             onPressed: () => {Navigator.pop(context)},
             icon: const Icon(Icons.close),
             tooltip: "Close Project",

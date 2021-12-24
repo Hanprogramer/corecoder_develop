@@ -35,6 +35,7 @@ class ModulesManager {
   }
 
   ModulesManager(BuildContext context) {
+    internalModules.clear();
     internalModules.add(CoreModule());
     internalModules.add(MinecraftModule());
   }
@@ -95,7 +96,9 @@ abstract class Module {
   Module(this.name, this.desc, this.author, this.version, this.imageRaw,
       this.identifier);
 
-  void onInitialized(ModulesManager modulesManager, BuildContext buildContext);
+  void onInitialized(ModulesManager modulesManager, BuildContext buildContext){
+    templates.clear();
+  }
   List<String> onAutoComplete(String language, String lastToken);
   void addTemplate(Template template) {
     templates.add(template);

@@ -39,7 +39,7 @@ class CoreModule extends Module { //TODO doesnt work
 
   @override
   void onInitialized(ModulesManager modulesManager, BuildContext buildContext) async {
-
+    super.onInitialized(modulesManager, buildContext);
     var template = Template(
         "Empty", //title
         "Empty project", //desc
