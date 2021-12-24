@@ -17,6 +17,8 @@ import '../../util/cc_project_structure.dart';
 import 'package:corecoder_develop/util/modules_manager.dart'
     show Module, ModulesManager, Template;
 
+import 'homepage_projectlist.dart';
+
 /// Updates the file last modified
 void touchFile(File file, CCSolution solution) {
   var newTime = DateTime.now();
@@ -469,6 +471,9 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  //TODO: Implement add project
+  void onAddProject() {}
+
   @override
   Widget build(BuildContext context) {
     final query = MediaQuery.of(context);
@@ -495,36 +500,11 @@ class _HomePageState extends State<HomePage> {
                   icon: const Icon(Icons.settings),
                   title: const Text("Settings")),
             ], content: <Widget>[
-              Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(children: [
-                          const Text(
-                            "Recent Projects",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 24.0,
-                            ),
-                          ),
-                          const Spacer(flex: 1),
-                          OutlinedButton(
-                            onPressed: () {
-                              refreshRecentProjects();
-                            },
-                            child: const Text("Refresh"),
-                          ),
-                          const SizedBox(width: 4,),
-                          OutlinedButton(
-                            onPressed: () {},
-                            child: const Text("Open"),
-                          ),
-                        ]),
-                        Column(
-                          children: projectsWidgetList,
-                        )
-                      ])),
+              ProjectList(
+                onAddProject: onAddProject,
+                onRefresh: refreshRecentProjects,
+                children: projectsWidgetList,
+              ),
               const PluginsBrowser(),
               SettingsPage(mm),
             ])
@@ -533,35 +513,11 @@ class _HomePageState extends State<HomePage> {
           /// ==================
           /// The android layout
           /// ==================
-          Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(children: [
-                      const Text(
-                        "Recent Projects",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 24.0,
-                        ),
-                      ),
-                      const Spacer(flex: 1),
-                      OutlinedButton(
-                        onPressed: () {
-                          refreshRecentProjects();
-                        },
-                        child: const Text("Refresh"),
-                      ),
-                      OutlinedButton(
-                        onPressed: () {},
-                        child: const Text("Add"),
-                      ),
-                    ]),
-                    Column(
-                      children: projectsWidgetList,
-                    )
-                  ])),
+          ProjectList(
+              onAddProject: onAddProject,
+              onRefresh: refreshRecentProjects,
+              children: projectsWidgetList,
+            ),
     ));
     return Scaffold(
         appBar: CoreCoderApp.isLandscape(context)
