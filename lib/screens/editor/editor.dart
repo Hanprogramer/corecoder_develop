@@ -27,6 +27,7 @@ class _EditorPageState extends State<EditorPage> {
   late CCSolution project;
   List<Document> documentList = [];
   List<TabData> tabs = [];
+  Map<String,TabData> fileEditors = {};
   bool autoCompleteShown = false;
   List<String> autoComplete = <String>[
     "var|hello",
@@ -203,12 +204,12 @@ class _EditorPageState extends State<EditorPage> {
         });
       },
     );
-
     codeFields.add(field);
     return TabData(
         text: title,
         closable: true,
         keepAlive: true,
+        value: filePath,
         content: SingleChildScrollView(
             controller: ScrollController(),
             child: Container(
@@ -219,21 +220,33 @@ class _EditorPageState extends State<EditorPage> {
   }
 
   void openFile(String filepath) async {
-    var filename = path.basename(filepath);
-    var content = await File(filepath).readAsString();
-    //debugPrint(content);
-    content = content.replaceAll("\t", "    ");
-    setState(() {
-      var language = 'javascript';
-      if (filename.endsWith(".json")) {
-        language = 'json';
+    if(!fileEditors.containsKey(filepath)) {
+      var filename = path.basename(filepath);
+      var content = await File(filepath).readAsString();
+      //debugPrint(content);
+      content = content.replaceAll("\t", "    ");
+      setState(() {
+        var language = 'javascript';
+        if (filename.endsWith(".json")) {
+          language = 'json';
+        }
+        if (filename.endsWith(".lua")) {
+          language = 'lua';
+        }
+        var tab = createFileTab(filename, content, language, filepath);
+        fileEditors[filepath] = tab;
+        tabs.add(tab);
+        selectedTab = tabs.length - 1;
+      });
+    }else{
+      // Tab already exists
+      var tab = fileEditors[filepath];
+      if(tab != null){
+        setState(() {
+          selectedTab = tabs.indexOf(tab);
+        });
       }
-      if (filename.endsWith(".lua")) {
-        language = 'lua';
-      }
-      tabs.add(createFileTab(filename, content, language, filepath));
-      selectedTab = tabs.length - 1;
-    });
+    }
   }
 
   List<Widget> getAutoCompleteControls(String? a) {
@@ -339,7 +352,7 @@ class _EditorPageState extends State<EditorPage> {
                     },
                     onTabClose: (tabIndex, tabData) {
                       setState(() {
-                        /// Just refresh the state
+                        fileEditors.remove(tabData.value);
                       });
                     },
                     controller: tabController,
