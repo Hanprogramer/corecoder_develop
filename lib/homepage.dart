@@ -26,6 +26,9 @@ void touchFile(File file, CCSolution solution) {
 
 void loadSolution(CCSolution solution, BuildContext context) {
   Navigator.pushNamed(context, EditorPage.routeName, arguments: solution);
+  // Save the last solution opened to preferences
+  SharedPreferences.getInstance()
+      .then((value) => value.setString("lastOpenedPath", solution.slnPath));
 }
 
 enum HistoryItemType { solution, singleFile }
@@ -382,6 +385,25 @@ class _HomePageState extends State<HomePage> {
     mm.onFinishedLoading = () {
       refreshRecentProjects();
     };
+
+    /// Check the last opened projects
+    SharedPreferences.getInstance().then((inst) async {
+      var isAutoOpen = inst.getBool("openLastProjectOnStartup");
+      if (isAutoOpen != null && isAutoOpen) {
+        var val = inst.getString("lastOpenedPath");
+        debugPrint("Loading last opened $val");
+        if (val != null) {
+          if (val.endsWith(".ccsln.json")) {
+            var sln = await CCSolution.loadFromFile(val);
+            if (sln != null) {
+              loadSolution(sln, context);
+            }
+          } else {
+            //TODO: handle loading single file
+          }
+        }
+      }
+    });
   }
 
   @override
@@ -510,35 +532,35 @@ class _HomePageState extends State<HomePage> {
           /// ==================
           /// The android layout
           /// ==================
-      Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(children: [
-                  const Text(
-                    "Recent Projects",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24.0,
-                    ),
-                  ),
-                  const Spacer(flex: 1),
-                  OutlinedButton(
-                    onPressed: () {
-                      refreshRecentProjects();
-                    },
-                    child: const Text("Refresh"),
-                  ),
-                  OutlinedButton(
-                    onPressed: () {},
-                    child: const Text("Add"),
-                  ),
-                ]),
-                Column(
-                  children: projectsWidgetList,
-                )
-              ])),
+          Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(children: [
+                      const Text(
+                        "Recent Projects",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 24.0,
+                        ),
+                      ),
+                      const Spacer(flex: 1),
+                      OutlinedButton(
+                        onPressed: () {
+                          refreshRecentProjects();
+                        },
+                        child: const Text("Refresh"),
+                      ),
+                      OutlinedButton(
+                        onPressed: () {},
+                        child: const Text("Add"),
+                      ),
+                    ]),
+                    Column(
+                      children: projectsWidgetList,
+                    )
+                  ])),
     ));
     return Scaffold(
         appBar: CoreCoderApp.isLandscape(context)

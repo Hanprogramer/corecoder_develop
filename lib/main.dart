@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:corecoder_develop/editor.dart';
 import 'package:corecoder_develop/plugins_browser.dart';
+import 'package:corecoder_develop/util/cc_project_structure.dart';
 import 'package:corecoder_develop/util/theme_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -69,6 +70,8 @@ class CoreCoderAppState extends State<CoreCoderApp> {
         debugPrint(result as String);
       });
     }
+
+
   }
   static final Future<SharedPreferences> _pref =
   SharedPreferences.getInstance();
