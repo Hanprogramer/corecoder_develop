@@ -2,14 +2,12 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:corecoder_develop/util/custom_code_box.dart'
-    show InnerField, InnerFieldState;
+    show InnerField;
 import 'package:corecoder_develop/editor_drawer.dart';
 import 'package:corecoder_develop/util/modules_manager.dart';
 import 'package:corecoder_develop/util/theme_manager.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:tabbed_view/tabbed_view.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:path/path.dart' as path;
 import 'package:url_launcher/url_launcher.dart';
 import 'util/cc_project_structure.dart';

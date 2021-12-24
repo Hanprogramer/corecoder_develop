@@ -4,9 +4,7 @@ import 'package:corecoder_develop/plugins_browser.dart';
 import 'package:corecoder_develop/settings.dart';
 import 'package:corecoder_develop/util/cc_project_structure.dart';
 import 'package:corecoder_develop/util/desktop_tabbar.dart';
-import 'package:corecoder_develop/util/plugins_manager.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 import 'editor.dart';
 import 'main.dart';
@@ -18,7 +16,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'util/cc_project_structure.dart';
 import 'package:corecoder_develop/util/modules_manager.dart'
     show Module, ModulesManager, Template;
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 /// Updates the file last modified
 void touchFile(File file, CCSolution solution) {

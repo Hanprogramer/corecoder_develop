@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:corecoder_develop/editor.dart';
 import 'package:corecoder_develop/plugins_browser.dart';
-import 'package:corecoder_develop/settings.dart';
 import 'package:corecoder_develop/util/theme_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

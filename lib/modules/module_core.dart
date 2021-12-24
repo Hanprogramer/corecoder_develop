@@ -1,5 +1,4 @@
-import 'dart:convert';
-import 'dart:io' show Directory, File, Platform;
+import 'dart:io' show File;
 import 'package:corecoder_develop/util/modules_manager.dart';
 import 'package:flutter/material.dart';
 class CoreModule extends Module { //TODO doesnt work
