@@ -39,10 +39,16 @@ class ThemeManager {
       brightness: brightness,
       backgroundColor: backgroundColor,
       canvasColor: backgroundSecondary,
+      primaryColor: primaryColor,
+      primaryColorDark: Colors.red,
+      primarySwatch:  Colors.red,
       colorScheme: ColorScheme.fromSwatch(brightness: brightness).copyWith(
         primary: primaryColor,
         brightness: brightness,
+        background: backgroundColor,
+
       ),
+
       scaffoldBackgroundColor: backgroundSecondary,
       appBarTheme: AppBarTheme(
         backgroundColor: backgroundColor,
