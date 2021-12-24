@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:corecoder_develop/screens/editor/editor_console.dart';
 import 'package:corecoder_develop/util/custom_code_box.dart' show InnerField;
 import 'package:corecoder_develop/screens/editor/editor_drawer.dart';
 import 'package:corecoder_develop/util/modules_manager.dart';
@@ -37,6 +38,8 @@ class _EditorPageState extends State<EditorPage> {
   double autoCompleteX = 0;
   double autoCompleteY = 0;
   int? selectedTab;
+  EditorConsoleController consoleController = EditorConsoleController();
+  bool showConsole = true;
 
   @override
   void initState() {
@@ -330,6 +333,7 @@ class _EditorPageState extends State<EditorPage> {
   @override
   Widget build(BuildContext context) {
     project = ModalRoute.of(context)!.settings.arguments as CCSolution;
+    var query = MediaQuery.of(context);
     if (documentList.isEmpty) {
       // Populate the file browser tree once
       initializeTreeView();
@@ -375,7 +379,15 @@ class _EditorPageState extends State<EditorPage> {
                     color: ThemeManager.getThemeSchemeColor("foreground"),
                     child: Material(
                         child: ListView(
-                            children: getAutoCompleteControls(null))))))
+                            children: getAutoCompleteControls(null)))))),
+      if(showConsole)
+        Positioned(
+          left: 0,
+          top: query.size.height / 2,
+          height: query.size.height / 2,
+          width: query.size.width,
+          child:EditorConsole(controller: consoleController),
+        )
     ]);
 
     return Scaffold(
@@ -388,12 +400,19 @@ class _EditorPageState extends State<EditorPage> {
         centerTitle: false,
         actions: [
           IconButton(
-            onPressed: () => {project.run()},
+            onPressed: () {
+              project.run(consoleController);
+            },
             icon: const Icon(Icons.play_arrow),
             tooltip: "Run Project",
           ),
           IconButton(
-            onPressed: () => {},
+            onPressed: () {
+              setState(() {
+                /// Toggle the console
+                showConsole = !showConsole;
+              });
+            },
             icon: const Icon(Icons.assessment_rounded),
             tooltip: "Toggle Console",
           ),
@@ -401,15 +420,20 @@ class _EditorPageState extends State<EditorPage> {
             child: const Icon(Icons.more_horiz),
             tooltip: "Menu",
             padding: const EdgeInsets.all(32.0),
-            itemBuilder: (BuildContext context){
-            return <PopupMenuEntry>[
-              PopupMenuItem(child: const Text("Close Project"),onTap:()=> Navigator.pop(context),)
-            ];
-          },),
+            itemBuilder: (BuildContext context) {
+              return <PopupMenuEntry>[
+                PopupMenuItem(
+                  child: const Text("Close Project"),
+                  onTap: () => Navigator.pop(context),
+                )
+              ];
+            },
+          ),
           const SizedBox(width: 16.0),
         ],
       ),
-      body: page,
+      body:
+          page
     );
   }
 }
