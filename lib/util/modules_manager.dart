@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:corecoder_develop/modules/module_jsplugins.dart';
 import 'package:corecoder_develop/modules/module_minecraft.dart';
+import 'package:corecoder_develop/modules/module_core.dart';
 import 'package:corecoder_develop/util/plugins_manager.dart';
 import 'package:flutter/material.dart';
 
@@ -34,6 +35,7 @@ class ModulesManager {
   }
 
   ModulesManager(BuildContext context) {
+    internalModules.add(CoreModule());
     internalModules.add(MinecraftModule());
   }
 
