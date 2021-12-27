@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 import 'package:github/github.dart';
 import 'package:archive/archive.dart';
+
 class PluginsBrowser extends StatefulWidget {
   static const routeName = "/Settings/PluginsManager/";
 
@@ -22,35 +23,39 @@ class PluginsItem {
   String name, author, repo, version, iconUrl, desc, identifier;
   bool isInstalled = false;
   bool isProcessing = false;
+
   String get folderName {
     return identifier + "@" + version;
   }
-  PluginsItem(this.name, this.author, this.repo, this.version, this.iconUrl, this.desc, this.identifier, this.isInstalled);
+
+  PluginsItem(this.name, this.author, this.repo, this.version, this.iconUrl,
+      this.desc, this.identifier, this.isInstalled);
 }
 
 class PluginsBrowserState extends State<PluginsBrowser> {
   List<PluginsItem> items = [];
   JsonDecoder decoder = const JsonDecoder();
   GitHub github = GitHub(); // Create an anonymous github client
+  bool _isLoadingVisible = false;
 
-  Future<bool>  uninstallPlugins(PluginsItem item)async{
+  Future<bool> uninstallPlugins(PluginsItem item) async {
     debugPrint("Uninstalling ${item.identifier}");
     setState(() {
       item.isProcessing = true;
     });
     JsModule? module;
-    for(var m in ModulesManager.externalModules){
-      if(m.identifier == item.identifier){
+    for (var m in ModulesManager.externalModules) {
+      if (m.identifier == item.identifier) {
         module = m;
       }
     }
-    if(module != null){
+    if (module != null) {
       debugPrint("Found module. deleting files...");
       var path = module.moduleFolder;
       await Directory(path).delete(recursive: true);
       ModulesManager.externalModules.remove(module);
       item.isInstalled = false;
-    }else{
+    } else {
       return false;
     }
     setState(() {
@@ -59,23 +64,26 @@ class PluginsBrowserState extends State<PluginsBrowser> {
     return true;
   }
 
-  Future<bool>  installPlugins(PluginsItem item)async{
+  Future<bool> installPlugins(PluginsItem item) async {
     setState(() {
       item.isProcessing = true;
     });
-    if(! await PluginsManager.checkPluginsExist(item.identifier,item.version)) {
+    if (!await PluginsManager.checkPluginsExist(
+        item.identifier, item.version)) {
       try {
         Repository repo = await github.repositories.getRepository(
             RepositorySlug.full(
                 item.repo.replaceAll("https://github.com/", "")));
-        List<Release> releases = await github.repositories.listReleases(
-            repo.slug()).toList();
+        List<Release> releases =
+            await github.repositories.listReleases(repo.slug()).toList();
 
         if (repo.hasDownloads) {
           var r = releases.first;
           if (r.zipballUrl != null) {
             var bytes = (await http.get(Uri.parse(r.zipballUrl!))).bodyBytes;
-            var path = await PluginsManager.pluginsPath + item.folderName + Platform.pathSeparator;
+            var path = await PluginsManager.pluginsPath +
+                item.folderName +
+                Platform.pathSeparator;
             var archive = ZipDecoder().decodeBytes(bytes);
 
             // Create the folder if not exists
@@ -103,17 +111,17 @@ class PluginsBrowserState extends State<PluginsBrowser> {
               "[Plugins Manager] Error: Plugins have no downloads available");
         }
       } on GitHubError catch (err) {
-        debugPrint("[Plugins Manager] Can't find plugins repository ${item
-            .identifier}");
+        debugPrint(
+            "[Plugins Manager] Can't find plugins repository ${item.identifier}");
         return false;
       }
-    }else{
+    } else {
       debugPrint("[PluginsManager] The plugins is already installed");
       item.isInstalled = true;
       return false;
     }
     /* Do Something with repo */
-    if(item.isInstalled) return false;
+    if (item.isInstalled) return false;
 
     setState(() {
       item.isProcessing = false;
@@ -123,23 +131,31 @@ class PluginsBrowserState extends State<PluginsBrowser> {
 
   void reloadPlugins({String query = ""}) async {
     items.clear();
+    _isLoadingVisible = true;
     Response resp = await http.get(Uri.parse(
-        "https://raw.githubusercontent.com/CoreCoder-Devs/corecoder_plugins/main/plugins.json"));
+        "https://raw.githubusercontent.com/CoreCoder-Devs/corecoder_plugins/main/plugins.json")
+    );
+    _isLoadingVisible = false;
     if (resp.statusCode == 200) {
       // OK
       Map obj = decoder.convert(resp.body);
       for (var key in obj.keys) {
         var isInstalled = false;
         var identifier = obj[key]["identifier"];
-        for(Module m in ModulesManager.externalModules){
-          if(m.identifier == identifier){
+        for (Module m in ModulesManager.externalModules) {
+          if (m.identifier == identifier) {
             isInstalled = true;
           }
         }
-        items.add(PluginsItem(obj[key]["name"], obj[key]["author"],
-            obj[key]["repo"], obj[key]["version"], obj[key]["icon"], obj[key]["desc"],
-            obj[key]["identifier"], isInstalled
-        ));
+        items.add(PluginsItem(
+            obj[key]["name"],
+            obj[key]["author"],
+            obj[key]["repo"],
+            obj[key]["version"],
+            obj[key]["icon"],
+            obj[key]["desc"],
+            obj[key]["identifier"],
+            isInstalled));
         setState(() {}); // refresh
       }
     }
@@ -154,27 +170,41 @@ class PluginsBrowserState extends State<PluginsBrowser> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: const Text("Install Plugins"),),
-        body: Column(
-          children: List.generate(items.length, (index) {
-            var item = items[index];
-            return ListTile(
-              title: Text(item.name),
-              leading: Image.network(item.iconUrl),
-              subtitle: Text(item.desc),
-              trailing:
-              (item.isProcessing)?
-                  const CircularProgressIndicator(value: null,)
-                  :
-              (item.isInstalled)?
-              ElevatedButton(
-                onPressed: () {uninstallPlugins(item);},
-                child: const Text("Uninstall"),
-              ):
-              ElevatedButton(onPressed: (){installPlugins(item);}, child: const Text("Install")),
-              onTap: (){},
-            );
-          }),
-        ));
+        appBar: AppBar(
+          title: const Text("Install Plugins"),
+        ),
+        body: Column(children: [
+          Visibility(
+            visible: _isLoadingVisible,
+            child: const Text('Loading...')
+          ),
+          Column(
+            children: List.generate(items.length, (index) {
+              var item = items[index];
+              return ListTile(
+                title: Text(item.name),
+                leading: Image.network(item.iconUrl),
+                subtitle: Text(item.desc),
+                trailing: (item.isProcessing)
+                    ? const CircularProgressIndicator(
+                        value: null,
+                      )
+                    : (item.isInstalled)
+                        ? ElevatedButton(
+                            onPressed: () {
+                              uninstallPlugins(item);
+                            },
+                            child: const Text("Uninstall"),
+                          )
+                        : ElevatedButton(
+                            onPressed: () {
+                              installPlugins(item);
+                            },
+                            child: const Text("Install")),
+                onTap: () {},
+              );
+            }),
+          )
+        ]));
   }
 }
