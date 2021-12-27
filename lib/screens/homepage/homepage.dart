@@ -139,10 +139,15 @@ class _HomePageState extends State<HomePage> {
                       Icons.insert_drive_file,
                       size: 48,
                     ),
-              title: Text(p.name),
+              title: Text(
+                p.name,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold
+                ),
+              ),
               subtitle: Text(
                   (p.type == HistoryItemType.solution ? p.solution!.desc : "") +
-                      " Last Modified: " +
+                      "Last Modified: " +
                       p.dateModified.toString()),
               trailing: PopupMenuButton<String>(
                 onSelected: (String result) {
