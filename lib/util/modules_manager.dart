@@ -88,7 +88,7 @@ abstract class Module {
           image: ResizeImage.resizeIfNeeded(
               48, 48, Image.memory(imageRaw!).image));
     }
-    return const Icon(Icons.insert_drive_file);
+    return const Icon(Icons.extension, size: 48,);
   }
 
   String identifier;
