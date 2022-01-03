@@ -70,3 +70,4 @@ fastlane/readme.md
 .packages
 
 windows/flutter/
+.idea/discord.xml
