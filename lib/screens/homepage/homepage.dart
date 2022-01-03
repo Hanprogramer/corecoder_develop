@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:corecoder_develop/filebrowser/utils/utils.dart';
 import 'package:corecoder_develop/screens/settings/plugins_browser.dart';
 import 'package:corecoder_develop/screens/settings/settings.dart';
 import 'package:corecoder_develop/util/cc_project_structure.dart';
@@ -146,9 +147,8 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               subtitle: Text(
-                  (p.type == HistoryItemType.solution ? p.solution!.desc : "") +
                       "Last Modified: " +
-                      p.dateModified.toString()),
+                      Utils.getFormattedDateTime(dateTime: p.dateModified)),
               trailing: PopupMenuButton<String>(
                 onSelected: (String result) {
                   switch (result) {
