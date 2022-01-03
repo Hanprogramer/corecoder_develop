@@ -6,10 +6,10 @@
       <root url="file://$PROJECT_DIR$/../../../Programming/C++Projects/Cortexania/platforms/android/caches/transforms-2/files-2.1/81fe834ed73c0e76a1f16afb4e518dd9/monitor-1.2.0/AndroidManifest.xml" />
     </CLASSES>
     <JAVADOC>
-      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/androidx.test/monitor/1.2.0/2af6ec82fa4b1151212001e83514ccb39f360adc/monitor-1.2.0-javadoc.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../Programming/C++Projects/Cortexania/platforms/android/caches/modules-2/files-2.1/androidx.test/monitor/1.2.0/2af6ec82fa4b1151212001e83514ccb39f360adc/monitor-1.2.0-javadoc.jar!/" />
     </JAVADOC>
     <SOURCES>
-      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/androidx.test/monitor/1.2.0/dbbc3050e0945ecea95f4e25b72e169cfe6f32bc/monitor-1.2.0-sources.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../Programming/C++Projects/Cortexania/platforms/android/caches/modules-2/files-2.1/androidx.test/monitor/1.2.0/dbbc3050e0945ecea95f4e25b72e169cfe6f32bc/monitor-1.2.0-sources.jar!/" />
     </SOURCES>
   </library>
 </component>

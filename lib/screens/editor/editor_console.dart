@@ -15,9 +15,7 @@ class EditorConsoleController extends TextEditingController {
 class EditorConsole extends StatefulWidget {
   final EditorConsoleController controller;
 
-  EditorConsole({Key? key, required this.controller}) : super(key: key) {
-    controller.appendText("val\n\nval");
-  }
+  const EditorConsole({Key? key, required this.controller}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => EditorConsoleState();

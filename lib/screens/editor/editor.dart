@@ -39,7 +39,7 @@ class _EditorPageState extends State<EditorPage> {
   double autoCompleteY = 0;
   int? selectedTab;
   EditorConsoleController consoleController = EditorConsoleController();
-  bool showConsole = true;
+  bool showConsole = false;
 
   @override
   void initState() {
