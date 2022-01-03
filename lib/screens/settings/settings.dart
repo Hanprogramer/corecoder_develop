@@ -229,7 +229,13 @@ class SettingsPageState extends State<SettingsPage> {
                           setState(() {});
                         },
                       ),
-                      const Text("Installed Plugins"),
+                      const Text(
+                          "Installed Plugins",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 22
+                          ) //TODO: make this align left
+                      ),
                       Column(
                           children: List.generate(ModulesManager.modules.length,
                               (index) {

@@ -69,6 +69,10 @@ class ThemeManager {
       iconTheme: IconThemeData(
           color: primaryColor
       ),
+      checkboxTheme: CheckboxThemeData(
+        checkColor: MaterialStateProperty.all(backgroundColor),
+        fillColor: MaterialStateProperty.all(primaryColor)
+      )
     );
     return theme;
   }

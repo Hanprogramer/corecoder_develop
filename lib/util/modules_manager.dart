@@ -93,7 +93,7 @@ abstract class Module {
 
       );
     }
-    return const Icon(Icons.insert_drive_file);
+    return const Icon(Icons.extension, size: 48,);
   }
 
   String identifier;
