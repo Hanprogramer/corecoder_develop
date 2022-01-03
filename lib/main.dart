@@ -46,6 +46,8 @@ class CoreCoderAppState extends State<CoreCoderApp> {
   String themeName = "core-coder-dark";
   var borderColor = Colors.black;
 
+  static const MethodChannel methodChannel = MethodChannel('corecoder_develop');
+
   @override
   void initState() {
     super.initState();
@@ -65,10 +67,19 @@ class CoreCoderAppState extends State<CoreCoderApp> {
       /// this is provided by windows when you "Open with" CoreCoder
       /// the result is a string to the absolute path of the file
       /// then handle the filepath to open
-      MethodChannel channel = const MethodChannel('corecoder_develop');
-      channel.invokeMethod('getRunArgs').then((result) async {
+      // channel.setMethodCallHandler((call) async {
+      //   // Handle Native to Dart calls
+      //   debugPrint(call.method);
+      // });
+      methodChannel.invokeMethod('getRunArgs').then((result) async {
         debugPrint(result as String);
       });
+      // channel.invokeMethod('startThreadAndPipeOutput',{
+      //   "procName":"love .",
+      //   "workingDirectory" : "C:\\Users\\hanpr\\Documents\\CoreCoder\\projects\\lua-love2d\\TestRecentFix"
+      // }).then((result) async {
+      //   debugPrint(result as String);
+      // });
     }
 
 

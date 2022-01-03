@@ -9,7 +9,7 @@
 #include <flutter/standard_method_codec.h>
 #include <flutter/method_channel.h>
 #include <flutter/method_result_functions.h>
-
+#include <atlstr.h>
 #include <memory>
 
 #include "win32_window.h"
@@ -36,6 +36,14 @@ class FlutterWindow : public Win32Window {
 
   // The Flutter instance hosted by this window.
   std::unique_ptr<flutter::FlutterViewController> flutter_controller_;
+
+
+
+  void CreateChildProcess(std::string cmd, std::string args[], std::string working_directory);
+  void WriteToPipe(void);
+  void ReadFromPipe(void);
+  void ErrorExit(PTSTR);
+
 };
 
 #endif  // RUNNER_FLUTTER_WINDOW_H_

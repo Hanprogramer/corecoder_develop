@@ -86,7 +86,12 @@ abstract class Module {
     if (imageRaw != null) {
       return Image(
           image: ResizeImage.resizeIfNeeded(
-              48, 48, Image.memory(imageRaw!).image));
+              48, 48, Image.memory(imageRaw!,
+            isAntiAlias: true,
+            filterQuality: FilterQuality.high,).image,
+          ),
+
+      );
     }
     return const Icon(Icons.extension, size: 48,);
   }
