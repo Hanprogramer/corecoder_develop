@@ -4,7 +4,7 @@ import 'package:corecoder_develop/util/modules_manager.dart';
 import 'package:flutter/material.dart';
 
 import '../main.dart';
-class CoreModule extends Module { //TODO doesnt work
+class CoreModule extends Module {
 
   @override
   CoreModule()
