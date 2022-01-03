@@ -27,12 +27,9 @@ class MyDrawer extends StatelessWidget {
   final CCSolution project;
   final List<Document> documentList;
   final void Function(String filepath) onFileTap;
+  final void Function(String filepath) onFileLongTap;
 
-  const MyDrawer(this.documentList, this.project, this.onFileTap);
-
-  void onFileLongTap(String filepath){
-
-  }
+  const MyDrawer(this.documentList, this.project, this.onFileTap, this.onFileLongTap);
 
   @override
   Widget build(BuildContext context) {

@@ -109,7 +109,17 @@ class _EditorPageState extends State<EditorPage> {
     return children;
   }
 
-  void initializeTreeView() async {
+  //TODO: Add file under directory
+  //TODO: Rename file
+  //TODO: Move file
+
+  void deleteFileOrFolder(String filepath) async {
+    var file = File(filepath);
+    file.delete();
+    refreshFileBrowser();
+  }
+
+  void refreshFileBrowser() async {
     List<Document> docs = List.empty(growable: true);
 
     // Add folders from the solution file
@@ -216,7 +226,10 @@ class _EditorPageState extends State<EditorPage> {
             controller: ScrollController(),
             child: Container(
               constraints: BoxConstraints(
-                  minHeight: MediaQuery.of(context).size.height * 2),
+                  minHeight: MediaQuery
+                      .of(context)
+                      .size
+                      .height * 2),
               child: field,
             )));
   }
@@ -332,11 +345,17 @@ class _EditorPageState extends State<EditorPage> {
 
   @override
   Widget build(BuildContext context) {
+    var _tapPosition;
+
+    void _storePosition(TapDownDetails details) {
+      _tapPosition = details.globalPosition;
+    }
+
     project = ModalRoute.of(context)!.settings.arguments as CCSolution;
     var query = MediaQuery.of(context);
     if (documentList.isEmpty) {
       // Populate the file browser tree once
-      initializeTreeView();
+      refreshFileBrowser();
     }
     var tabController = TabbedViewController(
       tabs,
@@ -394,6 +413,19 @@ class _EditorPageState extends State<EditorPage> {
       drawer: MyDrawer(documentList, project, (String filepath) {
         openFile(filepath);
         Navigator.pop(context);
+      }, (String filepath) async {
+        var selection = await showMenu(context: context, position: const RelativeRect.fromLTRB(1, 1, 1, 1), items: <PopupMenuEntry<String>>[
+          const PopupMenuItem<String>(
+            value: "delete",
+            child: Text('Delete item'),
+          ),
+        ]);
+        //TODO: Menu should show up at tap location
+        //TODO: Refactor menu into separate file
+        switch(selection) {
+          case 'delete':
+            deleteFileOrFolder(filepath);
+        }
       }),
       appBar: AppBar(
         title: null,
