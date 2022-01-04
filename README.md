@@ -11,3 +11,6 @@
 
 ![](https://github.com/Hanprogramer/corecoder_develop/raw/main/.github/Screenshot_CC3.png)
 ![](https://github.com/Hanprogramer/corecoder_develop/raw/main/.github/bitmap-min.png)
+
+# Join our discord!
+https://discord.gg/3Y5w46YJUJ
