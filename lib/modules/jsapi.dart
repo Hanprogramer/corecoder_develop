@@ -90,6 +90,18 @@ Map<String, String> jsObjectToDartMap(Pointer _ctxPtr, Pointer jsValueRef) {
   return {};
 }
 
+List<String> jsArrayToDartStringList(JSObject arr){
+  var result = <String>[];
+  var val = arr.toValue();
+  assert(val.isArray);
+  JSValuePointer err;
+  /*var jsval = arr.getPropertyAtIndex(propertyIndex,exception: err);
+  while(err.pointer != nullptr && err.count == 0) {
+    var jsval = arr.getPropertyAtIndex(propertyIndex,exception: err);
+  }*/
+  return result;
+}
+
 class CoreCoder {
   static late JsModule module; // set by the parent object
   static late JSContext context; // set by the parent object
@@ -258,6 +270,46 @@ class CoreCoder {
   /// # ======== THE PRINT FUNCTION - END ========== # ///
 
 }
+
+
+/// CoreCoder implementation of the OS module
+/// Can't name OS because it's already used
+class CCOS {
+  static late JsModule module; // set by the parent object
+  static late JSContext context; // set by the parent object
+  static CCOS? _instance;
+
+  static CCOS get instance {
+    _instance ??= CCOS();
+    return _instance!;
+  }
+
+  void process(
+      Pointer ctx,
+      String executable,
+      List<String> arguments)  async {
+    debugPrint("[JS Process] Running `$executable`");
+    Process.start(executable, arguments);
+  }
+
+  static Pointer jsProcess(
+      Pointer ctx,
+      Pointer function,
+      Pointer thisObject,
+      int argumentCount,
+      Pointer<Pointer> arguments,
+      Pointer<Pointer> exception) {
+    String executable = JSString(arguments[0]).string ?? "unknown";
+    /*var argObj = JSObject(context, arguments[1]);
+    if(argObj.)
+    List<String> args = ;
+
+    instance.process(ctx, executable,args);*/
+    return nullptr;
+  }
+
+}
+
 
 class FileIO {
   static late JsModule module; // set by the parent object

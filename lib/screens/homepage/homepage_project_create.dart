@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:corecoder_develop/util/cc_project_structure.dart';
 import 'package:corecoder_develop/util/modules_manager.dart';
 import 'package:corecoder_develop/util/theme_manager.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -50,23 +51,33 @@ class HomePageProjectCreate extends StatelessWidget {
 
                   /// Add Options
                   for (var argName in t.options.keys) {
-                    controls.add(Text(
-                      argName,
-                      textAlign: TextAlign.end,
-                    ));
-                    if (t.options[argName] == "String") {
-                      controls.add(TextField(
-                          maxLines: 1,
-                          autofocus: true,
-                          onChanged: (change) {
-                            values[argName] = change;
-                          }));
+                    controls.add(Row(children: [
+                      const Icon(Icons.subdirectory_arrow_right_outlined),
+                      Text(
+                        argName,
+                        textAlign: TextAlign.start,
+                      )
+                    ]));
+                    var optionVal = (t.options[argName] ?? "");
+                    if (optionVal.startsWith("String")) {
+                      var splt = optionVal.split("|");
+                      var hint = splt.length > 1? splt[1] : argName;
+                      controls.add(Padding(
+                          padding: const EdgeInsets.only(bottom: 16.0),
+                          child: TextField(
+                            decoration: InputDecoration(hintText: hint),
+                              maxLines: 1,
+                              autofocus: true,
+                              onChanged: (change) {
+                                values[argName] = change;
+                              })));
                       values[argName] = "";
                     }
                   }
 
                   /// Add Buttons
                   var row = Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       TextButton(
                         child: const Text("Cancel"),
@@ -74,7 +85,7 @@ class HomePageProjectCreate extends StatelessWidget {
                           Navigator.pop(context, 1);
                         },
                       ),
-                      TextButton(
+                      ElevatedButton(
                         child: const Text("Create"),
                         onPressed: () async {
                           /// Go Ahead and create project asynchronously
@@ -102,8 +113,11 @@ class HomePageProjectCreate extends StatelessWidget {
                     title: Text('Create ${t.title}'),
                     children: <Widget>[
                       Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Column(children: controls))
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Column(
+                            children: controls,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                          ))
                     ],
                   );
                 },

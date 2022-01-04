@@ -91,6 +91,58 @@ class JsModule extends Module {
     malloc.free(ccClassName);
   }
 
+  void initializeOSJS() {
+    //TODO: this doesn't use JSCore, which is easier to read, see `initializeCC3JSFileIO`
+    Pointer<Utf8> ccClassName = 'OS'.toNativeUtf8();
+
+    var staticFunctions = JSStaticFunctionPointer.allocateArray([
+      JSStaticFunctionStruct(
+        name: 'print'.toNativeUtf8(),
+        callAsFunction: Pointer.fromFunction(CoreCoder.jsPrint),
+        attributes: JSPropertyAttributes.kJSPropertyAttributeNone,
+      ),
+      JSStaticFunctionStruct(
+        name: 'addTemplate'.toNativeUtf8(),
+        callAsFunction: Pointer.fromFunction(CoreCoder.jsAddTemplate),
+        attributes: JSPropertyAttributes.kJSPropertyAttributeNone,
+      ),
+      JSStaticFunctionStruct(
+        name: 'getProjectFolder'.toNativeUtf8(),
+        callAsFunction: Pointer.fromFunction(CoreCoder.jsGetProjectFolder),
+        attributes: JSPropertyAttributes.kJSPropertyAttributeNone,
+      ),
+    ]);
+    var definition = JSClassDefinitionPointer.allocate(
+      version: 0,
+      attributes: JSClassAttributes.kJSClassAttributeNone,
+      className: ccClassName,
+      parentClass: null,
+      staticValues: null,
+      staticFunctions: staticFunctions,
+      initialize: null,
+      finalize: null,
+      hasProperty: null,
+      getProperty: null,
+      setProperty: null,
+      deleteProperty: null,
+      getPropertyNames: null,
+      callAsFunction: null,
+      callAsConstructor: null,
+      hasInstance: null,
+      convertToType: null,
+    );
+    var flutterJSClass = jSClassCreate(definition);
+    var flutterJSObject = jSObjectMake(_ctxPtr, flutterJSClass, nullptr);
+    jSObjectSetProperty(
+        _ctxPtr,
+        _globalObjPtr,
+        jSStringCreateWithUTF8CString(ccClassName),
+        flutterJSObject,
+        JSPropertyAttributes.kJSPropertyAttributeDontDelete,
+        nullptr);
+    malloc.free(ccClassName);
+  }
+
   void initializeCC3JSFileIO() {
     var staticFunctions = <jscore.JSStaticFunction>[
       jscore.JSStaticFunction(
