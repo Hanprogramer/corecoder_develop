@@ -17,12 +17,14 @@ class DirectoryWidget extends StatelessWidget {
   final String directoryName;
   final DateTime lastModified;
   final VoidCallback? onPressedNext;
+  final void Function(String filepath) onLongTap;
 
   DirectoryWidget({
     required this.path,
     required this.directoryName,
     required this.lastModified,
     this.onPressedNext,
+    required this.onLongTap
   });
 
   @override
@@ -47,6 +49,7 @@ class DirectoryWidget extends StatelessWidget {
 
     return TextButton(
         onPressed: (() => onPressedNext!()),
+        onLongPress: (() => onLongTap(path)),
         child: Row(children: [
           folderIcon,
           titleWidget,

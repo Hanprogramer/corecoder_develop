@@ -110,13 +110,24 @@ class _EditorPageState extends State<EditorPage> {
   }
 
   //TODO: Add file under directory
+  //TODO: Add dir under dir
   //TODO: Rename file
   //TODO: Move file
 
-  void deleteFileOrFolder(String filepath) async {
-    var file = File(filepath);
-    file.delete();
+  void deleteFile(String filepath) async {
+    final file = File(filepath);
+    await file.delete();
     refreshFileBrowser();
+  }
+
+  void deleteDir(String dirpath) async {
+    final dir = Directory(dirpath);
+    await dir.delete(recursive: true);
+    refreshFileBrowser();
+  }
+
+  void createFile(String filepath) {
+    final file = File(filepath);
   }
 
   void refreshFileBrowser() async {
@@ -417,16 +428,30 @@ class _EditorPageState extends State<EditorPage> {
         var selection = await showMenu(context: context, position: const RelativeRect.fromLTRB(1, 1, 1, 1), items: <PopupMenuEntry<String>>[
           const PopupMenuItem<String>(
             value: "delete",
-            child: Text('Delete item'),
+            child: Text('Delete file'),
           ),
         ]);
         //TODO: Menu should show up at tap location
         //TODO: Refactor menu into separate file
         switch(selection) {
           case 'delete':
-            deleteFileOrFolder(filepath);
+            deleteFile(filepath);
         }
-      }),
+      }, (String dirpath) async {
+        var selection = await showMenu(context: context, position: const RelativeRect.fromLTRB(1, 1, 1, 1), items: <PopupMenuEntry<String>>[
+          const PopupMenuItem<String>(
+            value: "delete",
+            child: Text('Delete folder'),
+          ),
+        ]);
+        //TODO: Menu should show up at tap location
+        //TODO: Refactor menu into separate file
+        switch(selection) {
+          case 'delete':
+            deleteDir(dirpath);
+        }
+      }
+      ),
       appBar: AppBar(
         title: null,
         centerTitle: false,
