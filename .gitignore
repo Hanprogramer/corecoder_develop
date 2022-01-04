@@ -68,3 +68,6 @@ fastlane/readme.md
 *.flutter-plugins-dependencies
 *.flutter-plugins
 .packages
+
+windows/flutter/
+.idea/discord.xml

@@ -67,7 +67,6 @@ class SettingsPageState extends State<SettingsPage> {
   Widget getSettingsTabContent(BuildContext context) {
     return Column(
         children: List.generate(items.length, (index) {
-
       return generateListItem(index, context);
     }));
   }
@@ -82,7 +81,7 @@ class SettingsPageState extends State<SettingsPage> {
           // Set the value to be stored
           (await _pref).setString("theme", val);
         },
-        onInitialized: (SettingsPageItem item)async{
+        onInitialized: (SettingsPageItem item) async {
           // Get the item value from prefs
           var val = (await _pref).getString("theme");
           item.currentVal ??= val;
@@ -98,7 +97,7 @@ class SettingsPageState extends State<SettingsPage> {
           // Set the value to be stored
           (await _pref).setBool("openLastProjectOnStartup", val);
         },
-        onInitialized: (SettingsPageItem item)async{
+        onInitialized: (SettingsPageItem item) async {
           // Get the item value from prefs
           var val = (await _pref).getBool("openLastProjectOnStartup");
           item.currentVal ??= val;
@@ -194,10 +193,12 @@ class SettingsPageState extends State<SettingsPage> {
                 return TabBarView(
                   children: [
                     /// General Page
-                    getSettingsTabContent(context),
+                    SingleChildScrollView(
+                        child: getSettingsTabContent(context)),
 
                     /// Plugins Page
-                    Column(children: [
+                    SingleChildScrollView(
+                        child: Column(children: [
                       if (snapshot.hasData)
                         Visibility(
                           visible: snapshot.hasData,
@@ -229,7 +230,11 @@ class SettingsPageState extends State<SettingsPage> {
                           setState(() {});
                         },
                       ),
-                      const Text("Installed Plugins"),
+                      const Text("Installed Plugins",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 22) //TODO: make this align left
+                          ),
                       Column(
                           children: List.generate(ModulesManager.modules.length,
                               (index) {
@@ -311,14 +316,15 @@ class SettingsPageState extends State<SettingsPage> {
                           // ))
                         );
                       }))
-                    ]),
+                    ])),
 
                     /// About page
-                    ListTile(
+                    SingleChildScrollView(
+                        child: ListTile(
                       leading: Image.asset("assets/logo.png"),
                       title: const Text("CoreCoder Develop"),
                       subtitle: const Text(CoreCoderApp.version),
-                    )
+                    ))
                   ],
                 );
               },

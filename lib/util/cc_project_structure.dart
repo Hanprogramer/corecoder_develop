@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:corecoder_develop/main.dart';
 import 'package:corecoder_develop/screens/editor/editor_console.dart';
 import 'package:flutter/material.dart';
 import 'modules_manager.dart';
+import 'dart:isolate';
 import 'package:process_runner/process_runner.dart';
 /* Class for storing project information */
 class CCSolution {
@@ -28,17 +30,23 @@ class CCSolution {
       this.slnFolderPath, this.dateModified, this.runConfig);
 
   void run(EditorConsoleController controller) async {
-
-    if (Platform.isWindows && currentRunConfig < runConfig.length) {
+    if(currentRunConfig > runConfig.length){
+      debugPrint("[Error] can't find that run configuration index");
+      return;
+    }
+    if (Platform.isWindows) {
       debugPrint(
           "[CC Debug] starting project on windows config `${runConfig[currentRunConfig].executable}` on $slnFolderPath");
       if (runConfig[currentRunConfig].type == "process") {
+
         var proc = await Process.start(
             runConfig[currentRunConfig].executable, runConfig[currentRunConfig].arguments,
-            workingDirectory: slnFolderPath);
+            workingDirectory: slnFolderPath, runInShell: true, mode: ProcessStartMode.detachedWithStdio);
         controller.setText("");
         // stdout.addStream(proc.stdout);
-        proc.stdout.transform(utf8.decoder).forEach((event) {
+        //proc.stdout.pipe(stdout);
+
+        proc.stdout.transform(utf8.decoder).listen((event) {
           controller.appendText(event);
           debugPrint(event);
         });
@@ -47,6 +55,17 @@ class CCSolution {
           debugPrint(event);
         });
         //debugPrint("[STDERR] ${result.stderr}");
+      }
+    }else if(Platform.isAndroid){
+      if (runConfig[currentRunConfig].type == "open_with") {
+        var pathType = runConfig[currentRunConfig].arguments[0];
+        assert(pathType == "relative" || pathType == "absolute");
+        CoreCoderAppState.methodChannel.invokeMethod("androidOpenFileWith", {
+          "package": runConfig[currentRunConfig].executable,
+          "filepath": (pathType == "absolute")
+              ? runConfig[currentRunConfig].arguments[1]
+              : slnFolderPath + runConfig[currentRunConfig].arguments[1], // the filepath
+        });
       }
     }
   }

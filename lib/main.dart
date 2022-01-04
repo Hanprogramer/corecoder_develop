@@ -30,7 +30,7 @@ const borderColor = Color(0xFF3BBA73);
 
 class CoreCoderApp extends StatefulWidget {
   const CoreCoderApp({Key? key}) : super(key: key);
-  static const String version = "v0.0.2";
+  static const String version = "v0.0.3";
   static bool isDesktop = (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
   static bool isLandscape(BuildContext context){
     var q = MediaQuery.of(context);
@@ -45,6 +45,8 @@ class CoreCoderApp extends StatefulWidget {
 class CoreCoderAppState extends State<CoreCoderApp> {
   String themeName = "core-coder-dark";
   var borderColor = Colors.black;
+
+  static const MethodChannel methodChannel = MethodChannel('corecoder_develop');
 
   @override
   void initState() {
@@ -65,10 +67,19 @@ class CoreCoderAppState extends State<CoreCoderApp> {
       /// this is provided by windows when you "Open with" CoreCoder
       /// the result is a string to the absolute path of the file
       /// then handle the filepath to open
-      MethodChannel channel = const MethodChannel('corecoder_develop');
-      channel.invokeMethod('getRunArgs').then((result) async {
+      // channel.setMethodCallHandler((call) async {
+      //   // Handle Native to Dart calls
+      //   debugPrint(call.method);
+      // });
+      methodChannel.invokeMethod('getRunArgs').then((result) async {
         debugPrint(result as String);
       });
+      // channel.invokeMethod('startThreadAndPipeOutput',{
+      //   "procName":"love .",
+      //   "workingDirectory" : "C:\\Users\\hanpr\\Documents\\CoreCoder\\projects\\lua-love2d\\TestRecentFix"
+      // }).then((result) async {
+      //   debugPrint(result as String);
+      // });
     }
 
 

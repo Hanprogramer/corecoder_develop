@@ -246,13 +246,13 @@ const editorThemes = {
     "highlight": atomOneLightTheme,
     "scheme": {
       // Color settings
-      "primaryColour": Color(0xff13BB67),
-      "secondaryColour": Color(0xff0d8c4c),
+      "primaryColour": Color(0xff0d8c4c),
+      "secondaryColour": Color(0xff13BB67),
 
       // Controls
-      "background": Color(0xFFE5E5E5),
+      "background": Color(0xFFFCFCFC),
       "backgroundSecondary": Color(0xFFFFFFFF),
-      "backgroundTertiary": Color(0xFFDCDCDC),
+      "backgroundTertiary": Color(0xFFFFFFFF),
       "foreground": Color(0xFF000000),
 
       // Color symbols

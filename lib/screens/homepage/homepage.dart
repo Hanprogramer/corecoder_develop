@@ -1,9 +1,12 @@
 import 'dart:io';
 
+import 'package:corecoder_develop/filebrowser/utils/utils.dart';
+import 'package:corecoder_develop/screens/homepage/homepage_project_create.dart';
 import 'package:corecoder_develop/screens/settings/plugins_browser.dart';
 import 'package:corecoder_develop/screens/settings/settings.dart';
 import 'package:corecoder_develop/util/cc_project_structure.dart';
 import 'package:corecoder_develop/util/desktop_tabbar.dart';
+import 'package:corecoder_develop/util/theme_manager.dart';
 import 'package:flutter/material.dart';
 
 import '../editor/editor.dart';
@@ -138,11 +141,15 @@ class _HomePageState extends State<HomePage> {
                       Icons.insert_drive_file,
                       size: 48,
                     ),
-              title: Text(p.name),
+              title: Text(
+                p.name,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold
+                ),
+              ),
               subtitle: Text(
-                  (p.type == HistoryItemType.solution ? p.solution!.desc : "") +
-                      " Last Modified: " +
-                      p.dateModified.toString()),
+                      "Last Modified: " +
+                      Utils.getFormattedDateTime(dateTime: p.dateModified)),
               trailing: PopupMenuButton<String>(
                 onSelected: (String result) {
                   switch (result) {
@@ -253,9 +260,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> showCreateProjectDialog() async {
-    /// -------------------------------------------------
-    /// Template Selection
-    /// -------------------------------------------------
+
     if (Platform.isAndroid) {
       var status = await Permission.storage.status;
       if (!status.isGranted) {
@@ -266,114 +271,8 @@ class _HomePageState extends State<HomePage> {
         await Permission.manageExternalStorage.request();
       }
     }
-    switch (await showDialog<int>(
-        context: context,
-        builder: (BuildContext context) {
-          List<Widget> options = List.empty(growable: true);
-          for (Module m in ModulesManager.modules) {
-            options.add(Text(
-              m.name,
-              style: const TextStyle(fontSize: 21),
-            ));
-            for (Template t in m.templates) {
-              /// -------------------------------------------------
-              /// Project Options
-              ///  -------------------------------------------------
-              options.add(ListTile(
-                leading: t.icon,
-                trailing: Text(t.version),
-                title: Text(t.title),
-                subtitle: Text(t.desc),
-                onTap: () async {
-                  /// The options changed later after the window closed
-                  Map<String, dynamic> values = {};
-                  await showDialog<int>(
-                      context: context,
-                      builder: (BuildContext context) {
-                        List<Widget> controls = List.empty(growable: true);
-
-                        /// Add Options
-                        for (var argName in t.options.keys) {
-                          controls.add(Text(
-                            argName,
-                            textAlign: TextAlign.end,
-                          ));
-                          if (t.options[argName] == "String") {
-                            controls.add(TextField(
-                                maxLines: 1,
-                                autofocus: true,
-                                onChanged: (change) {
-                                  values[argName] = change;
-                                }));
-                            values[argName] = "";
-                          }
-                        }
-
-                        /// Add Buttons
-                        var row = Row(
-                          children: [
-                            TextButton(
-                              child: const Text("Cancel"),
-                              onPressed: () {
-                                Navigator.pop(context, 1);
-                              },
-                            ),
-                            TextButton(
-                              child: const Text("Create"),
-                              onPressed: () async {
-                                /// Go Ahead and create project asynchronously
-                                var slnPath = await t.onCreated(
-                                    values); //TODO: This is prone to error (not checking if the file existed first)
-                                if (slnPath == null) return;
-
-                                /// Add it to recent projects
-                                CCSolution? project =
-                                    await RecentProjectsManager.instance
-                                        .addSolution(slnPath);
-                                if (project != null) {
-                                  await RecentProjectsManager.instance
-                                      .commit(_pref);
-                                  Navigator.pop(context, 3);
-                                  refreshRecentProjects();
-                                  loadSolution(project, context);
-                                }
-                              },
-                            )
-                          ],
-                        );
-                        controls.add(row);
-                        // Return the dialog to be opened
-                        return SimpleDialog(
-                          title: Text('Create ${t.title}'),
-                          children: <Widget>[
-                            Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Column(children: controls))
-                          ],
-                        );
-                      },
-                      barrierDismissible: true);
-                },
-              ));
-            }
-          }
-          return SimpleDialog(
-            title: const Text('Create new project'),
-            children: options,
-          );
-        })) {
-      case 0:
-        // Let's go.
-        // ...
-        break;
-      case 1:
-        // ...
-        break;
-      case null:
-        // dialog dismissed
-        break;
-    }
+    Navigator.push(context,MaterialPageRoute<void>(
+    builder: (BuildContext context) =>HomePageProjectCreate(refreshProjects: refreshRecentProjects)));
   }
 
   Future loadPrefs() async {

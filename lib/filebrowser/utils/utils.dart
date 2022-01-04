@@ -19,6 +19,6 @@ class Utils {
     String hour = '${dateTime.hour}';
     String minute = '${dateTime.minute}';
     String second = '${dateTime.second}';
-    return '$day/$month/$year $hour/$minute/$second';
+    return '$day/$month/$year $hour:$minute:$second';
   }
 }

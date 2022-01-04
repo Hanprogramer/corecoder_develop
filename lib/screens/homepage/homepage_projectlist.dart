@@ -16,16 +16,19 @@ class ProjectList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(5.0),
         child:
             Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Row(children: [
-            const Text(
-              "Recent Projects",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 24.0,
-              ),
+            const Padding(
+              padding: EdgeInsets.all(10),
+              child: Text(
+                "Recent Projects",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24.0,
+                ),
+              )
             ),
             const Spacer(flex: 1),
             OutlinedButton(
@@ -40,16 +43,15 @@ class ProjectList extends StatelessWidget {
             OutlinedButton(
               onPressed: () async {
                 FilePickerResult? result =
-                    await FilePicker.platform.pickFiles(
-                      allowMultiple: false
-                    );
+                    await FilePicker.platform.pickFiles(allowMultiple: false);
 
                 if (result != null) {
                   var path = result.files.single.path;
-                  if(path != null) {
+                  if (path != null) {
                     onAddProject(path);
-                  }else{
-                    debugPrint("[Open Project] error: the resulting path is null");
+                  } else {
+                    debugPrint(
+                        "[Open Project] error: the resulting path is null");
                   }
                 } else {
                   // User canceled the picker

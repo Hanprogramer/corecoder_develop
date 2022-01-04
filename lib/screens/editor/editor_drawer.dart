@@ -27,12 +27,10 @@ class MyDrawer extends StatelessWidget {
   final CCSolution project;
   final List<Document> documentList;
   final void Function(String filepath) onFileTap;
+  final void Function(String filepath) onFileLongTap;
+  final void Function(String filepath) onDirLongTap;
 
-  const MyDrawer(this.documentList, this.project, this.onFileTap);
-
-  void onFileLongTap(String filepath){
-
-  }
+  const MyDrawer(this.documentList, this.project, this.onFileTap, this.onFileLongTap, this.onDirLongTap);
 
   @override
   Widget build(BuildContext context) {
@@ -109,6 +107,7 @@ class MyDrawer extends StatelessWidget {
         directoryName: document.name,
         lastModified: document.dateModified,
         onPressedNext: onPressedNext,
+        onLongTap: onDirLongTap
       );
 
   FileWidget _getFileWidget({required Document document}) => FileWidget(
