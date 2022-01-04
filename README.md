@@ -9,5 +9,5 @@
 - Project templates
 - Autocomplete
 
-![](https://github.com/Hanprogramer/corecoder_develop/raw/main/.github/Screenshot_CC.png)
+![](https://github.com/Hanprogramer/corecoder_develop/raw/main/.github/Screenshot_CC3.png)
 ![](https://github.com/Hanprogramer/corecoder_develop/raw/main/.github/bitmap-min.png)
