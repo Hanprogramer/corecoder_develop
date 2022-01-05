@@ -23,6 +23,7 @@ class PluginsItem {
   String name, author, repo, version, iconUrl, desc, identifier;
   bool isInstalled = false;
   bool isProcessing = false;
+  String processingMessage = "";
 
   String get folderName {
     return identifier + "@" + version;
@@ -34,6 +35,7 @@ class PluginsItem {
 
 class PluginsBrowserState extends State<PluginsBrowser> {
   List<PluginsItem> items = [];
+
   JsonDecoder decoder = const JsonDecoder();
   GitHub github = GitHub(); // Create an anonymous github client
   bool _isLoadingVisible = false;
@@ -71,15 +73,28 @@ class PluginsBrowserState extends State<PluginsBrowser> {
     if (!await PluginsManager.checkPluginsExist(
         item.identifier, item.version)) {
       try {
+        setState(() {
+          item.processingMessage = "Fetching data";
+        });
         Repository repo = await github.repositories.getRepository(
             RepositorySlug.full(
                 item.repo.replaceAll("https://github.com/", "")));
+
+        setState(() {
+          item.processingMessage = "Processing releases";
+        });
         List<Release> releases =
             await github.repositories.listReleases(repo.slug()).toList();
 
         if (repo.hasDownloads) {
+          setState(() {
+            item.processingMessage = "Getting latest update";
+          });
           var r = releases.first;
           if (r.zipballUrl != null) {
+            setState(() {
+              item.processingMessage = "Downloading data";
+            });
             var bytes = (await http.get(Uri.parse(r.zipballUrl!))).bodyBytes;
             var path = await PluginsManager.pluginsPath +
                 item.folderName +
@@ -89,6 +104,9 @@ class PluginsBrowserState extends State<PluginsBrowser> {
             // Create the folder if not exists
             await Directory(path).create(recursive: true);
 
+            setState(() {
+              item.processingMessage = "Extracting data";
+            });
             // Extract the contents of the Zip archive to disk.
             for (final file in archive) {
               final filename = (file.name.split("/")..removeAt(0)).join("/");
@@ -117,15 +135,21 @@ class PluginsBrowserState extends State<PluginsBrowser> {
       }
     } else {
       debugPrint("[PluginsManager] The plugins is already installed");
-      item.isInstalled = true;
+      setState(() {
+        item.isInstalled = true;
+      });
       return false;
     }
-    /* Do Something with repo */
-    if (item.isInstalled) return false;
 
     setState(() {
       item.isProcessing = false;
     });
+
+    /* Do Something with repo */
+    if (item.isInstalled) {
+      return false;
+    }
+
     return true;
   }
 
@@ -133,8 +157,7 @@ class PluginsBrowserState extends State<PluginsBrowser> {
     items.clear();
     _isLoadingVisible = true;
     Response resp = await http.get(Uri.parse(
-        "https://raw.githubusercontent.com/CoreCoder-Devs/corecoder_plugins/main/plugins.json")
-    );
+        "https://raw.githubusercontent.com/CoreCoder-Devs/corecoder_plugins/main/plugins.json"));
     _isLoadingVisible = false;
     if (resp.statusCode == 200) {
       // OK
@@ -175,9 +198,7 @@ class PluginsBrowserState extends State<PluginsBrowser> {
         ),
         body: Column(children: [
           Visibility(
-            visible: _isLoadingVisible,
-            child: const Text('Loading...')
-          ),
+              visible: _isLoadingVisible, child: const Text('Loading...')),
           Column(
             children: List.generate(items.length, (index) {
               var item = items[index];
@@ -186,9 +207,14 @@ class PluginsBrowserState extends State<PluginsBrowser> {
                 leading: Image.network(item.iconUrl),
                 subtitle: Text(item.desc),
                 trailing: (item.isProcessing)
-                    ? const CircularProgressIndicator(
-                        value: null,
-                      )
+                    ? Container(
+                        constraints: BoxConstraints(maxWidth: 256),
+                        child: Row(children: [
+                          Text(item.processingMessage),
+                          const CircularProgressIndicator(
+                            value: null,
+                          ),
+                        ]))
                     : (item.isInstalled)
                         ? ElevatedButton(
                             onPressed: () {
