@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:corecoder_develop/modules/module_jsplugins.dart';
 import 'package:corecoder_develop/util/modules_manager.dart';
 import 'package:corecoder_develop/util/plugins_manager.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
@@ -12,8 +13,9 @@ import 'package:archive/archive.dart';
 
 class PluginsBrowser extends StatefulWidget {
   static const routeName = "/Settings/PluginsManager/";
+  final ModulesManager modulesManager;
 
-  const PluginsBrowser({Key? key}) : super(key: key);
+  const PluginsBrowser({Key? key, required this.modulesManager}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => PluginsBrowserState();
@@ -56,13 +58,26 @@ class PluginsBrowserState extends State<PluginsBrowser> {
       var path = module.moduleFolder;
       await Directory(path).delete(recursive: true);
       ModulesManager.externalModules.remove(module);
-      item.isInstalled = false;
+      // Refresh the modules manager
+      widget.modulesManager.onInitialized(context);
+      setState(() {
+        item.isProcessing = false;
+        item.isInstalled = false;
+      });
     } else {
+      setState(() {
+        item.isInstalled = false;
+        item.isProcessing = false;
+      });
       return false;
     }
     setState(() {
+      item.isInstalled = false;
       item.isProcessing = false;
     });
+    // Refresh the modules manager
+    PluginsManager.reloadPlugins(widget.modulesManager, context);
+    widget.modulesManager.onInitialized(context);
     return true;
   }
 
@@ -119,6 +134,10 @@ class PluginsBrowserState extends State<PluginsBrowser> {
                 Directory(path + filename).create(recursive: true);
               }
               debugPrint(filename);
+              setState(() {
+                item.isInstalled = true;
+                item.isProcessing = false;
+              });
             }
           } else {
             debugPrint("[Plugins Manager] This repository has no zip url");
@@ -137,6 +156,7 @@ class PluginsBrowserState extends State<PluginsBrowser> {
       debugPrint("[PluginsManager] The plugins is already installed");
       setState(() {
         item.isInstalled = true;
+        item.isProcessing = false;
       });
       return false;
     }
@@ -144,9 +164,13 @@ class PluginsBrowserState extends State<PluginsBrowser> {
     setState(() {
       item.isProcessing = false;
     });
+    // Refresh the modules manager
+    PluginsManager.reloadPlugins(widget.modulesManager, context);
+    widget.modulesManager.onInitialized(context);
+
 
     /* Do Something with repo */
-    if (item.isInstalled) {
+    if (!item.isInstalled) {
       return false;
     }
 
@@ -208,8 +232,10 @@ class PluginsBrowserState extends State<PluginsBrowser> {
                 subtitle: Text(item.desc),
                 trailing: (item.isProcessing)
                     ? Container(
-                        constraints: BoxConstraints(maxWidth: 256),
-                        child: Row(children: [
+                        constraints: const BoxConstraints(maxWidth: 256),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
                           Text(item.processingMessage),
                           const CircularProgressIndicator(
                             value: null,

@@ -101,7 +101,6 @@ class CoreCoderAppState extends State<CoreCoderApp> {
             routes: {
               "/": (context) => HomePage(),
               EditorPage.routeName: (context) => const EditorPage(),
-              PluginsBrowser.routeName: (context) => const PluginsBrowser()
             },
             builder: (BuildContext context, Widget? widget) {
               borderColor = Theme.of(context).primaryColor;
