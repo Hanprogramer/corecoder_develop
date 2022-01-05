@@ -214,8 +214,11 @@ class SettingsPageState extends State<SettingsPage> {
                         title: const Text("Download Plugins"),
                         subtitle: const Text("Get plugins from the internet"),
                         onTap: () {
-                          Navigator.pushNamed(
-                              context, PluginsBrowser.routeName);
+
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute<void>(
+                                  builder: (BuildContext context) => PluginsBrowser(modulesManager: widget.modulesManager,)));
                         },
                       ),
                       ListTile(

@@ -425,7 +425,7 @@ class _HomePageState extends State<HomePage> {
                 onRefresh: refreshRecentProjects,
                 children: projectsWidgetList,
               ),
-              const PluginsBrowser(),
+              PluginsBrowser(modulesManager: mm),
               SettingsPage(mm),
             ])
           :
