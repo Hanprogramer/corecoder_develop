@@ -20,6 +20,9 @@ import '../../util/cc_project_structure.dart';
 import 'package:corecoder_develop/util/modules_manager.dart'
     show Module, ModulesManager, Template;
 
+import 'package:github/github.dart';
+import 'package:http/http.dart' as http;
+import 'package:corecoder_develop/util/string_extensions.dart';
 import 'homepage_projectlist.dart';
 
 /// Updates the file last modified
@@ -143,13 +146,10 @@ class _HomePageState extends State<HomePage> {
                     ),
               title: Text(
                 p.name,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold
-                ),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
-              subtitle: Text(
-                      "Last Modified: " +
-                      Utils.getFormattedDateTime(dateTime: p.dateModified)),
+              subtitle: Text("Last Modified: " +
+                  Utils.getFormattedDateTime(dateTime: p.dateModified)),
               trailing: PopupMenuButton<String>(
                 onSelected: (String result) {
                   switch (result) {
@@ -231,10 +231,10 @@ class _HomePageState extends State<HomePage> {
                     value: "export",
                     child: Text('Export Project'),
                   ),
-              const PopupMenuItem<String>(
-                //TODO: Implement this menu
-                value: "remove",
-                child: Text('Remove from list')),
+                  const PopupMenuItem<String>(
+                      //TODO: Implement this menu
+                      value: "remove",
+                      child: Text('Remove from list')),
                 ],
               ))));
       // IconButton(
@@ -260,7 +260,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> showCreateProjectDialog() async {
-
     if (Platform.isAndroid) {
       var status = await Permission.storage.status;
       if (!status.isGranted) {
@@ -271,8 +270,11 @@ class _HomePageState extends State<HomePage> {
         await Permission.manageExternalStorage.request();
       }
     }
-    Navigator.push(context,MaterialPageRoute<void>(
-    builder: (BuildContext context) =>HomePageProjectCreate(refreshProjects: refreshRecentProjects)));
+    Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+            builder: (BuildContext context) =>
+                HomePageProjectCreate(refreshProjects: refreshRecentProjects)));
   }
 
   Future loadPrefs() async {
@@ -316,6 +318,7 @@ class _HomePageState extends State<HomePage> {
         }
       }
     });
+    checkForUpdate();
   }
 
   @override
@@ -335,6 +338,49 @@ class _HomePageState extends State<HomePage> {
       );
     } else {
       throw 'Could not launch $url';
+    }
+  }
+
+  Future<void> checkForUpdate() async {
+    var url = "https://github.com/Hanprogramer/corecoder_develop";
+    var git = "Hanprogramer/corecoder_develop";
+    var github = GitHub();
+    try {
+      Repository repo =
+          await github.repositories.getRepository(RepositorySlug.full(git));
+
+      List<Release> releases =
+          await github.repositories.listReleases(repo.slug()).toList();
+
+      if (repo.hasDownloads) {
+        var r = releases.first;
+        String onGithubVersion = r.name ?? "v0.0.0";
+        var requireUpdate =
+            CoreCoderApp.version.compareVersion(onGithubVersion);
+        if (requireUpdate) {
+          final snackBar = SnackBar(
+            content: Text('An update is available! $onGithubVersion'),
+            action: SnackBarAction(
+              label: 'View on Github',
+              onPressed: () {
+                _launchInBrowser(r.htmlUrl ?? url);
+              },
+            ),
+          );
+
+          // Find the ScaffoldMessenger in the widget tree
+          // and use it to show a SnackBar.
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        }
+      }
+    } on GitHubError catch (err) {
+      debugPrint("[Update Checker] Can't fetch update from url $url");
+      final snackBar = SnackBar(
+        content: Text("Can't fetch update from url $url"),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }  on SocketException catch (err){
+      debugPrint("[Update Checker] Can't connect to github");
     }
   }
 
@@ -385,7 +431,7 @@ class _HomePageState extends State<HomePage> {
   /// Called from ProjectList
   void onAddProject(String path) async {
     CCSolution? sln = await CCSolution.loadFromFile(path);
-    if(sln != null){
+    if (sln != null) {
       await RecentProjectsManager.instance.addSolution(path);
       setState(() {
         RecentProjectsManager.staticCommit();

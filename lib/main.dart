@@ -1,8 +1,10 @@
 import 'dart:io';
 
+import 'package:archive/archive.dart';
 import 'package:corecoder_develop/screens/editor/editor.dart';
 import 'package:corecoder_develop/screens/settings/plugins_browser.dart';
 import 'package:corecoder_develop/util/cc_project_structure.dart';
+import 'package:corecoder_develop/util/plugins_manager.dart';
 import 'package:corecoder_develop/util/theme_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,7 +14,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/homepage/homepage.dart';
 import 'screens/editor/editor_drawer.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
-
 void main() async {
   runApp(const CoreCoderApp());
   if (CoreCoderApp.isDesktop) {
@@ -30,12 +31,16 @@ const borderColor = Color(0xFF3BBA73);
 
 class CoreCoderApp extends StatefulWidget {
   const CoreCoderApp({Key? key}) : super(key: key);
-  static const String version = "v0.0.3.1";
-  static bool isDesktop = (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
-  static bool isLandscape(BuildContext context){
+  static const String version = "v0.0.4";
+  static bool isDesktop =
+      (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
+
+  static bool isLandscape(BuildContext context) {
     var q = MediaQuery.of(context);
-    return q.orientation == Orientation.landscape || q.size.width > q.size.height;
+    return q.orientation == Orientation.landscape ||
+        q.size.width > q.size.height;
   }
+
   @override
   State<StatefulWidget> createState() {
     return CoreCoderAppState();
@@ -81,11 +86,10 @@ class CoreCoderAppState extends State<CoreCoderApp> {
       //   debugPrint(result as String);
       // });
     }
-
-
   }
+
   static final Future<SharedPreferences> _pref =
-  SharedPreferences.getInstance();
+      SharedPreferences.getInstance();
 
   @override
   Widget build(BuildContext context) {
@@ -109,33 +113,33 @@ class CoreCoderAppState extends State<CoreCoderApp> {
                   child: Column(
                     children: [
                       // The title bar
-                      if(CoreCoderApp.isDesktop)
-                      WindowTitleBarBox(
-                          child: Row(children: [
-                        Expanded(
-                            child: MoveWindow(
-                          child: Row(children: [
-                            const SizedBox(
-                              width: 16.0,
-                            ),
-                            Image.asset(
-                              "assets/logo.png",
-                              isAntiAlias: true,
-                              filterQuality: FilterQuality.high,
-                              width: 20,
-                              height: 20,
-                            ),
-                            const SizedBox(
-                              width: 16.0,
-                            ),
-                            Text(
-                              "CoreCoder:Develop ${CoreCoderApp.version}",
-                              style: Theme.of(context).textTheme.bodyText1!,
-                            )
-                          ]),
-                        )),
-                        const WindowButtons()
-                      ])),
+                      if (CoreCoderApp.isDesktop)
+                        WindowTitleBarBox(
+                            child: Row(children: [
+                          Expanded(
+                              child: MoveWindow(
+                            child: Row(children: [
+                              const SizedBox(
+                                width: 16.0,
+                              ),
+                              Image.asset(
+                                "assets/logo.png",
+                                isAntiAlias: true,
+                                filterQuality: FilterQuality.high,
+                                width: 20,
+                                height: 20,
+                              ),
+                              const SizedBox(
+                                width: 16.0,
+                              ),
+                              Text(
+                                "CoreCoder:Develop ${CoreCoderApp.version}",
+                                style: Theme.of(context).textTheme.bodyText1!,
+                              )
+                            ]),
+                          )),
+                          const WindowButtons()
+                        ])),
                       if (widget != null) Expanded(child: widget)
                     ],
                   ));

@@ -72,6 +72,13 @@ class ThemeManager {
       checkboxTheme: CheckboxThemeData(
         checkColor: MaterialStateProperty.all(backgroundColor),
         fillColor: MaterialStateProperty.all(primaryColor)
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: backgroundColor,
+        actionTextColor: primaryColor,
+        contentTextStyle: TextStyle(
+          color: foregroundColor
+        )
       )
     );
     return theme;
