@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:corecoder_develop/screens/homepage/homepage_project_wizard.dart';
 import 'package:corecoder_develop/util/cc_project_structure.dart';
 import 'package:corecoder_develop/util/modules_manager.dart';
 import 'package:corecoder_develop/util/theme_manager.dart';
@@ -42,86 +43,7 @@ class HomePageProjectCreate extends StatelessWidget {
           subtitle: Text(t.desc),
           tileColor: ThemeManager.getThemeData().backgroundColor,
           onTap: () async {
-            /// The options changed later after the window closed
-            Map<String, dynamic> values = {};
-            await showDialog<int>(
-                context: context,
-                builder: (BuildContext context) {
-                  List<Widget> controls = List.empty(growable: true);
-
-                  /// Add Options
-                  for (var argName in t.options.keys) {
-                    controls.add(Row(children: [
-                      const Icon(Icons.subdirectory_arrow_right_outlined),
-                      Text(
-                        argName,
-                        textAlign: TextAlign.start,
-                      )
-                    ]));
-                    var optionVal = (t.options[argName] ?? "");
-                    if (optionVal.startsWith("String")) {
-                      var splt = optionVal.split("|");
-                      var hint = splt.length > 1? splt[1] : argName;
-                      controls.add(Padding(
-                          padding: const EdgeInsets.only(bottom: 16.0),
-                          child: TextField(
-                            decoration: InputDecoration(hintText: hint),
-                              maxLines: 1,
-                              autofocus: true,
-                              onChanged: (change) {
-                                values[argName] = change;
-                              })));
-                      values[argName] = "";
-                    }
-                  }
-
-                  /// Add Buttons
-                  var row = Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        child: const Text("Cancel"),
-                        onPressed: () {
-                          Navigator.pop(context, 1);
-                        },
-                      ),
-                      ElevatedButton(
-                        child: const Text("Create"),
-                        onPressed: () async {
-                          /// Go Ahead and create project asynchronously
-                          var slnPath = await t.onCreated(
-                              values); //TODO: This is prone to error (not checking if the file existed first)
-                          if (slnPath == null) return;
-
-                          /// Add it to recent projects
-                          CCSolution? project = await RecentProjectsManager
-                              .instance
-                              .addSolution(slnPath);
-                          if (project != null) {
-                            await RecentProjectsManager.instance.commit(_pref);
-                            Navigator.pop(context, 3);
-                            refreshProjects();
-                            loadSolution(project, context);
-                          }
-                        },
-                      )
-                    ],
-                  );
-                  controls.add(row);
-                  // Return the dialog to be opened
-                  return SimpleDialog(
-                    title: Text('Create ${t.title}'),
-                    children: <Widget>[
-                      Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Column(
-                            children: controls,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                          ))
-                    ],
-                  );
-                },
-                barrierDismissible: true);
+            Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => ProjectWizard(t,refreshProjects)));
           },
         )));
       }
