@@ -119,7 +119,7 @@ class ProjectItem extends StatelessWidget{
           subtitle: (subtitle != "" ? Text(subtitle) : null))
             : SizedBox(
             width: 128,
-            height: 128,
+            height: 160,
             child: OutlinedButton(
                 onPressed: () => onPressed(),
                 child: Stack(children: [
