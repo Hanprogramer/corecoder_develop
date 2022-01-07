@@ -114,7 +114,110 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late ModulesManager mm;
+  bool isListView = true;
   final Future<SharedPreferences> _pref = SharedPreferences.getInstance();
+
+  /// Called from the project list control
+  /// Switches between list and grid view
+  void onToggleView() async {
+    (await _pref).setBool("isListView", isListView);
+    setState(() {
+      isListView = !isListView;
+    });
+  }
+
+  List<PopupMenuEntry<String>> getPopupMenu(HistoryItem item) {
+    return <PopupMenuEntry<String>>[
+      const PopupMenuItem<String>(
+        value: "delete",
+        child: Text('Delete Project'),
+      ),
+      const PopupMenuItem<String>(
+        //TODO: Implement this menu
+        value: "rename",
+        child: Text('Rename Project'),
+      ),
+      const PopupMenuItem<String>(
+        //TODO: Implement this menu
+        value: "export",
+        child: Text('Export Project'),
+      ),
+      const PopupMenuItem<String>(
+          //TODO: Implement this menu
+          value: "remove",
+          child: Text('Remove from list')),
+    ];
+  }
+
+  void onMenuItemSelected(String itemTitle, HistoryItem item) {
+    switch (itemTitle) {
+      case "delete":
+        if (item.type == HistoryItemType.solution) {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text("Delete ${item.name}?"),
+                  content: Text(
+                      "This action cannot be undone!\n folders will be deleted: ${() {
+                    String result = "";
+                    for (var folder in item.solution!.folders.keys) {
+                      result +=
+                          (item.solution!.folders[folder] as String) + ", \n";
+                    }
+                    return result;
+                  }()}"),
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text("No")),
+                    TextButton(
+                        onPressed: () {
+                          var folders = <String>[];
+                          for (var folder in item.solution!.folders.keys) {
+                            folders.add(item.solution!.slnFolderPath +
+                                Platform.pathSeparator +
+                                item.solution!.folders[folder]!);
+                          }
+                          deleteFolderWithIndicator(context, folders);
+                          // Delete the solution file too
+                          File(item.solution!.slnPath).deleteSync();
+
+                          // Quit and refresh
+                          Navigator.pop(context);
+                          refreshRecentProjects();
+                        },
+                        child: const Text(
+                          "Delete",
+                          style: TextStyle(color: Colors.redAccent),
+                        )),
+                  ],
+                );
+              });
+        } else {
+          //TODO: Handle single file delete
+        }
+        break;
+      case "remove":
+        setState(() {
+          /// Remove item from the list without deleting the actual file
+          RecentProjectsManager.instance.projects.remove(item);
+          RecentProjectsManager.staticCommit();
+        });
+        break;
+    }
+  }
+
+  void onHistoryItemTap(HistoryItem p){
+    if (p.type == HistoryItemType.solution) {
+      touchFile(File(p.solution!.slnPath), p.solution!);
+      refreshRecentProjects();
+      loadSolution(p.solution!, context);
+    }
+    //TODO: Handle single file
+  }
 
   List<Widget> get projectsWidgetList {
     var result = <Widget>[];
@@ -125,134 +228,76 @@ class _HomePageState extends State<HomePage> {
       //debugPrint(p.name);
       result.add(Card(
           //TODO: refactor this as a widget elsewhere, then reference that widget from here
-          child: ListTile(
-
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
-                side: BorderSide(color:  Theme.of(context).dividerColor),
-              ),
-              onTap: () {
-                if (p.type == HistoryItemType.solution) {
-                  touchFile(File(p.solution!.slnPath), p.solution!);
-                  refreshRecentProjects();
-                  loadSolution(p.solution!, context);
-                }
-                //TODO: Handle single file
-              },
-              leading: p.type == HistoryItemType.solution
-                  ? p.solution!.image ??
-                      const Icon(
-                        Icons.insert_drive_file,
-                        size: 48,
-                      )
-                  : const Icon(
-                      Icons.insert_drive_file,
-                      size: 48,
-                    ),
-              title: Text(
-                p.name,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: Text("Last Modified: " +
-                  Utils.getFormattedDateTime(dateTime: p.dateModified)),
-              trailing: PopupMenuButton<String>(
-                onSelected: (String result) {
-                  switch (result) {
-                    case "delete":
-                      if (p.type == HistoryItemType.solution) {
-                        showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text("Delete ${p.name}?"),
-                                content: Text(
-                                    "This action cannot be undone!\n folders will be deleted: ${() {
-                                  String result = "";
-                                  for (var folder in p.solution!.folders.keys) {
-                                    result += (p.solution!.folders[folder]
-                                            as String) +
-                                        ", \n";
-                                  }
-                                  return result;
-                                }()}"),
-                                actions: [
-                                  TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: const Text("No")),
-                                  TextButton(
-                                      onPressed: () {
-                                        var folders = <String>[];
-                                        for (var folder
-                                            in p.solution!.folders.keys) {
-                                          folders.add(
-                                              p.solution!.slnFolderPath +
-                                                  Platform.pathSeparator +
-                                                  p.solution!.folders[folder]!);
-                                        }
-                                        deleteFolderWithIndicator(
-                                            context, folders);
-                                        // Delete the solution file too
-                                        File(p.solution!.slnPath).deleteSync();
-
-                                        // Quit and refresh
-                                        Navigator.pop(context);
-                                        refreshRecentProjects();
-                                      },
-                                      child: const Text(
-                                        "Delete",
-                                        style:
-                                            TextStyle(color: Colors.redAccent),
-                                      )),
-                                ],
-                              );
-                            });
-                      } else {
-                        //TODO: Handle single file delete
-                      }
-                      break;
-                    case "remove":
-                      setState(() {
-                        /// Remove item from the list without deleting the actual file
-                        RecentProjectsManager.instance.projects.remove(p);
-                        RecentProjectsManager.staticCommit();
-                      });
-                      break;
-                  }
-                },
-                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                  const PopupMenuItem<String>(
-                    value: "delete",
-                    child: Text('Delete Project'),
+          child: isListView
+              ? ListTile(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                    side: BorderSide(color: Theme.of(context).dividerColor),
                   ),
-                  const PopupMenuItem<String>(
-                    //TODO: Implement this menu
-                    value: "rename",
-                    child: Text('Rename Project'),
+                  onTap: () => onHistoryItemTap(p),
+                  leading: p.type == HistoryItemType.solution
+                      ? p.solution!.image ??
+                          const Icon(
+                            Icons.insert_drive_file,
+                            size: 48,
+                          )
+                      : const Icon(
+                          Icons.insert_drive_file,
+                          size: 48,
+                        ),
+                  title: Text(
+                    p.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  const PopupMenuItem<String>(
-                    //TODO: Implement this menu
-                    value: "export",
-                    child: Text('Export Project'),
-                  ),
-                  const PopupMenuItem<String>(
-                      //TODO: Implement this menu
-                      value: "remove",
-                      child: Text('Remove from list')),
-                ],
-              ))));
-      // IconButton(
-      //   onPressed: () {
-      //     showMenu(context: context, position: RelativeRect.fromLTRB(
-      //       details.globalPosition.dx,
-      //       details.globalPosition.dy,
-      //       details.globalPosition.dx,
-      //       details.globalPosition.dy,
-      //     ), items: <PopupMenuEntry<dynamic>>[]);
-      //   },
-      //   icon: const Icon(FontAwesomeIcons.ellipsisV),
-      // )));
+                  subtitle: Text("Last Modified: " +
+                      Utils.getFormattedDateTime(dateTime: p.dateModified)),
+                  trailing: PopupMenuButton<String>(
+                      onSelected: (String result) =>
+                          onMenuItemSelected(result, p),
+                      itemBuilder: (BuildContext context) => getPopupMenu(p)))
+              : SizedBox(
+                  width: 128,
+                  height: 128,
+                  child: OutlinedButton(
+                      onPressed: () => onHistoryItemTap(p),
+                      child: Stack(children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            p.type == HistoryItemType.solution
+                                ? p.solution!.image ??
+                                    const Icon(
+                                      Icons.insert_drive_file,
+                                      size: 48,
+                                    )
+                                : const Icon(
+                                    Icons.insert_drive_file,
+                                    size: 48,
+                                  ),
+                            Text(
+                              p.name,
+                              style: TextStyle(
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodyText1!
+                                      .color!,
+                                  fontSize: 12.0),
+                            ),
+                            Text(
+                              Utils.getFormattedDateTime(
+                                  dateTime: p.dateModified),
+                              style: TextStyle(
+                                  color: Theme.of(context).focusColor,
+                                  fontSize: 12.0),
+                            )
+                          ],
+                        ),
+                      Positioned(
+                        top: 0,right: -16,
+                          child: PopupMenuButton<String>(
+                          onSelected: (String result) => onMenuItemSelected(result, p),
+                          itemBuilder: (BuildContext context) => getPopupMenu(p)))
+                      ])))));
     }
     return result;
   }
@@ -308,6 +353,7 @@ class _HomePageState extends State<HomePage> {
     /// Check the last opened projects
     SharedPreferences.getInstance().then((inst) async {
       var isAutoOpen = inst.getBool("openLastProjectOnStartup");
+      isListView = inst.getBool("isListView") ?? true;
       if (isAutoOpen != null && isAutoOpen) {
         var val = inst.getString("lastOpenedPath");
         debugPrint("Loading last opened $val");
@@ -384,7 +430,7 @@ class _HomePageState extends State<HomePage> {
         content: Text("Can't fetch update from url $url"),
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    }  on SocketException catch (err){
+    } on SocketException catch (err) {
       debugPrint("[Update Checker] Can't connect to github");
     }
   }
@@ -406,8 +452,7 @@ class _HomePageState extends State<HomePage> {
           );
         });
     for (var path in paths) {
-      if(path.endsWith("."))
-        path = path.substring(0,path.length - 2);
+      if (path.endsWith(".")) path = path.substring(0, path.length - 2);
       debugPrint(path);
       Directory target = Directory(path);
       text = path;
@@ -478,6 +523,8 @@ class _HomePageState extends State<HomePage> {
                 onAddProject: onAddProject,
                 onRefresh: refreshRecentProjects,
                 children: projectsWidgetList,
+                isListView: isListView,
+                onToggleView: onToggleView,
               ),
               PluginsBrowser(modulesManager: mm),
               SettingsPage(mm),
@@ -491,6 +538,8 @@ class _HomePageState extends State<HomePage> {
               onAddProject: onAddProject,
               onRefresh: refreshRecentProjects,
               children: projectsWidgetList,
+              isListView: isListView,
+              onToggleView: onToggleView,
             ),
     ));
     return Scaffold(
@@ -508,12 +557,13 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
         body: Container(
-
             decoration: BoxDecoration(
                 image: DecorationImage(
-                    image: ThemeManager.getImage("mainBG")!.image, fit: BoxFit.cover)),
-            child:SingleChildScrollView(child: page,)
-        ),
+                    image: ThemeManager.getImage("mainBG")!.image,
+                    fit: BoxFit.cover)),
+            child: SingleChildScrollView(
+              child: page,
+            )),
         floatingActionButton: FloatingActionButton(
           onPressed: () => showCreateProjectDialog(),
           child: const Icon(Icons.create_new_folder),
