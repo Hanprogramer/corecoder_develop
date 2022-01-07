@@ -126,6 +126,11 @@ class _HomePageState extends State<HomePage> {
       result.add(Card(
           //TODO: refactor this as a widget elsewhere, then reference that widget from here
           child: ListTile(
+
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+                side: BorderSide(color:  Theme.of(context).dividerColor),
+              ),
               onTap: () {
                 if (p.type == HistoryItemType.solution) {
                   touchFile(File(p.solution!.slnPath), p.solution!);
@@ -401,6 +406,9 @@ class _HomePageState extends State<HomePage> {
           );
         });
     for (var path in paths) {
+      if(path.endsWith("."))
+        path = path.substring(0,path.length - 2);
+      debugPrint(path);
       Directory target = Directory(path);
       text = path;
       await target.delete(recursive: true);
@@ -499,7 +507,13 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(width: 16.0),
                 ],
               ),
-        body: SingleChildScrollView(child: page),
+        body: Container(
+
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: ThemeManager.getImage("mainBG")!.image, fit: BoxFit.cover)),
+            child:SingleChildScrollView(child: page,)
+        ),
         floatingActionButton: FloatingActionButton(
           onPressed: () => showCreateProjectDialog(),
           child: const Icon(Icons.create_new_folder),
