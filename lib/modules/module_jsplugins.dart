@@ -222,7 +222,7 @@ class JsModule extends Module {
       ModulesManager modulesManager, BuildContext buildContext) async {
     this.buildContext = buildContext;
     context =
-        jscore.JSContext.createInGroup(group: jscore.JSContextGroup.create());
+        jscore.JSContext.createInGroup(group: null);
     globalObj = context.globalObject;
     _globalObjPtr = globalObj.pointer;
     CoreCoder.module = this;

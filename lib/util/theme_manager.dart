@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import './themes.dart';
 
@@ -15,6 +17,12 @@ class ThemeManager {
     var editor = editorThemes[themeName];
     var scheme = editor!["scheme"] as Map<String, Color>;
     return scheme[name];
+  }
+  static Image? getImage(String name, {String? themeName}){
+    themeName ??= currentTheme.value; // if name is not mentioned
+    var editor = editorThemes[themeName];
+    var scheme = (editor!["images"] ?? <String,String>{}) as Map<String, String>;
+    return Image.memory( base64Decode( scheme[name] ?? "" ) ) ;
   }
 
   static Color? getThemeColor(String name, {String? themeName}){
@@ -72,6 +80,13 @@ class ThemeManager {
       checkboxTheme: CheckboxThemeData(
         checkColor: MaterialStateProperty.all(backgroundColor),
         fillColor: MaterialStateProperty.all(primaryColor)
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: backgroundColor,
+        actionTextColor: primaryColor,
+        contentTextStyle: TextStyle(
+          color: foregroundColor
+        )
       )
     );
     return theme;

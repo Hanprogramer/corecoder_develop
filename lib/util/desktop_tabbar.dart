@@ -43,17 +43,18 @@ class DesktopTabBarState extends State<DesktopTabBar> {
   Widget build(BuildContext context) {
     var query = MediaQuery.of(context);
 
-    colorBackground = ThemeManager.getThemeSchemeColor("backgroundTertiary");
-    colorBackgroundSecondary =
-        ThemeManager.getThemeSchemeColor("backgroundSecondary");
+    colorBackground = Colors.transparent;//ThemeManager.getThemeSchemeColor("backgroundTertiary");
+    colorBackgroundSecondary = Colors.transparent;
+        //ThemeManager.getThemeSchemeColor("backgroundSecondary");
     return Container(
-        color: colorBackground,
+        color: Colors.black12,
         constraints: BoxConstraints(maxHeight: query.size.height - 200),
         child: Flex(
           direction: Axis.horizontal,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Container(
+              color: Theme.of(context).backgroundColor,
               padding: const EdgeInsets.all(16.0),
               child: SingleChildScrollView(
                 child: Column(

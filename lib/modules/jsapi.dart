@@ -139,9 +139,12 @@ class CoreCoder {
         var _onCreate = obj.getProperty('onCreate');
         if (_onCreate.isObject) {
           onCreate = (Map<String, dynamic> args) async {
+            debugPrint("[Template onCreate] Creating JSObject");
             var optionsObj = JSObject.make(context,
                 JSClass.create(JSClassDefinition(className: "OptionsObj")));
+            debugPrint("[Template onCreate] Iterating through keys");
             for (var key in args.keys) {
+              debugPrint("[Template onCreate] $key");
               var value = args[key];
               if (value is String) {
                 optionsObj.setProperty(key, JSValue.makeString(context, value),
@@ -154,10 +157,12 @@ class CoreCoder {
               }
             }
             JSValuePointer? err;
+            debugPrint("[Template onCreate] Calling JS Function");
             JSValue result = _onCreate.toObject().callAsFunction(
                 JSObject(context, _obj),
                 JSValuePointer.array([optionsObj.toValue()]),
                 exception: err);
+            debugPrint("[Template onCreate] Checking result error.");
             if (err != null && err.getValue(context).isObject) {
               var errObj = err.getValue(context).toObject();
               var name = errObj.getProperty("name").string;

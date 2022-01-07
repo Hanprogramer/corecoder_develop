@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:corecoder_develop/main.dart';
 import 'package:corecoder_develop/screens/settings/plugins_browser.dart';
 import 'package:corecoder_develop/util/modules_manager.dart';
@@ -104,7 +106,24 @@ class SettingsPageState extends State<SettingsPage> {
         },
         type: SettingsPageItemType.typeBoolean,
         provided: <bool>[true, false],
-        defaultVal: true)
+        defaultVal: true),
+    SettingsPageItem(
+        name: "Use list view mode",
+        description: "For project list",
+        onSet: (SettingsPageItem item, dynamic val) async {
+          item.currentVal = val;
+          // Set the value to be stored
+          (await _pref).setBool("isListView", val);
+        },
+        onInitialized: (SettingsPageItem item) async {
+          // Get the item value from prefs
+          var val = (await _pref).getBool("isListView");
+          item.currentVal ??= val;
+        },
+        type: SettingsPageItemType.typeBoolean,
+        provided: <bool>[true, false],
+        defaultVal: Platform.isWindows ? false : true // TODO: Implement other desktop
+    ),
   ];
 
   Widget generateListItem(int index, BuildContext context) {
@@ -247,76 +266,6 @@ class SettingsPageState extends State<SettingsPage> {
                           leading: mod.icon,
                           title: Text(mod.name),
                           subtitle: Text(mod.desc + " version:" + mod.version),
-                          // trailing: PopupMenuButton<String>(
-                          //   onSelected: (String result) {
-                          //     switch (result) {
-                          //       case "delete":
-                          //         showDialog(
-                          //             context: context,
-                          //             builder: (BuildContext context) {
-                          //               return AlertDialog(
-                          //                 title: Text("Delete ${p.name}?"),
-                          //                 content: Text(
-                          //                     "This action cannot be undone!\n folders will be deleted: ${() {
-                          //                       String result = "";
-                          //                       for (var folder in p.folders.keys) {
-                          //                         result +=
-                          //                             (p.folders[folder] as String) + ", \n";
-                          //                       }
-                          //                       return result;
-                          //                     }()}"),
-                          //                 actions: [
-                          //                   TextButton(
-                          //                       onPressed: () {
-                          //                         Navigator.pop(context);
-                          //                       },
-                          //                       child: const Text("No")),
-                          //                   TextButton(
-                          //                       onPressed: () {
-                          //                         var folders = <String>[];
-                          //                         for (var folder in p.folders.keys) {
-                          //                           folders.add(p.slnFolderPath +
-                          //                               Platform.pathSeparator +
-                          //                               p.folders[folder]!);
-                          //                         }
-                          //                         deleteFolderWithIndicator(
-                          //                             context, folders);
-                          //                         // Delete the solution file too
-                          //                         File(p.slnPath).deleteSync();
-                          //
-                          //                         // Quit and refresh
-                          //                         Navigator.pop(context);
-                          //                         refreshRecentProjects();
-                          //                       },
-                          //                       child: const Text(
-                          //                         "Delete",
-                          //                         style:
-                          //                         TextStyle(color: Colors.redAccent),
-                          //                       )),
-                          //                 ],
-                          //               );
-                          //             });
-                          //         break;
-                          //     }
-                          //   },
-                          //   itemBuilder: (BuildContext context) =>
-                          //   <PopupMenuEntry<String>>[
-                          //     const PopupMenuItem<String>(
-                          //       value: "delete",
-                          //       child: Text('Delete Project'),
-                          //     ),
-                          //     const PopupMenuItem<String>(
-                          //       //TODO: Implement this menu
-                          //       value: "rename",
-                          //       child: Text('Rename Project'),
-                          //     ),
-                          //     const PopupMenuItem<String>(
-                          //       //TODO: Implement this menu
-                          //       value: "export",
-                          //       child: Text('Export Project'),
-                          //     ),
-                          //   ],
-                          // ))
                         );
                       }))
                     ])),
