@@ -521,9 +521,9 @@ class _HomePageState extends State<HomePage> {
             child: SingleChildScrollView(
               child: page,
             )),
-        floatingActionButton: FloatingActionButton(
+        /*floatingActionButton: FloatingActionButton(
           onPressed: () => showCreateProjectDialog(),
           child: const Icon(Icons.create_new_folder),
-        ));
+        )*/);
   }
 }
