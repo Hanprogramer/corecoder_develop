@@ -226,7 +226,7 @@ class _HomePageState extends State<HomePage> {
     /// The create button
     result.add(ProjectItem(
         isListView: isListView, menuButton: null,
-        icon: const Icon(Icons.add, size: 48,),
+        icon: const Icon(Icons.add_circle_outline_rounded, size: 48,),
         title: "Create project", subtitle: "",
         onPressed: ()=>showCreateProjectDialog()));
 
