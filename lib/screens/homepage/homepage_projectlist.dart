@@ -50,7 +50,7 @@ class ProjectList extends StatelessWidget {
                       onPressed: () {
                         onRefresh();
                       },
-                      child: const Text("Refresh"),
+                      child: const Icon(Icons.refresh_rounded),
                     ),
                     const SizedBox(
                       width: 4,
@@ -72,7 +72,7 @@ class ProjectList extends StatelessWidget {
                           // User canceled the picker
                         }
                       },
-                      child: const Text("Open"),
+                      child: const Icon(Icons.folder_open_rounded),
                     ),
                   ]),
                   isListView

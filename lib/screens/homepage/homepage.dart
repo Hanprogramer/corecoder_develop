@@ -274,6 +274,7 @@ class _HomePageState extends State<HomePage> {
                                     Icons.insert_drive_file,
                                     size: 48,
                                   ),
+                            const SizedBox(height: 8,),
                             Text(
                               p.name,
                               style: TextStyle(
