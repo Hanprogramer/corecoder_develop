@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:corecoder_develop/filebrowser/utils/utils.dart';
@@ -221,84 +222,39 @@ class _HomePageState extends State<HomePage> {
 
   List<Widget> get projectsWidgetList {
     var result = <Widget>[];
+
+    /// The create button
+    result.add(ProjectItem(
+        isListView: isListView, menuButton: null,
+        icon: const Icon(Icons.add, size: 48,),
+        title: "Create project", subtitle: "",
+        onPressed: ()=>showCreateProjectDialog()));
+
     for (HistoryItem p in RecentProjectsManager.instance.projects) {
       // if (p.name == "") {
       //   continue;
       // } // TODO: add better way to check if project is corrupt
       //debugPrint(p.name);
-      result.add(Card(
-          //TODO: refactor this as a widget elsewhere, then reference that widget from here
-          child: isListView
-              ? ListTile(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4),
-                    side: BorderSide(color: Theme.of(context).dividerColor),
-                  ),
-                  onTap: () => onHistoryItemTap(p),
-                  leading: p.type == HistoryItemType.solution
-                      ? p.solution!.image ??
-                          const Icon(
-                            Icons.insert_drive_file,
-                            size: 48,
-                          )
-                      : const Icon(
-                          Icons.insert_drive_file,
-                          size: 48,
-                        ),
-                  title: Text(
-                    p.name,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text("Last Modified: " +
-                      Utils.getFormattedDateTime(dateTime: p.dateModified)),
-                  trailing: PopupMenuButton<String>(
-                      onSelected: (String result) =>
-                          onMenuItemSelected(result, p),
-                      itemBuilder: (BuildContext context) => getPopupMenu(p)))
-              : SizedBox(
-                  width: 128,
-                  height: 128,
-                  child: OutlinedButton(
-                      onPressed: () => onHistoryItemTap(p),
-                      child: Stack(children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            p.type == HistoryItemType.solution
-                                ? p.solution!.image ??
-                                    const Icon(
-                                      Icons.insert_drive_file,
-                                      size: 48,
-                                    )
-                                : const Icon(
-                                    Icons.insert_drive_file,
-                                    size: 48,
-                                  ),
-                            const SizedBox(height: 8,),
-                            Text(
-                              p.name,
-                              style: TextStyle(
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .bodyText1!
-                                      .color!,
-                                  fontSize: 12.0),
-                            ),
-                            Text(
-                              Utils.getFormattedDateTime(
-                                  dateTime: p.dateModified),
-                              style: TextStyle(
-                                  color: Theme.of(context).focusColor,
-                                  fontSize: 12.0),
-                            )
-                          ],
-                        ),
-                      Positioned(
-                        top: 0,right: -16,
-                          child: PopupMenuButton<String>(
-                          onSelected: (String result) => onMenuItemSelected(result, p),
-                          itemBuilder: (BuildContext context) => getPopupMenu(p)))
-                      ])))));
+      result.add(ProjectItem(
+          isListView: isListView,
+          menuButton: PopupMenuButton<String>(
+              onSelected: (String result) =>
+                  onMenuItemSelected(result, p),
+              itemBuilder: (BuildContext context) => getPopupMenu(p)),
+          icon: p.type == HistoryItemType.solution
+              ? p.solution!.image ??
+              const Icon(
+                Icons.insert_drive_file,
+                size: 48,
+              )
+              : const Icon(
+            Icons.insert_drive_file,
+            size: 48,
+          ),
+          title: p.name,
+          subtitle: "Last Modified: " +
+              Utils.getFormattedDateTime(dateTime: p.dateModified),
+          onPressed:()=> onHistoryItemTap(p)));
     }
     return result;
   }

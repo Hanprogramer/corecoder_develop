@@ -88,3 +88,68 @@ class ProjectList extends StatelessWidget {
                 ])));
   }
 }
+
+class ProjectItem extends StatelessWidget{
+  final bool isListView;
+  final Widget icon;
+  final String title,subtitle;
+  final Function onPressed;
+  final Widget? menuButton;
+
+  const ProjectItem({Key? key, required this.isListView, required this.menuButton,
+    required this.icon, required this.title, required this.subtitle, required this.onPressed}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      //TODO: refactor this as a widget elsewhere, then reference that widget from here
+        child: isListView
+            ? ListTile(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4),
+            side: BorderSide(color: Theme.of(context).dividerColor),
+          ),
+          onTap: () => onPressed(),
+          leading: icon,
+          title: Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          trailing: menuButton,
+          subtitle: (subtitle != "" ? Text(subtitle) : null))
+            : SizedBox(
+            width: 128,
+            height: 128,
+            child: OutlinedButton(
+                onPressed: () => onPressed(),
+                child: Stack(children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      icon,
+                      const SizedBox(height: 8,),
+                      Text(
+                        title,
+                        style: TextStyle(
+                            color: Theme.of(context)
+                                .textTheme
+                                .bodyText1!
+                                .color!,
+                            fontSize: 12.0),
+                      ),
+                      if(subtitle != "")
+                      Text(subtitle,
+                        style: TextStyle(
+                            color: Theme.of(context).focusColor,
+                            fontSize: 12.0),
+                      )
+                    ],
+                  ),
+                  if(menuButton != null)
+                    Positioned(
+                        top: 0,right: -16,
+                        child: menuButton!)
+                ]))));
+  }
+
+}
