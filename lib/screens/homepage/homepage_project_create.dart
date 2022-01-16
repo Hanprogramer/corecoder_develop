@@ -109,6 +109,10 @@ class HomePageProjectCreateState extends State<HomePageProjectCreate>{
         /// Project Options
         ///  -------------------------------------------------
         options.add(Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(4),
+              side: BorderSide(color: Theme.of(context).dividerColor),
+            ),
             child: ListTile(
           leading: t.icon,
           title: Text(t.title),
